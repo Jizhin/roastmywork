@@ -1,22 +1,22 @@
 services:
   - type: web
     name: roastmywork-backend
-    runtime: python
+    env: python
+    region: ohio
+    plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput
-    startCommand: gunicorn roastmywork.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    startCommand: gunicorn roastmywork.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60
     envVars:
-      - key: DJANGO_DEBUG
-        value: "False"
       - key: PYTHON_VERSION
         value: "3.11"
+      - key: DJANGO_DEBUG
+        value: "False"
+    autoDeploy: false
 
 databases:
-  - name: roastmywork_db
+  - name: roastmywork_postgres
     databaseName: roastmywork
     user: roastmywork_user
     region: ohio
-    
-  - name: roastmywork_redis
     plan: free
-    ipWhitelist: []
