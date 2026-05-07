@@ -14,7 +14,11 @@ def _client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def _retry_delay(retries):
+    return min(60, 5 * (3 ** retries))
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=15)
 def generate_resume(self, submission_id: str):
     try:
         submission = ResumeSubmission.objects.get(id=submission_id)
@@ -44,12 +48,14 @@ def generate_resume(self, submission_id: str):
         submission.save(update_fields=['resume_data', 'status'])
 
     except Exception as exc:
-        submission.status = 'failed'
-        submission.save(update_fields=['status'])
-        raise self.retry(exc=exc)
+        if self.request.retries >= self.max_retries:
+            submission.status = 'failed'
+            submission.save(update_fields=['status'])
+            return
+        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+@shared_task(bind=True, max_retries=3, default_retry_delay=15)
 def update_resume(self, update_id: str):
     try:
         update = ResumeUpdate.objects.get(id=update_id)
@@ -103,9 +109,11 @@ def update_resume(self, update_id: str):
         update.save(update_fields=['resume_data', 'issues', 'status'])
 
     except Exception as exc:
-        update.status = 'failed'
-        update.save(update_fields=['status'])
-        raise self.retry(exc=exc)
+        if self.request.retries >= self.max_retries:
+            update.status = 'failed'
+            update.save(update_fields=['status'])
+            return
+        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
 
 
 def _extract_update_content(update: ResumeUpdate) -> str:

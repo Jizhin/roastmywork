@@ -11,4 +11,5 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/roast/', include('roast.urls')),
     path('api/resume/', include('resume.urls')),
+    path('api/tools/',  include('tools.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

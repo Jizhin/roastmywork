@@ -1,20 +1,12 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const NAV_LINKS = [
-  { to: '/resume-builder', label: 'Build Resume'  },
-  { to: '/resume-updater', label: 'Fix Resume'    },
-  { to: '/roast',          label: 'Roast My Work' },
-  { to: '/history',        label: 'History'       },
-]
-
 export default function Navbar() {
-  const { pathname } = useLocation()
   const { user, logout, openAuthModal } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-      <div className="max-w-8xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+      <div className="px-6 h-14 flex items-center justify-between gap-8">
 
         <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
           <div className="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center">
@@ -26,22 +18,6 @@ export default function Navbar() {
           <span className="font-bold text-gray-900 text-[15px] tracking-tight">RoastMyWork</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-0.5 flex-1">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
-                pathname === link.to
-                  ? 'bg-orange-50 text-orange-600'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
         <div className="flex items-center gap-3 flex-shrink-0">
           {user ? (
             <>
@@ -51,7 +27,7 @@ export default function Navbar() {
                 </span>
               ) : (
                 <Link to="/pricing" className="text-[12px] text-gray-500 hover:text-orange-600 transition-colors">
-                  {user.profile?.roast_credits ?? 0} credits left
+                  {user.profile?.roast_credits ?? 0} credits
                 </Link>
               )}
               <div className="w-px h-4 bg-gray-200" />
@@ -71,6 +47,7 @@ export default function Navbar() {
             </button>
           )}
         </div>
+
       </div>
     </header>
   )

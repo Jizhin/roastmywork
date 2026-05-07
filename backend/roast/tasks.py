@@ -15,7 +15,11 @@ def _client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def _retry_delay(retries):
+    return min(60, 5 * (3 ** retries))
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=15)
 def process_roast(self, submission_id: str):
     try:
         submission = RoastSubmission.objects.get(id=submission_id)
@@ -34,7 +38,7 @@ def process_roast(self, submission_id: str):
         roast_resp   = client.models.generate_content(
             model=MODEL,
             contents=roast_prompt,
-            config=types.GenerateContentConfig(max_output_tokens=1024),
+            config=types.GenerateContentConfig(max_output_tokens=2048),
         )
         roast_text = roast_resp.text
         score      = _extract_score(roast_text)
@@ -95,12 +99,14 @@ def process_roast(self, submission_id: str):
         ])
 
     except Exception as exc:
-        try:
-            submission.status = 'failed'
-            submission.save(update_fields=['status', 'updated_at'])
-        except Exception:
-        	pass
-        raise self.retry(exc=exc)
+        if self.request.retries >= self.max_retries:
+            try:
+                submission.status = 'failed'
+                submission.save(update_fields=['status', 'updated_at'])
+            except Exception:
+                pass
+            return
+        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
 
 
 def _get_content(submission: RoastSubmission) -> str:

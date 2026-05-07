@@ -56,6 +56,14 @@ export const updaterApi = {
   get: (id) => api.get(`/resume/update/${id}/`),
 }
 
+export const toolsApi = {
+  jdMatch:     { submit: (d) => api.post('/tools/jd-match/', d),          get: (id) => api.get(`/tools/jd-match/${id}/`)    },
+  interview:   { create: (d) => api.post('/tools/interview/', d),          get: (id) => api.get(`/tools/interview/${id}/`),  evaluate: (id, d) => api.post(`/tools/interview/${id}/`, d) },
+  linkedinDm:  { submit: (d) => api.post('/tools/linkedin-dm/', d),        get: (id) => api.get(`/tools/linkedin-dm/${id}/`) },
+  linkedinOpt: { submit: (d) => api.post('/tools/linkedin-opt/', d),       get: (id) => api.get(`/tools/linkedin-opt/${id}/`) },
+  salary:      { submit: (d) => api.post('/tools/salary/', d),             get: (id) => api.get(`/tools/salary/${id}/`)      },
+}
+
 export const authApi = {
   register: (data) => api.post('/users/register/', data),
   login: (data) => api.post('/auth/token/', data),
