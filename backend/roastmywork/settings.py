@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -59,14 +60,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'roastmywork.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='roastmywork'),
-        'USER': config('POSTGRES_USER', default='roast_user'),
-        'PASSWORD': config('POSTGRES_PASSWORD', default='roast_password'),
-        'HOST': config('DB_HOST', default='postgres'),
-        'PORT': config('DB_PORT', default='5432'),
-    }
+    'default': dj_database_url.config(
+        default=config(
+            'DATABASE_URL',
+            default='postgresql://roast_user:roast_password@localhost:5432/roastmywork'
+        ),
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
