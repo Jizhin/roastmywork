@@ -14,3 +14,4 @@ gunicorn==21.2.0
 social-auth-app-django==5.4.0
 django-filter==23.3
 whitenoise
+setuptools>=70.0.0
