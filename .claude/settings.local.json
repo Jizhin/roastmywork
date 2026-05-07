@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(docker compose exec web python -c \"import urllib.request; r = urllib.request.urlopen\\('http://localhost:8000/api/roast/4c11efad-7b02-4b67-9f08-4bba59f8714c/'\\); print\\(r.status, r.read\\(\\)[:200]\\)\")",
+      "PowerShell(docker compose exec web python manage.py shell -c \"from django.urls import resolve; print\\(resolve\\('/api/roast/4c11efad-7b02-4b67-9f08-4bba59f8714c/'\\)\\)\")"
+    ]
+  }
+}
