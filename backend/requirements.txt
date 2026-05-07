@@ -14,6 +14,5 @@ gunicorn==21.2.0
 social-auth-app-django==5.4.0
 django-filter==23.3
 whitenoise
+setuptools>=70.0.0
 dj_database_url
-setuptools==69.5.1
-pkg_resources
