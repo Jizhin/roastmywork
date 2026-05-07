@@ -5,8 +5,9 @@ services:
     region: ohio
     plan: free
     rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: gunicorn roastmywork.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    preDeployCommand: python manage.py migrate --noinput && python manage.py collectstatic --noinput
     envVars:
       - key: PYTHON_VERSION
         value: "3.11"
