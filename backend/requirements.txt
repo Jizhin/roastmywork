@@ -16,3 +16,5 @@ django-filter==23.3
 whitenoise
 setuptools>=70.0.0
 dj_database_url
+setuptools==69.5.1
+pkg_resources
