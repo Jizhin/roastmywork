@@ -132,10 +132,13 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 300
-# Prevent pubsub subscription on every .delay() call — results are stored in
-# our own DB models and polled via the API, so we don't need eager tracking.
 CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Upstash and other managed Redis providers use rediss:// (TLS); skip cert verification
+if _redis_url.startswith('rediss://'):
+    _ssl_opts = {'ssl_cert_reqs': 'none'}
+    CELERY_BROKER_USE_SSL = _ssl_opts
+    CELERY_REDIS_BACKEND_USE_SSL = _ssl_opts
 
 # Gemini
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
