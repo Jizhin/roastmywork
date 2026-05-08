@@ -43,7 +43,7 @@ function AppShell() {
 export default function App() {
   return (
     console.log("GOOGLE CLIENT:", import.meta.env.VITE_GOOGLE_CLIENT_ID),
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId="917303497941-s27tb7s60q24fo9qvk8aqgk9mui703b5.apps.googleusercontent.com">
       <AuthProvider>
         <AppShell />
       </AuthProvider>
