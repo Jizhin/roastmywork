@@ -115,10 +115,13 @@ SIMPLE_JWT = {
 # CORS
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:5173,http://127.0.0.1:5173, https://roastmywork-backend.onrender.com'
+    default='http://localhost:5173,http://127.0.0.1:5173, https://roastmywork-backend.onrender.com, https://bespoke-cendol-15d3ee.netlify.app'
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://bespoke-cendol-15d3ee.netlify.app",
+]
 # Celery
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://redis:6379/0')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
