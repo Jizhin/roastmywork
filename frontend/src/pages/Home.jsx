@@ -42,7 +42,7 @@ function ToolIcon({ toolKey, size = 18 }) {
 
 function Sidebar({ activeTool, onSelect }) {
   return (
-    <aside className="flex-shrink-0 flex flex-col overflow-hidden bg-white border-r border-gray-200" style={{ width: 240 }}>
+    <aside className="hidden md:flex flex-shrink-0 flex-col overflow-hidden bg-white border-r border-gray-200" style={{ width: 240 }}>
 
       {/* Overview / All tools */}
       <button
@@ -112,7 +112,7 @@ function WelcomeDashboard({ user, onSelect }) {
 
   return (
     <div className="h-full overflow-y-auto bg-gray-50">
-      <div className="max-w-4xl mx-auto px-8 py-10">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-10">
 
         {/* Hero */}
         <div className="mb-8">
@@ -126,7 +126,7 @@ function WelcomeDashboard({ user, onSelect }) {
 
         {/* Credits / Pro bar */}
         {user && (
-          <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-5 py-3 mb-8">
+          <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6 gap-3">
             {user.profile?.is_pro ? (
               <span className="text-sm font-medium text-gray-700">
                 <span className="text-orange-600 font-bold">PRO</span> — Unlimited access to all tools
@@ -144,6 +144,24 @@ function WelcomeDashboard({ user, onSelect }) {
             )}
           </div>
         )}
+
+        {/* Mobile quick links (sidebar hidden on mobile) */}
+        <div className="flex md:hidden gap-2 mb-6">
+          <Link to="/history"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 bg-white text-[13px] text-gray-600 hover:text-gray-900 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            History
+          </Link>
+          <Link to="/pricing"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-orange-200 bg-orange-50 text-[13px] text-orange-600 font-medium hover:bg-orange-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            Upgrade to Pro
+          </Link>
+        </div>
 
         {/* Tool grid */}
         {CATEGORIES.map(cat => (
@@ -179,7 +197,7 @@ export default function Home() {
   return (
     <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 56px)' }}>
       <Sidebar activeTool={activeTool} onSelect={setActiveTool} />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden min-w-0">
         {activeTool
           ? <ToolChat key={activeTool} tool={activeTool} onRestart={() => setActiveTool(null)} />
           : <WelcomeDashboard user={user} onSelect={setActiveTool} />

@@ -47,7 +47,9 @@ class SubmitRoastView(APIView):
 
         try:
             process_roast.delay(str(submission.id))
-        except Exception:
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).error('Broker dispatch failed [process_roast]: %r', exc)
             submission.status = 'failed'
             submission.save(update_fields=['status'])
             if credits_deducted:

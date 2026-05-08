@@ -1,3 +1,4 @@
+import ssl
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -136,7 +137,7 @@ CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # Upstash and other managed Redis providers use rediss:// (TLS); skip cert verification
 if _redis_url.startswith('rediss://'):
-    _ssl_opts = {'ssl_cert_reqs': 'none'}
+    _ssl_opts = {'ssl_cert_reqs': ssl.CERT_NONE}
     CELERY_BROKER_USE_SSL = _ssl_opts
     CELERY_REDIS_BACKEND_USE_SSL = _ssl_opts
 

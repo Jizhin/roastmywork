@@ -37,7 +37,9 @@ def _try_dispatch(task_fn, obj, user, profile, credits_used=1):
     try:
         task_fn.delay(str(obj.id))
         return None
-    except Exception:
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).error('Broker dispatch failed [%s]: %r', task_fn.__name__, exc)
         obj.status = 'failed'
         obj.save(update_fields=['status'])
         _refund(user, profile, credits_used)

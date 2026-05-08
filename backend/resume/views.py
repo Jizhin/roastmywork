@@ -37,7 +37,9 @@ class GenerateResumeView(APIView):
 
         try:
             generate_resume.delay(str(submission.id))
-        except Exception:
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).error('Broker dispatch failed [generate_resume]: %r', exc)
             submission.status = 'failed'
             submission.save(update_fields=['status'])
             if credits_deducted:

@@ -451,7 +451,7 @@ function RoastResult({ result }) {
 function ToolHeader({ tool, onBack }) {
   const meta = TOOL_META[tool] || { name: tool, category: '', dot: 'bg-gray-400' }
   return (
-    <div className="flex items-center gap-3 px-6 h-11 border-b border-gray-200 bg-white flex-shrink-0">
+    <div className="flex items-center gap-3 px-3 md:px-6 h-11 border-b border-gray-200 bg-white flex-shrink-0">
       <button onClick={onBack}
         className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 transition-colors">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -631,7 +631,7 @@ export default function ToolChat({ tool, onRestart }) {
   // ── API flows ───────────────────────────────────────────────────────────────
 
   const doBuildResume = (snap) => {
-    if (!user) { openAuthModal(() => doBuildResume(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doBuildResume(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Building your resume… usually 15–30 seconds.' })
     const go = async () => {
@@ -653,7 +653,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doFix = (file) => {
-    if (!user) { openAuthModal(() => doFix(file)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doFix(file)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Analyzing and rewriting your resume… 20–40 seconds.' })
     const go = async () => {
@@ -706,7 +706,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doInterviewStart = (snap) => {
-    if (!user) { openAuthModal(() => doInterviewStart(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doInterviewStart(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: `Preparing your ${snap.roundType} interview for ${snap.role} at ${snap.companyType}… generating questions.` })
     const go = async () => {
@@ -759,7 +759,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doJDMatch = (snap) => {
-    if (!user) { openAuthModal(() => doJDMatch(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doJDMatch(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Comparing your resume against the job description… 15–25 seconds.' })
     const go = async () => {
@@ -780,7 +780,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doLinkedInDM = (snap) => {
-    if (!user) { openAuthModal(() => doLinkedInDM(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doLinkedInDM(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Crafting your outreach messages… a few seconds.' })
     const go = async () => {
@@ -801,7 +801,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doLinkedInOpt = (snap) => {
-    if (!user) { openAuthModal(() => doLinkedInOpt(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doLinkedInOpt(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Optimizing your LinkedIn profile… a few seconds.' })
     const go = async () => {
@@ -822,7 +822,7 @@ export default function ToolChat({ tool, onRestart }) {
   }
 
   const doSalary = (snap) => {
-    if (!user) { openAuthModal(() => doSalary(snap)); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doSalary(snap)); return }
     setIsLoading(true); setStep('loading')
     pushAI({ text: 'Analyzing your offer against market data…' })
     const go = async () => {
@@ -873,7 +873,7 @@ export default function ToolChat({ tool, onRestart }) {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6 space-y-5 max-w-3xl">
+        <div className="px-3 py-4 md:px-6 md:py-6 space-y-5 max-w-3xl">
           {msgs.map(msg => (
             <div key={msg.id}>
               {msg.type === 'user'
@@ -933,7 +933,7 @@ export default function ToolChat({ tool, onRestart }) {
       )}
 
       {/* Input area */}
-      <div className="border-t border-gray-200 bg-white px-6 py-3.5 flex-shrink-0">
+      <div className="border-t border-gray-200 bg-white px-3 py-3 md:px-6 md:py-3.5 flex-shrink-0">
         <div className="max-w-3xl">
 
           {/* Text input */}
