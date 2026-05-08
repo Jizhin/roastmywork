@@ -122,15 +122,20 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://bespoke-cendol-15d3ee.netlify.app",
 ]
-# Celery
-CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://redis:6379/0')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
+# Celery — set REDIS_URL on Render (or CELERY_BROKER_URL / CELERY_RESULT_BACKEND separately)
+_redis_url = config('REDIS_URL', default=config('CELERY_BROKER_URL', default='redis://redis:6379/0'))
+CELERY_BROKER_URL     = config('CELERY_BROKER_URL',    default=_redis_url)
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=_redis_url)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 300
+# Prevent pubsub subscription on every .delay() call — results are stored in
+# our own DB models and polled via the API, so we don't need eager tracking.
+CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Gemini
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')

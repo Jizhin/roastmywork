@@ -11,6 +11,8 @@ from .tasks import (
     run_linkedin_dm, run_linkedin_optimize, run_salary_analysis,
 )
 
+_BROKER_DOWN = {'detail': 'Task queue temporarily unavailable. Please try again in a moment.'}
+
 
 def _check_and_deduct(user, amount=1):
     profile, _ = UserProfile.objects.get_or_create(user=user)
@@ -20,6 +22,26 @@ def _check_and_deduct(user, amount=1):
         return False, profile
     UserProfile.objects.filter(user=user).update(roast_credits=F('roast_credits') - amount)
     return True, profile
+
+
+def _refund(user, profile, amount=1):
+    if not profile.is_pro:
+        UserProfile.objects.filter(user=user).update(roast_credits=F('roast_credits') + amount)
+
+
+def _try_dispatch(task_fn, obj, user, profile, credits_used=1):
+    """
+    Call task_fn.delay(obj.id). On broker failure: mark obj failed, refund credits, return 503 Response.
+    Returns None on success so the caller can proceed to return 202.
+    """
+    try:
+        task_fn.delay(str(obj.id))
+        return None
+    except Exception:
+        obj.status = 'failed'
+        obj.save(update_fields=['status'])
+        _refund(user, profile, credits_used)
+        return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 # ── JD Match ──────────────────────────────────────────────────────────────────
@@ -32,11 +54,13 @@ class JDMatchView(APIView):
         jd_text     = request.data.get('jd_text', '').strip()
         if not resume_text or not jd_text:
             return Response({'detail': 'Both resume and job description are required.'}, status=400)
-        ok, _ = _check_and_deduct(request.user)
+        ok, profile = _check_and_deduct(request.user)
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = JDMatch.objects.create(user=request.user, resume_text=resume_text, jd_text=jd_text)
-        run_jd_match.delay(str(obj.id))
+        err = _try_dispatch(run_jd_match, obj, request.user, profile)
+        if err:
+            return err
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -59,13 +83,15 @@ class InterviewView(APIView):
         round_type   = request.data.get('round_type', 'Behavioral').strip()
         if not role:
             return Response({'detail': 'Role is required.'}, status=400)
-        ok, _ = _check_and_deduct(request.user, 2)
+        ok, profile = _check_and_deduct(request.user, 2)
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = InterviewSession.objects.create(
             user=request.user, role=role, company_type=company_type, round_type=round_type,
         )
-        run_interview_questions.delay(str(obj.id))
+        err = _try_dispatch(run_interview_questions, obj, request.user, profile, credits_used=2)
+        if err:
+            return err
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -88,7 +114,12 @@ class InterviewDetailView(APIView):
         obj.status  = 'pending'
         obj.result  = None
         obj.save(update_fields=['answers', 'status', 'result'])
-        run_interview_evaluation.delay(str(obj.id))
+        try:
+            run_interview_evaluation.delay(str(obj.id))
+        except Exception:
+            obj.status = 'failed'
+            obj.save(update_fields=['status'])
+            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'id': str(obj.id), 'status': 'pending'})
 
 
@@ -103,14 +134,16 @@ class LinkedInDMView(APIView):
         user_background = request.data.get('user_background', '').strip()
         if not all([target_info, purpose, user_background]):
             return Response({'detail': 'All fields are required.'}, status=400)
-        ok, _ = _check_and_deduct(request.user)
+        ok, profile = _check_and_deduct(request.user)
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = LinkedInDM.objects.create(
             user=request.user, target_info=target_info,
             purpose=purpose, user_background=user_background,
         )
-        run_linkedin_dm.delay(str(obj.id))
+        err = _try_dispatch(run_linkedin_dm, obj, request.user, profile)
+        if err:
+            return err
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -132,13 +165,15 @@ class LinkedInOptimizeView(APIView):
         target_role     = request.data.get('target_role', '').strip()
         if not current_profile:
             return Response({'detail': 'Profile content is required.'}, status=400)
-        ok, _ = _check_and_deduct(request.user, 2)
+        ok, profile = _check_and_deduct(request.user, 2)
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = LinkedInOptimize.objects.create(
             user=request.user, current_profile=current_profile, target_role=target_role,
         )
-        run_linkedin_optimize.delay(str(obj.id))
+        err = _try_dispatch(run_linkedin_optimize, obj, request.user, profile, credits_used=2)
+        if err:
+            return err
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -161,14 +196,16 @@ class SalaryView(APIView):
         situation       = request.data.get('situation', '').strip()
         if not offer_details:
             return Response({'detail': 'Offer details are required.'}, status=400)
-        ok, _ = _check_and_deduct(request.user)
+        ok, profile = _check_and_deduct(request.user)
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = SalaryAnalysis.objects.create(
             user=request.user, offer_details=offer_details,
             experience_info=experience_info, situation=situation,
         )
-        run_salary_analysis.delay(str(obj.id))
+        err = _try_dispatch(run_salary_analysis, obj, request.user, profile)
+        if err:
+            return err
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 

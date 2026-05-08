@@ -13,11 +13,14 @@ from .serializers import (
 from .tasks import process_roast
 from users.models import UserProfile
 
+_BROKER_DOWN = {'detail': 'Task queue temporarily unavailable. Please try again in a moment.'}
+
 
 class SubmitRoastView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        profile = None
         if request.user.is_authenticated:
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
             if not profile.is_pro and profile.roast_credits <= 0:
@@ -36,12 +39,20 @@ class SubmitRoastView(APIView):
             user=request.user if request.user.is_authenticated else None
         )
 
-        if request.user.is_authenticated and not profile.is_pro:
-            UserProfile.objects.filter(user=request.user).update(
-                roast_credits=F('roast_credits') - 1
-            )
+        # Deduct before dispatch so the credit is held; refunded if broker is down
+        credits_deducted = False
+        if request.user.is_authenticated and profile and not profile.is_pro:
+            UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') - 1)
+            credits_deducted = True
 
-        process_roast.delay(str(submission.id))
+        try:
+            process_roast.delay(str(submission.id))
+        except Exception:
+            submission.status = 'failed'
+            submission.save(update_fields=['status'])
+            if credits_deducted:
+                UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') + 1)
+            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         return Response(
             {'id': submission.id, 'status': submission.status},
@@ -55,7 +66,6 @@ class RoastDetailView(APIView):
     def get(self, request, pk):
         submission = get_object_or_404(RoastSubmission, pk=pk)
 
-        # Non-public submissions only visible to their owner
         if not submission.is_public:
             if not request.user.is_authenticated or submission.user != request.user:
                 return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
