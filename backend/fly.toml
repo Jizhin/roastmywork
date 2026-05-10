@@ -1,0 +1,16 @@
+app = "roastmywork-worker"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile.worker"
+
+[env]
+  DJANGO_DEBUG = "false"
+
+# No HTTP services — this is a pure background worker
+# All config comes from fly secrets (see README or deploy steps)
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
