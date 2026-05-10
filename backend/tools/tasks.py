@@ -1,8 +1,8 @@
 import json
 import re
+import logging
 from google import genai
 from google.genai import types
-from celery import shared_task
 from django.conf import settings
 
 from .models import JDMatch, InterviewSession, LinkedInDM, LinkedInOptimize, SalaryAnalysis
@@ -12,6 +12,7 @@ from .prompts import (
 )
 
 MODEL = 'gemini-2.5-flash'
+logger = logging.getLogger(__name__)
 
 
 def _client():
@@ -19,9 +20,7 @@ def _client():
 
 
 def _extract_json(text):
-    """Strip markdown fences if present, then parse JSON."""
     text = text.strip()
-    # Remove ```json ... ``` or ``` ... ``` wrappers
     fenced = re.match(r'^```(?:json)?\s*([\s\S]*?)\s*```$', text)
     if fenced:
         text = fenced.group(1).strip()
@@ -40,13 +39,7 @@ def _json_call(client, prompt, max_tokens=8192):
     return _extract_json(response.text)
 
 
-def _retry_delay(retries):
-    """Exponential backoff: 5s, 15s, 45s."""
-    return min(60, 5 * (3 ** retries))
-
-
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_jd_match(self, obj_id):
+def run_jd_match(obj_id):
     try:
         obj = JDMatch.objects.get(id=obj_id)
     except JDMatch.DoesNotExist:
@@ -59,15 +52,15 @@ def run_jd_match(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['result', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_jd_match failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_interview_questions(self, obj_id):
+def run_interview_questions(obj_id):
     try:
         obj = InterviewSession.objects.get(id=obj_id)
     except InterviewSession.DoesNotExist:
@@ -84,15 +77,15 @@ def run_interview_questions(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['questions', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_interview_questions failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_interview_evaluation(self, obj_id):
+def run_interview_evaluation(obj_id):
     try:
         obj = InterviewSession.objects.get(id=obj_id)
     except InterviewSession.DoesNotExist:
@@ -109,15 +102,15 @@ def run_interview_evaluation(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['result', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_interview_evaluation failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_linkedin_dm(self, obj_id):
+def run_linkedin_dm(obj_id):
     try:
         obj = LinkedInDM.objects.get(id=obj_id)
     except LinkedInDM.DoesNotExist:
@@ -130,15 +123,15 @@ def run_linkedin_dm(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['result', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_linkedin_dm failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_linkedin_optimize(self, obj_id):
+def run_linkedin_optimize(obj_id):
     try:
         obj = LinkedInOptimize.objects.get(id=obj_id)
     except LinkedInOptimize.DoesNotExist:
@@ -151,15 +144,15 @@ def run_linkedin_optimize(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['result', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_linkedin_optimize failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def run_salary_analysis(self, obj_id):
+def run_salary_analysis(obj_id):
     try:
         obj = SalaryAnalysis.objects.get(id=obj_id)
     except SalaryAnalysis.DoesNotExist:
@@ -172,8 +165,9 @@ def run_salary_analysis(self, obj_id):
         obj.status = 'completed'
         obj.save(update_fields=['result', 'status'])
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('run_salary_analysis failed: %r', exc)
+        try:
             obj.status = 'failed'
             obj.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass

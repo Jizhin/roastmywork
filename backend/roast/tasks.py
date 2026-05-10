@@ -1,26 +1,22 @@
 import re
 import json
+import logging
 from google import genai
 from google.genai import types
-from celery import shared_task
 from django.conf import settings
 
 from .models import RoastSubmission
 from .prompts import get_roast_prompt, get_fix_prompt
 
 MODEL = 'gemini-2.5-flash'
+logger = logging.getLogger(__name__)
 
 
 def _client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def _retry_delay(retries):
-    return min(60, 5 * (3 ** retries))
-
-
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def process_roast(self, submission_id: str):
+def process_roast(submission_id: str):
     try:
         submission = RoastSubmission.objects.get(id=submission_id)
     except RoastSubmission.DoesNotExist:
@@ -33,7 +29,6 @@ def process_roast(self, submission_id: str):
         content = _get_content(submission)
         client  = _client()
 
-        # Step 1 — roast
         roast_prompt = get_roast_prompt(submission.work_type, submission.intensity, content)
         roast_resp   = client.models.generate_content(
             model=MODEL,
@@ -43,7 +38,6 @@ def process_roast(self, submission_id: str):
         roast_text = roast_resp.text
         score      = _extract_score(roast_text)
 
-        # Step 2 — fix report (continues conversation so model has context)
         fix_prompt = get_fix_prompt(submission.work_type, content, roast_text)
         fix_resp   = client.models.generate_content(
             model=MODEL,
@@ -56,16 +50,14 @@ def process_roast(self, submission_id: str):
         )
         fix_text = fix_resp.text
 
-        # Step 3 — generate fixed version of the file
         fixed_resume_data = None
         fixed_code        = None
 
         if submission.work_type == 'resume':
             from resume.prompt import get_resume_fix_prompt
-            resume_prompt = get_resume_fix_prompt(content, fix_text)
-            resume_resp   = client.models.generate_content(
+            resume_resp = client.models.generate_content(
                 model=MODEL,
-                contents=resume_prompt,
+                contents=get_resume_fix_prompt(content, fix_text),
                 config=types.GenerateContentConfig(
                     response_mime_type='application/json',
                     max_output_tokens=8192,
@@ -78,10 +70,9 @@ def process_roast(self, submission_id: str):
 
         elif submission.work_type == 'code':
             from resume.prompt import get_code_fix_prompt
-            code_prompt = get_code_fix_prompt(content, fix_text)
-            code_resp   = client.models.generate_content(
+            code_resp = client.models.generate_content(
                 model=MODEL,
-                contents=code_prompt,
+                contents=get_code_fix_prompt(content, fix_text),
                 config=types.GenerateContentConfig(max_output_tokens=4096),
             )
             fixed_code = code_resp.text
@@ -99,14 +90,12 @@ def process_roast(self, submission_id: str):
         ])
 
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
-            try:
-                submission.status = 'failed'
-                submission.save(update_fields=['status', 'updated_at'])
-            except Exception:
-                pass
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        logger.error('process_roast failed: %r', exc)
+        try:
+            submission.status = 'failed'
+            submission.save(update_fields=['status', 'updated_at'])
+        except Exception:
+            pass
 
 
 def _get_content(submission: RoastSubmission) -> str:

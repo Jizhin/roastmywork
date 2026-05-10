@@ -1,3 +1,4 @@
+import threading
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +12,9 @@ from .tasks import (
     run_linkedin_dm, run_linkedin_optimize, run_salary_analysis,
 )
 
-_BROKER_DOWN = {'detail': 'Task queue temporarily unavailable. Please try again in a moment.'}
+
+def _dispatch(fn, obj_id):
+    threading.Thread(target=fn, args=(str(obj_id),), daemon=True).start()
 
 
 def _check_and_deduct(user, amount=1):
@@ -22,28 +25,6 @@ def _check_and_deduct(user, amount=1):
         return False, profile
     UserProfile.objects.filter(user=user).update(roast_credits=F('roast_credits') - amount)
     return True, profile
-
-
-def _refund(user, profile, amount=1):
-    if not profile.is_pro:
-        UserProfile.objects.filter(user=user).update(roast_credits=F('roast_credits') + amount)
-
-
-def _try_dispatch(task_fn, obj, user, profile, credits_used=1):
-    """
-    Call task_fn.delay(obj.id). On broker failure: mark obj failed, refund credits, return 503 Response.
-    Returns None on success so the caller can proceed to return 202.
-    """
-    try:
-        task_fn.delay(str(obj.id))
-        return None
-    except Exception as exc:
-        import logging
-        logging.getLogger(__name__).error('Broker dispatch failed [%s]: %r', task_fn.__name__, exc)
-        obj.status = 'failed'
-        obj.save(update_fields=['status'])
-        _refund(user, profile, credits_used)
-        return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 # ── JD Match ──────────────────────────────────────────────────────────────────
@@ -60,9 +41,7 @@ class JDMatchView(APIView):
         if not ok:
             return Response({'detail': 'No credits left.', 'code': 'no_credits'}, status=402)
         obj = JDMatch.objects.create(user=request.user, resume_text=resume_text, jd_text=jd_text)
-        err = _try_dispatch(run_jd_match, obj, request.user, profile)
-        if err:
-            return err
+        _dispatch(run_jd_match, obj.id)
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -91,9 +70,7 @@ class InterviewView(APIView):
         obj = InterviewSession.objects.create(
             user=request.user, role=role, company_type=company_type, round_type=round_type,
         )
-        err = _try_dispatch(run_interview_questions, obj, request.user, profile, credits_used=2)
-        if err:
-            return err
+        _dispatch(run_interview_questions, obj.id)
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -116,12 +93,7 @@ class InterviewDetailView(APIView):
         obj.status  = 'pending'
         obj.result  = None
         obj.save(update_fields=['answers', 'status', 'result'])
-        try:
-            run_interview_evaluation.delay(str(obj.id))
-        except Exception:
-            obj.status = 'failed'
-            obj.save(update_fields=['status'])
-            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        _dispatch(run_interview_evaluation, obj.id)
         return Response({'id': str(obj.id), 'status': 'pending'})
 
 
@@ -143,9 +115,7 @@ class LinkedInDMView(APIView):
             user=request.user, target_info=target_info,
             purpose=purpose, user_background=user_background,
         )
-        err = _try_dispatch(run_linkedin_dm, obj, request.user, profile)
-        if err:
-            return err
+        _dispatch(run_linkedin_dm, obj.id)
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -173,9 +143,7 @@ class LinkedInOptimizeView(APIView):
         obj = LinkedInOptimize.objects.create(
             user=request.user, current_profile=current_profile, target_role=target_role,
         )
-        err = _try_dispatch(run_linkedin_optimize, obj, request.user, profile, credits_used=2)
-        if err:
-            return err
+        _dispatch(run_linkedin_optimize, obj.id)
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 
@@ -205,9 +173,7 @@ class SalaryView(APIView):
             user=request.user, offer_details=offer_details,
             experience_info=experience_info, situation=situation,
         )
-        err = _try_dispatch(run_salary_analysis, obj, request.user, profile)
-        if err:
-            return err
+        _dispatch(run_salary_analysis, obj.id)
         return Response({'id': str(obj.id), 'status': obj.status}, status=202)
 
 

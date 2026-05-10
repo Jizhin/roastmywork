@@ -1,4 +1,3 @@
-import ssl
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -124,24 +123,6 @@ CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
     default=''
 ).split(',') if config('CSRF_TRUSTED_ORIGINS', default='') else []
-# Celery — set REDIS_URL on Render (or CELERY_BROKER_URL / CELERY_RESULT_BACKEND separately)
-_redis_url = config('REDIS_URL', default=config('CELERY_BROKER_URL', default='redis://redis:6379/0'))
-CELERY_BROKER_URL     = config('CELERY_BROKER_URL',    default=_redis_url)
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=_redis_url)
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 300
-CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-# Upstash and other managed Redis providers use rediss:// (TLS); skip cert verification
-if _redis_url.startswith('rediss://'):
-    _ssl_opts = {'ssl_cert_reqs': ssl.CERT_NONE}
-    CELERY_BROKER_USE_SSL = _ssl_opts
-    CELERY_REDIS_BACKEND_USE_SSL = _ssl_opts
-
 # Gemini
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 

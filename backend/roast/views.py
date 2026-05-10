@@ -1,3 +1,4 @@
+import threading
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +14,9 @@ from .serializers import (
 from .tasks import process_roast
 from users.models import UserProfile
 
-_BROKER_DOWN = {'detail': 'Task queue temporarily unavailable. Please try again in a moment.'}
+
+def _dispatch(fn, obj_id):
+    threading.Thread(target=fn, args=(str(obj_id),), daemon=True).start()
 
 
 class SubmitRoastView(APIView):
@@ -39,22 +42,10 @@ class SubmitRoastView(APIView):
             user=request.user if request.user.is_authenticated else None
         )
 
-        # Deduct before dispatch so the credit is held; refunded if broker is down
-        credits_deducted = False
         if request.user.is_authenticated and profile and not profile.is_pro:
             UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') - 1)
-            credits_deducted = True
 
-        try:
-            process_roast.delay(str(submission.id))
-        except Exception as exc:
-            import logging
-            logging.getLogger(__name__).error('Broker dispatch failed [process_roast]: %r', exc)
-            submission.status = 'failed'
-            submission.save(update_fields=['status'])
-            if credits_deducted:
-                UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') + 1)
-            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        _dispatch(process_roast, submission.id)
 
         return Response(
             {'id': submission.id, 'status': submission.status},

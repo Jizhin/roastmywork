@@ -1,3 +1,4 @@
+import threading
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,7 +13,9 @@ from .serializers import (
 from .tasks import generate_resume, update_resume
 from users.models import UserProfile
 
-_BROKER_DOWN = {'detail': 'Task queue temporarily unavailable. Please try again in a moment.'}
+
+def _dispatch(fn, obj_id):
+    threading.Thread(target=fn, args=(str(obj_id),), daemon=True).start()
 
 
 class GenerateResumeView(APIView):
@@ -30,21 +33,10 @@ class GenerateResumeView(APIView):
         serializer.is_valid(raise_exception=True)
         submission = serializer.save(user=request.user)
 
-        credits_deducted = False
         if not profile.is_pro:
             UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') - 1)
-            credits_deducted = True
 
-        try:
-            generate_resume.delay(str(submission.id))
-        except Exception as exc:
-            import logging
-            logging.getLogger(__name__).error('Broker dispatch failed [generate_resume]: %r', exc)
-            submission.status = 'failed'
-            submission.save(update_fields=['status'])
-            if credits_deducted:
-                UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') + 1)
-            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        _dispatch(generate_resume, submission.id)
 
         return Response({'id': submission.id, 'status': submission.status}, status=status.HTTP_202_ACCEPTED)
 
@@ -72,19 +64,10 @@ class UpdateResumeView(APIView):
         serializer.is_valid(raise_exception=True)
         update_obj = serializer.save(user=request.user)
 
-        credits_deducted = False
         if not profile.is_pro:
             UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') - 1)
-            credits_deducted = True
 
-        try:
-            update_resume.delay(str(update_obj.id))
-        except Exception:
-            update_obj.status = 'failed'
-            update_obj.save(update_fields=['status'])
-            if credits_deducted:
-                UserProfile.objects.filter(user=request.user).update(roast_credits=F('roast_credits') + 1)
-            return Response(_BROKER_DOWN, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        _dispatch(update_resume, update_obj.id)
 
         return Response({'id': update_obj.id, 'status': update_obj.status}, status=status.HTTP_202_ACCEPTED)
 

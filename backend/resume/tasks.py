@@ -1,25 +1,21 @@
 import json
+import logging
 from google import genai
 from google.genai import types
-from celery import shared_task
 from django.conf import settings
 
 from .models import ResumeSubmission, ResumeUpdate
 from .prompt import get_resume_prompt, get_resume_fix_prompt
 
 MODEL = 'gemini-2.5-flash'
+logger = logging.getLogger(__name__)
 
 
 def _client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def _retry_delay(retries):
-    return min(60, 5 * (3 ** retries))
-
-
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def generate_resume(self, submission_id: str):
+def generate_resume(submission_id: str):
     try:
         submission = ResumeSubmission.objects.get(id=submission_id)
     except ResumeSubmission.DoesNotExist:
@@ -41,22 +37,20 @@ def generate_resume(self, submission_id: str):
             ),
         )
 
-        resume_data = json.loads(response.text)
-
-        submission.resume_data = resume_data
+        submission.resume_data = json.loads(response.text)
         submission.status      = 'completed'
         submission.save(update_fields=['resume_data', 'status'])
 
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('generate_resume failed: %r', exc)
+        try:
             submission.status = 'failed'
             submission.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=15)
-def update_resume(self, update_id: str):
+def update_resume(update_id: str):
     try:
         update = ResumeUpdate.objects.get(id=update_id)
     except ResumeUpdate.DoesNotExist:
@@ -77,43 +71,39 @@ def update_resume(self, update_id: str):
 
         client = _client()
 
-        # Step 1 — identify issues (short plain-text analysis)
-        issues_prompt = (
-            "You are an expert resume reviewer. Analyze the resume below and identify "
-            "the 3-5 most critical issues affecting ATS optimization and professional impact. "
-            "Be specific. Write 2-3 concise sentences.\n\n"
-            f"RESUME:\n{content[:5000]}"
-        )
         issues_resp = client.models.generate_content(
             model=MODEL,
-            contents=issues_prompt,
+            contents=(
+                "You are an expert resume reviewer. Analyze the resume below and identify "
+                "the 3-5 most critical issues affecting ATS optimization and professional impact. "
+                "Be specific. Write 2-3 concise sentences.\n\n"
+                f"RESUME:\n{content[:5000]}"
+            ),
             config=types.GenerateContentConfig(max_output_tokens=400),
         )
         issues_text = issues_resp.text.strip()
 
-        # Step 2 — generate improved JSON using the proven fix prompt
-        fix_prompt = get_resume_fix_prompt(content, issues_text)
         resume_resp = client.models.generate_content(
             model=MODEL,
-            contents=fix_prompt,
+            contents=get_resume_fix_prompt(content, issues_text),
             config=types.GenerateContentConfig(
                 response_mime_type='application/json',
                 max_output_tokens=8192,
             ),
         )
-        resume_data = json.loads(resume_resp.text)
 
-        update.resume_data = resume_data
+        update.resume_data = json.loads(resume_resp.text)
         update.issues      = issues_text
         update.status      = 'completed'
         update.save(update_fields=['resume_data', 'issues', 'status'])
 
     except Exception as exc:
-        if self.request.retries >= self.max_retries:
+        logger.error('update_resume failed: %r', exc)
+        try:
             update.status = 'failed'
             update.save(update_fields=['status'])
-            return
-        raise self.retry(exc=exc, countdown=_retry_delay(self.request.retries))
+        except Exception:
+            pass
 
 
 def _extract_update_content(update: ResumeUpdate) -> str:
