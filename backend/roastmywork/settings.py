@@ -129,6 +129,9 @@ GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 # Google OAuth
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
 
+# Admin dashboard — email of the owner who can see user list
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='')
+
 # File upload limit: 10 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024

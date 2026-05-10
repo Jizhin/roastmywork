@@ -7,6 +7,7 @@ import History from './pages/History'
 import Pricing from './pages/Pricing'
 import ResumeBuilder from './pages/ResumeBuilder'
 import ResumeUpdater from './pages/ResumeUpdater'
+import AdminUsers from './pages/AdminUsers'
 import Navbar from './components/Navbar'
 import AuthModal from './components/AuthModal'
 import UpgradeModal from './components/UpgradeModal'
@@ -26,6 +27,7 @@ function AppShell() {
           <Route path="/pricing"         element={<Pricing />} />
           <Route path="/resume-builder"  element={<ResumeBuilder />} />
           <Route path="/resume-updater"  element={<ResumeUpdater />} />
+          <Route path="/admin-users"     element={<AdminUsers />} />
         </Routes>
       </main>
       <footer className="border-t border-gray-200 py-6 bg-white">

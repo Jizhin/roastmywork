@@ -68,6 +68,30 @@ class GoogleAuthView(APIView):
         })
 
 
+class AdminUsersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        admin_email = getattr(settings, 'ADMIN_EMAIL', '')
+        if not admin_email or request.user.email != admin_email:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        users = User.objects.select_related('profile').order_by('-date_joined')
+        data = []
+        for user in users:
+            profile = getattr(user, 'profile', None)
+            data.append({
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'date_joined': user.date_joined,
+                'last_login': user.last_login,
+                'is_pro': profile.is_pro if profile else False,
+                'roast_credits': profile.roast_credits if profile else 0,
+            })
+        return Response({'count': len(data), 'users': data})
+
+
 def _unique_username(email):
     base = email.split('@')[0][:140]
     username, n = base, 1
