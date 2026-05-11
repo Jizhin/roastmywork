@@ -779,6 +779,32 @@ export default function Home() {
       {/* ONE unified panel — layout never changes */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-gray-50">
 
+        {/* Tool tab strip — only when chat is active, sits at top */}
+        {chatActive && (
+          <div className="bg-white border-b border-gray-100 flex-shrink-0">
+            <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              {TOOLS.map(t => (
+                <button key={t.key} onClick={() => startTool(t.key)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
+                    activeTool === t.key
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                      : 'bg-white border-gray-200 text-gray-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600'
+                  }`}>
+                  <ToolIcon toolKey={t.key} size={10} />
+                  {t.label}
+                </button>
+              ))}
+              <Link to="/cold-email"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium bg-[#0f2744] border border-[#0f2744] text-white whitespace-nowrap flex-shrink-0 hover:bg-[#1a3a6e] transition-colors">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Cold Email ↗
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Messages / Greeting area — fills available space */}
         <div className="flex-1 overflow-y-auto">
           {!chatActive ? (
@@ -796,8 +822,8 @@ export default function Home() {
               )}
             </div>
           ) : (
-            /* Chat messages */
-            <div className="px-3 py-4 md:px-6 md:py-6 space-y-5 max-w-3xl">
+            /* Chat messages — centered column matching input width */
+            <div className="max-w-3xl mx-auto w-full px-4 pt-6 pb-4 space-y-5">
               {msgs.map(msg => (
                 <div key={msg.id}>
                   {msg.type === 'user'
@@ -855,32 +881,32 @@ export default function Home() {
         )}
 
         {/* ── Input area — ALWAYS at the bottom, NEVER moves ── */}
-        <div className="border-t border-gray-200 bg-white px-3 py-3 md:px-6 md:py-3.5 flex-shrink-0">
+        <div className="border-t border-gray-200 bg-white px-4 py-3 flex-shrink-0">
           <div className="max-w-3xl mx-auto">
 
-            {/* Tool chips — always visible */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5" style={{ scrollbarWidth: 'none' }}>
-              {TOOLS.map(t => (
-                <button key={t.key} onClick={() => startTool(t.key)}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
-                    activeTool === t.key && chatActive
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                      : activeTool === t.key
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
-                      : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
-                  }`}>
-                  <ToolIcon toolKey={t.key} size={11} />
-                  {t.label}
-                </button>
-              ))}
-              <Link to="/cold-email"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#0f2744] border border-[#0f2744] text-white whitespace-nowrap flex-shrink-0 hover:bg-[#1a3a6e] transition-colors">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Cold Email ↗
-              </Link>
-            </div>
+            {/* Tool chips — only shown on the greeting/pre-start screen */}
+            {!chatActive && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5" style={{ scrollbarWidth: 'none' }}>
+                {TOOLS.map(t => (
+                  <button key={t.key} onClick={() => startTool(t.key)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
+                      activeTool === t.key
+                        ? 'bg-blue-50 border-blue-300 text-blue-700'
+                        : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+                    }`}>
+                    <ToolIcon toolKey={t.key} size={11} />
+                    {t.label}
+                  </button>
+                ))}
+                <Link to="/cold-email"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#0f2744] border border-[#0f2744] text-white whitespace-nowrap flex-shrink-0 hover:bg-[#1a3a6e] transition-colors">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  Cold Email ↗
+                </Link>
+              </div>
+            )}
 
             {/* Input controls — adapt based on step */}
 
