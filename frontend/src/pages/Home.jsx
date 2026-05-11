@@ -1,25 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { roastApi } from '../api/client'
 import ToolChat from './ToolChat'
 
-// ── Tool registry ─────────────────────────────────────────────────────────────
-
 const TOOLS = [
-  { key: 'build_resume', label: 'Build Resume',     desc: 'Generate a resume from scratch'     },
-  { key: 'fix_resume',   label: 'Fix Resume',       desc: 'AI rewrites every weak point'       },
-  { key: 'roast',        label: 'Roast My Work',    desc: 'Brutally honest feedback'            },
-  { key: 'jd_match',     label: 'JD Match',         desc: 'Score resume vs job posting'         },
-  { key: 'interview',    label: 'Interview Prep',   desc: 'Questions + answer scoring'          },
-  { key: 'linkedin_dm',  label: 'LinkedIn DM',      desc: 'Outreach that gets replies'          },
-  { key: 'linkedin_opt', label: 'LinkedIn Profile', desc: 'Optimize for recruiters'             },
-  { key: 'salary',       label: 'Salary Coach',     desc: 'Negotiate smarter with data'         },
+  { key: 'build_resume', label: 'Build Resume',     desc: 'Generate a resume from scratch',  placeholder: 'e.g. Senior Product Manager at a startup'         },
+  { key: 'fix_resume',   label: 'Fix Resume',       desc: 'AI rewrites every weak point',    placeholder: null                                               },
+  { key: 'roast',        label: 'Roast My Work',    desc: 'Brutally honest feedback',         placeholder: null                                               },
+  { key: 'jd_match',     label: 'JD Match',         desc: 'Score resume vs job posting',     placeholder: null                                               },
+  { key: 'interview',    label: 'Interview Prep',   desc: 'Questions + answer scoring',      placeholder: 'e.g. Software Engineer at Google'                  },
+  { key: 'linkedin_dm',  label: 'LinkedIn DM',      desc: 'Outreach that gets replies',      placeholder: 'e.g. Priya Sharma, Engineering Manager at Swiggy' },
+  { key: 'linkedin_opt', label: 'LinkedIn Profile', desc: 'Optimize for recruiters',         placeholder: null                                               },
+  { key: 'salary',       label: 'Salary Coach',     desc: 'Negotiate smarter with data',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
 ]
 
 const WORK_LABELS = { resume: 'Resume', code: 'Code', pitch_deck: 'Pitch Deck', linkedin: 'LinkedIn', essay: 'Essay' }
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 
 function ToolIcon({ toolKey, size = 20 }) {
   const s = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -33,8 +29,6 @@ function ToolIcon({ toolKey, size = 20 }) {
   if (toolKey === 'salary')       return <svg {...s}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
   return null
 }
-
-// ── History sidebar ───────────────────────────────────────────────────────────
 
 function HistorySidebar({ onHome, sessions, user, openAuthModal }) {
   const fmt = (iso) => {
@@ -62,14 +56,10 @@ function HistorySidebar({ onHome, sessions, user, openAuthModal }) {
         {!user ? (
           <div className="px-3 py-6 text-center">
             <p className="text-xs text-gray-400 mb-3 leading-relaxed">Sign in to save sessions and access history</p>
-            <button onClick={openAuthModal} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
-              Sign in →
-            </button>
+            <button onClick={openAuthModal} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Sign in →</button>
           </div>
         ) : sessions.length === 0 ? (
-          <p className="text-xs text-gray-400 text-center px-4 py-6 leading-relaxed">
-            Your sessions will appear here
-          </p>
+          <p className="text-xs text-gray-400 text-center px-4 py-6 leading-relaxed">Your sessions will appear here</p>
         ) : (
           <>
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-3 py-2">Recent</p>
@@ -105,8 +95,6 @@ function HistorySidebar({ onHome, sessions, user, openAuthModal }) {
     </aside>
   )
 }
-
-// ── Tool strip (shown when a tool is active) ──────────────────────────────────
 
 function ToolStrip({ activeTool, onSelect, onHome }) {
   return (
@@ -147,97 +135,118 @@ function ToolStrip({ activeTool, onSelect, onHome }) {
   )
 }
 
-// ── Welcome screen with tool grid + placeholder input ─────────────────────────
-
-function WelcomeScreen({ user, onSelect }) {
+function WelcomeScreen({ user, activeTool, onSelectTool, inputValue, onInputChange, onSend, inputRef }) {
   const hour = new Date().getHours()
   const name = user?.first_name || user?.username
   const greeting = name
     ? (hour < 12 ? `Good morning, ${name}` : hour < 17 ? `Good afternoon, ${name}` : `Good evening, ${name}`)
     : 'What do you want to work on?'
 
+  const meta     = TOOLS.find(t => t.key === activeTool)
+  const needsText = activeTool && !!meta?.placeholder
+  const canSend   = activeTool && (!needsText || inputValue.trim())
+
+  const inputPlaceholder = !activeTool
+    ? 'Choose a tool below to get started...'
+    : meta?.placeholder || 'Click → to start'
+
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center px-4 py-8">
+    <div className="flex flex-col h-full bg-white overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-8">
         <div className="w-full max-w-2xl">
 
           {/* Greeting */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-[#0f2744] mb-1.5">{greeting}</h1>
-            <p className="text-gray-400 text-sm">Click any tool below to get started</p>
+          <h1 className="text-[28px] font-bold text-[#0f2744] text-center mb-8 leading-tight">{greeting}</h1>
+
+          {/* Big input bar */}
+          <div className={`flex items-center gap-2 border-2 rounded-2xl bg-white shadow-sm px-4 py-3.5 mb-4 transition-all ${
+            activeTool ? 'border-blue-300 shadow-blue-50/60' : 'border-gray-200 hover:border-gray-300'
+          }`}>
+            {activeTool && (
+              <span className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0">
+                <ToolIcon toolKey={activeTool} size={11} />
+                {meta?.label}
+                <button
+                  onClick={() => onSelectTool(null)}
+                  className="ml-0.5 text-blue-400 hover:text-blue-700 transition-colors"
+                >
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </span>
+            )}
+            <input
+              ref={inputRef}
+              value={inputValue}
+              onChange={e => onInputChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && canSend) onSend() }}
+              placeholder={inputPlaceholder}
+              disabled={!activeTool || !meta?.placeholder}
+              className="flex-1 outline-none text-sm text-gray-800 placeholder-gray-300 bg-transparent disabled:cursor-default min-w-0"
+            />
+            <button
+              onClick={onSend}
+              disabled={!canSend}
+              className="w-9 h-9 rounded-xl bg-blue-600 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors hover:bg-blue-700"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke={canSend ? 'white' : '#d1d5db'} strokeWidth="2.5" strokeLinecap="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
           </div>
 
-          {/* Credits */}
+          {/* Tool chips */}
+          <div className="flex flex-wrap gap-2 justify-center mb-5">
+            {TOOLS.map(t => (
+              <button
+                key={t.key}
+                onClick={() => onSelectTool(t.key)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium border transition-all ${
+                  activeTool === t.key
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+                }`}
+              >
+                <ToolIcon toolKey={t.key} size={13} />
+                {t.label}
+              </button>
+            ))}
+            <Link to="/cold-email"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-medium bg-[#0f2744] border border-[#0f2744] text-white hover:bg-[#1a3a6e] transition-colors">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Cold Email ↗
+            </Link>
+          </div>
+
+          {/* Credits strip */}
           {user && !user.profile?.is_pro && (
-            <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 mb-6 text-sm">
+            <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-sm">
               <span className="text-gray-500">
                 <span className="font-semibold text-gray-900">{user.profile?.roast_credits ?? 0}</span> credits remaining
               </span>
-              <Link to="/pricing" className="text-xs font-semibold text-blue-600 hover:text-blue-700 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all">
-                Upgrade to Pro
-              </Link>
+              <Link to="/pricing" className="text-xs font-semibold text-blue-600 hover:text-blue-700">Upgrade to Pro →</Link>
             </div>
           )}
 
-          {/* Tool grid — 4 per row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            {TOOLS.map(tool => (
-              <button
-                key={tool.key}
-                onClick={() => onSelect(tool.key)}
-                className="group flex flex-col items-center text-center p-4 bg-white border border-gray-200 rounded-2xl hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"
-              >
-                <div className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-2.5 text-gray-500 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-all duration-150">
-                  <ToolIcon toolKey={tool.key} size={20} />
-                </div>
-                <span className="text-[13px] font-semibold text-gray-900 leading-tight mb-1">{tool.label}</span>
-                <span className="text-[11px] text-gray-400 leading-relaxed">{tool.desc}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Cold email featured */}
-          <Link to="/cold-email"
-            className="group flex items-center gap-4 p-4 bg-[#0f2744] rounded-2xl hover:bg-[#1a3a6e] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-white">Cold Email Builder</p>
-              <p className="text-xs text-blue-300">Write & send emails to recruiters directly from Gmail</p>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" className="opacity-40 group-hover:opacity-80 group-hover:translate-x-0.5 transition-all">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </Link>
-
-        </div>
-      </div>
-
-      {/* Placeholder input bar */}
-      <div className="border-t border-gray-200 bg-white px-3 py-3 flex-shrink-0">
-        <div className="max-w-3xl mx-auto flex gap-2 items-center bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 cursor-default select-none">
-          <span className="flex-1 text-sm text-gray-300">Pick a tool above to get started...</span>
-          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </div>
         </div>
       </div>
     </div>
   )
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
-
 export default function Home() {
   const { user, openAuthModal } = useAuth()
-  const [activeTool, setActiveTool] = useState(null)
-  const [sessions, setSessions]     = useState([])
+  const [activeTool,   setActiveTool]   = useState(null)
+  const [chatStarted,  setChatStarted]  = useState(false)
+  const [initialInput, setInitialInput] = useState('')
+  const [chatKey,      setChatKey]      = useState(0)
+  const [inputValue,   setInputValue]   = useState('')
+  const [sessions,     setSessions]     = useState([])
+  const inputRef = useRef()
 
   useEffect(() => {
     if (user) {
@@ -247,25 +256,61 @@ export default function Home() {
     }
   }, [user])
 
-  const goHome = () => setActiveTool(null)
+  const handleSend = () => {
+    if (!activeTool) return
+    const meta = TOOLS.find(t => t.key === activeTool)
+    if (meta?.placeholder && !inputValue.trim()) return
+    setInitialInput(inputValue.trim())
+    setInputValue('')
+    setChatKey(k => k + 1)
+    setChatStarted(true)
+  }
+
+  const handleSelectTool = (toolKey) => {
+    setActiveTool(toolKey)
+    if (toolKey) setTimeout(() => inputRef.current?.focus(), 50)
+  }
+
+  const handleToolStripSelect = (toolKey) => {
+    setActiveTool(toolKey)
+    setInitialInput('')
+    setChatKey(k => k + 1)
+    setChatStarted(true)
+  }
+
+  const goHome = () => {
+    setChatStarted(false)
+    setActiveTool(null)
+    setInitialInput('')
+    setInputValue('')
+  }
 
   return (
     <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 56px)' }}>
-      <HistorySidebar
-        onHome={goHome}
-        sessions={sessions}
-        user={user}
-        openAuthModal={openAuthModal}
-      />
+      <HistorySidebar onHome={goHome} sessions={sessions} user={user} openAuthModal={openAuthModal} />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {activeTool ? (
+        {chatStarted ? (
           <>
-            <ToolStrip activeTool={activeTool} onSelect={setActiveTool} onHome={goHome} />
-            <ToolChat key={activeTool} tool={activeTool} onRestart={goHome} showHeader={false} />
+            <ToolStrip activeTool={activeTool} onSelect={handleToolStripSelect} onHome={goHome} />
+            <ToolChat
+              key={`${activeTool}-${chatKey}`}
+              tool={activeTool}
+              initialInput={initialInput}
+              onRestart={goHome}
+              showHeader={false}
+            />
           </>
         ) : (
-          <WelcomeScreen user={user} onSelect={setActiveTool} />
+          <WelcomeScreen
+            user={user}
+            activeTool={activeTool}
+            onSelectTool={handleSelectTool}
+            inputValue={inputValue}
+            onInputChange={setInputValue}
+            onSend={handleSend}
+            inputRef={inputRef}
+          />
         )}
       </div>
     </div>

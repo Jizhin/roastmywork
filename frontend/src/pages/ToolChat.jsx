@@ -70,6 +70,34 @@ const INITIAL_STEPS = {
   linkedin_dm: 'target', linkedin_opt: 'profile', salary: 'offer',
 }
 
+// Pre-populates chat state when user sends first message from home screen
+function getInitialState(tool, initialInput) {
+  const greeting   = { type: 'ai', id: 'init', ...(GREETINGS[tool] || { text: 'How can I help?' }) }
+  const defaultStep = INITIAL_STEPS[tool] || 'init'
+
+  if (!initialInput) return { msgs: [greeting], step: defaultStep, collected: {} }
+
+  const cfg = {
+    build_resume: { key: 'role',       nextStep: 'exp',          nextText: "Tell me about your work experience — companies, roles, achievements. Include dates." },
+    interview:    { key: 'role',       nextStep: 'company_type', nextChoices: COMPANY_TYPES, nextText: 'What type of company?' },
+    linkedin_dm:  { key: 'targetInfo', nextStep: 'purpose',      nextChoices: DM_PURPOSES,   nextText: "What's the purpose of reaching out?" },
+    salary:       { key: 'offer',      nextStep: 'experience',   nextText: "Your background: experience level, years in field, current/previous salary." },
+  }[tool]
+
+  if (!cfg) return { msgs: [greeting], step: defaultStep, collected: {} }
+
+  const nextAIMsg = {
+    type: 'ai', id: 'init-ai2', text: cfg.nextText,
+    ...(cfg.nextChoices ? { choices: cfg.nextChoices } : {}),
+  }
+
+  return {
+    msgs: [greeting, { type: 'user', id: 'init-user', text: initialInput }, nextAIMsg],
+    step: cfg.nextStep,
+    collected: { [cfg.key]: initialInput },
+  }
+}
+
 // ── Shared UI primitives ──────────────────────────────────────────────────────
 
 function AIAvatar() {
@@ -468,15 +496,15 @@ function ToolHeader({ tool, onBack }) {
 
 // ── Main ToolChat ─────────────────────────────────────────────────────────────
 
-export default function ToolChat({ tool, onRestart, showHeader = true }) {
+export default function ToolChat({ tool, onRestart, showHeader = true, initialInput = '' }) {
   const { user, openAuthModal, openUpgradeModal, refreshUser } = useAuth()
 
-  // Initialize messages directly — avoids double-fire in React StrictMode
-  const [msgs,        setMsgs]        = useState(() => [{ type: 'ai', id: 'init', ...(GREETINGS[tool] || { text: 'How can I help?' }) }])
-  const [step,        setStep]        = useState(() => INITIAL_STEPS[tool] || 'init')
+  const [initState]   = useState(() => getInitialState(tool, initialInput))
+  const [msgs,        setMsgs]        = useState(initState.msgs)
+  const [step,        setStep]        = useState(initState.step)
   const [text,        setText]        = useState('')
   const [roastText,   setRoastText]   = useState('')
-  const [collected,   setCollected]   = useState({})
+  const [collected,   setCollected]   = useState(initState.collected)
   const [isLoading,   setIsLoading]   = useState(false)
   const [result,      setResult]      = useState(null)
   const [resumeData,  setResumeData]  = useState(null)
