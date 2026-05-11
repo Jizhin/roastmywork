@@ -26,6 +26,7 @@ class MeView(APIView):
 
 
 class GoogleAuthView(APIView):
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):

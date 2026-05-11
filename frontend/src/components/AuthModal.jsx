@@ -6,21 +6,24 @@ import api from '../api/client'
 export default function AuthModal() {
   const { closeAuthModal, onLoginSuccess } = useAuth()
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setError('')
+    setLoading(true)
     try {
       const { data } = await api.post('/users/auth/google/', { credential: credentialResponse.credential })
       onLoginSuccess(data.access, data.refresh, data.user)
     } catch {
       setError('Sign-in failed. Please try again.')
+      setLoading(false)
     }
   }
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-      onClick={(e) => e.target === e.currentTarget && closeAuthModal()}
+      onClick={(e) => e.target === e.currentTarget && !loading && closeAuthModal()}
     >
       <div className="w-full max-w-[380px] bg-white rounded-2xl border border-gray-200 shadow-2xl animate-fade-up overflow-hidden">
         <div className="h-1 bg-orange-500" />
@@ -32,25 +35,41 @@ export default function AuthModal() {
             </svg>
           </div>
 
-          <h2 className="text-xl font-bold text-gray-900 mb-1.5">Ready to get roasted?</h2>
-          <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-            Sign in and get <span className="text-orange-600 font-semibold">5 free roasts</span> instantly.
-            No credit card needed.
-          </p>
+          {loading ? (
+            <>
+              <h2 className="text-xl font-bold text-gray-900 mb-1.5">Signing you in...</h2>
+              <p className="text-gray-500 text-sm mb-7 leading-relaxed">
+                The server is waking up. First sign-in can take up to{' '}
+                <span className="text-orange-600 font-semibold">30 seconds</span> — please wait.
+              </p>
+              <div className="flex justify-center mb-6">
+                <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+              </div>
+              <p className="text-gray-400 text-[12px]">Do not close this window</p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold text-gray-900 mb-1.5">Ready to get roasted?</h2>
+              <p className="text-gray-500 text-sm mb-7 leading-relaxed">
+                Sign in and get <span className="text-orange-600 font-semibold">5 free roasts</span> instantly.
+                No credit card needed.
+              </p>
 
-          <div className="flex justify-center mb-5">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('Sign-in failed. Please try again.')}
-              theme="outline"
-              shape="rectangular"
-              size="large"
-              text="signin_with"
-            />
-          </div>
+              <div className="flex justify-center mb-5">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Sign-in failed. Please try again.')}
+                  theme="outline"
+                  shape="rectangular"
+                  size="large"
+                  text="signin_with"
+                />
+              </div>
 
-          {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-          <p className="text-gray-400 text-[12px]">No password · No spam · Cancel anytime</p>
+              {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+              <p className="text-gray-400 text-[12px]">No password · No spam · Cancel anytime</p>
+            </>
+          )}
         </div>
       </div>
     </div>

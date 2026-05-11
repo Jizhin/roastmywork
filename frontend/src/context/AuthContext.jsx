@@ -25,7 +25,11 @@ export function AuthProvider({ children }) {
     }
   }
 
-  useEffect(() => { refreshUser() }, [])
+  useEffect(() => {
+    const base = import.meta.env.VITE_API_BASE_URL || '/api'
+    fetch(`${base}/health/`).catch(() => {})
+    refreshUser()
+  }, [])
 
   // Called by AuthModal after successful Google sign-in
   // userData comes directly from the login response — no extra /me/ call needed
