@@ -14,13 +14,14 @@ const TOOLS = {
   linkedin_dm:  { label: 'LinkedIn DM',        desc: 'Personalised outreach messages that actually get replies'            },
   linkedin_opt: { label: 'LinkedIn Optimizer', desc: 'Rewrite headline and About to attract recruiters'                    },
   salary:       { label: 'Salary Coach',       desc: 'Negotiate smarter with market data and scripts'                      },
+  cold_email:   { label: 'Cold Email',         desc: 'Write and send cold emails to recruiters & hiring managers', href: '/cold-email' },
 }
 
 const CATEGORIES = [
-  { key: 'RESUME',    label: 'Resume',    tools: ['build_resume', 'fix_resume', 'roast'] },
-  { key: 'APPLY',     label: 'Apply',     tools: ['jd_match', 'interview']               },
-  { key: 'NETWORK',   label: 'Network',   tools: ['linkedin_dm', 'linkedin_opt']         },
-  { key: 'NEGOTIATE', label: 'Negotiate', tools: ['salary']                              },
+  { key: 'RESUME',    label: 'Resume',    tools: ['build_resume', 'fix_resume', 'roast']        },
+  { key: 'APPLY',     label: 'Apply',     tools: ['jd_match', 'interview']                       },
+  { key: 'NETWORK',   label: 'Network',   tools: ['linkedin_dm', 'linkedin_opt', 'cold_email']  },
+  { key: 'NEGOTIATE', label: 'Negotiate', tools: ['salary']                                      },
 ]
 
 // ── SVG icons per tool ────────────────────────────────────────────────────────
@@ -35,6 +36,7 @@ function ToolIcon({ toolKey, size = 18 }) {
   if (toolKey === 'linkedin_dm')  return <svg {...s}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   if (toolKey === 'linkedin_opt') return <svg {...s}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
   if (toolKey === 'salary')       return <svg {...s}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+  if (toolKey === 'cold_email')   return <svg {...s}><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
   return null
 }
 
@@ -64,7 +66,19 @@ function Sidebar({ activeTool, onSelect }) {
               {cat.label}
             </div>
             {cat.tools.map(key => {
+              const tool = TOOLS[key]
               const isActive = activeTool === key
+              if (tool.href) {
+                return (
+                  <Link key={key} to={tool.href}
+                    className="w-full flex items-center justify-between text-[13px] px-4 py-2 transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                    {tool.label}
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="opacity-40">
+                      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                  </Link>
+                )
+              }
               return (
                 <button key={key} onClick={() => onSelect(key)}
                   className={`w-full text-left text-[13px] px-4 py-2 transition-colors relative
@@ -75,7 +89,7 @@ function Sidebar({ activeTool, onSelect }) {
                   {isActive && (
                     <span className="absolute right-0 top-1 bottom-1 w-0.5 bg-orange-500 rounded-l" />
                   )}
-                  {TOOLS[key].label}
+                  {tool.label}
                 </button>
               )
             })}
@@ -170,16 +184,22 @@ function WelcomeDashboard({ user, onSelect }) {
               {cat.label}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {cat.tools.map(key => (
-                <button key={key} onClick={() => onSelect(key)}
-                  className="group text-left bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 hover:shadow-sm transition-all">
-                  <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center mb-3 text-gray-500 group-hover:text-orange-500 group-hover:border-orange-100 group-hover:bg-orange-50 transition-colors">
-                    <ToolIcon toolKey={key} />
-                  </div>
-                  <div className="text-[14px] font-semibold text-gray-900 mb-1">{TOOLS[key].label}</div>
-                  <div className="text-[13px] text-gray-500 leading-relaxed">{TOOLS[key].desc}</div>
-                </button>
-              ))}
+              {cat.tools.map(key => {
+                const tool = TOOLS[key]
+                const cardCls = "group text-left bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 hover:shadow-sm transition-all"
+                const inner = (
+                  <>
+                    <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center mb-3 text-gray-500 group-hover:text-orange-500 group-hover:border-orange-100 group-hover:bg-orange-50 transition-colors">
+                      <ToolIcon toolKey={key} />
+                    </div>
+                    <div className="text-[14px] font-semibold text-gray-900 mb-1">{tool.label}</div>
+                    <div className="text-[13px] text-gray-500 leading-relaxed">{tool.desc}</div>
+                  </>
+                )
+                return tool.href
+                  ? <Link key={key} to={tool.href} className={cardCls}>{inner}</Link>
+                  : <button key={key} onClick={() => onSelect(key)} className={cardCls}>{inner}</button>
+              })}
             </div>
           </div>
         ))}

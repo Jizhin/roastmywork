@@ -105,6 +105,56 @@ Return ONLY valid JSON:
 }}"""
 
 
+def get_cold_email_prompt(target_name, target_role, target_company, purpose, tone, user_background):
+    purpose_map = {
+        'job_application': 'applying for a position at their company',
+        'networking': 'building a genuine professional connection',
+        'referral': 'asking them to refer you for an open role',
+        'informational': 'requesting a short informational chat about their work',
+    }
+    tone_map = {
+        'professional': 'polished and professional',
+        'casual': 'warm, conversational, and approachable',
+        'direct': 'extremely short, confident, and to the point',
+    }
+    return f"""You are an expert at writing cold emails that actually get responses from busy professionals.
+
+TARGET:
+Name: {target_name}
+Role: {target_role}
+Company: {target_company}
+
+PURPOSE: {purpose_map.get(purpose, purpose)}
+
+ABOUT THE SENDER:
+{user_background[:800]}
+
+TONE: {tone_map.get(tone, tone)}
+
+STRICT RULES:
+- Each email MUST be under 120 words — recruiters delete long emails instantly
+- Sound like a real human wrote it, not an AI. No hollow phrases.
+- Banned phrases: "I hope this finds you well", "I came across your profile", "I am reaching out", "I am writing to", "touch base", "synergy", "passionate about"
+- Be specific about the company or their role — show you did your homework
+- End with ONE clear, low-friction ask (15-min call, a quick reply, a referral)
+- Each of the 3 variants must take a completely DIFFERENT angle
+
+VARIANTS:
+1. "Direct" — state exactly what you want in the first sentence, no warm-up
+2. "Value-first" — open with something specific you bring that helps their team, then the ask
+3. "Personal hook" — open with something specific about them, their company, or their work that shows genuine interest
+
+Return ONLY valid JSON:
+{{
+  "variants": [
+    {{"style": "Direct", "subject": "<subject under 60 chars>", "body": "<email body with natural line breaks>"}},
+    {{"style": "Value-first", "subject": "<subject under 60 chars>", "body": "<email body with natural line breaks>"}},
+    {{"style": "Personal hook", "subject": "<subject under 60 chars>", "body": "<email body with natural line breaks>"}}
+  ],
+  "tips": ["<one specific tip for sending this email>", "<one follow-up timing tip>"]
+}}"""
+
+
 def get_salary_prompt(offer, experience, situation):
     return f"""You are a compensation expert and negotiation coach.
 

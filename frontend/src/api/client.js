@@ -64,6 +64,11 @@ export const toolsApi = {
   salary:      { submit: (d) => api.post('/tools/salary/', d),             get: (id) => api.get(`/tools/salary/${id}/`)      },
 }
 
+export const coldEmailApi = {
+  generate: (data) => api.post('/tools/cold-email/generate/', data),
+  deduct:   ()     => api.post('/tools/cold-email/deduct/'),
+}
+
 export const authApi = {
   register: (data) => api.post('/users/register/', data),
   login: (data) => api.post('/auth/token/', data),

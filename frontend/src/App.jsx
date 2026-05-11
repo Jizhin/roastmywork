@@ -8,6 +8,7 @@ import Pricing from './pages/Pricing'
 import ResumeBuilder from './pages/ResumeBuilder'
 import ResumeUpdater from './pages/ResumeUpdater'
 import AdminUsers from './pages/AdminUsers'
+import ColdEmail from './pages/ColdEmail'
 import Navbar from './components/Navbar'
 import AuthModal from './components/AuthModal'
 import UpgradeModal from './components/UpgradeModal'
@@ -47,7 +48,10 @@ export default function App() {
     console.log("GOOGLE CLIENT:", import.meta.env.VITE_GOOGLE_CLIENT_ID),
     <GoogleOAuthProvider clientId="917303497941-s27tb7s60q24fo9qvk8aqgk9mui703b5.apps.googleusercontent.com">
       <AuthProvider>
-        <AppShell />
+        <Routes>
+          <Route path="/cold-email" element={<ColdEmail />} />
+          <Route path="/*"          element={<AppShell />} />
+        </Routes>
       </AuthProvider>
     </GoogleOAuthProvider>
   )

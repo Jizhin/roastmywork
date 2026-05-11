@@ -5,6 +5,7 @@ from .views import (
     LinkedInDMView, LinkedInDMDetailView,
     LinkedInOptimizeView, LinkedInOptimizeDetailView,
     SalaryView, SalaryDetailView,
+    GenerateColdEmailView, ColdEmailDeductView,
 )
 
 urlpatterns = [
@@ -18,4 +19,6 @@ urlpatterns = [
     path('linkedin-opt/<uuid:pk>/',LinkedInOptimizeDetailView.as_view()),
     path('salary/',                SalaryView.as_view()),
     path('salary/<uuid:pk>/',      SalaryDetailView.as_view()),
+    path('cold-email/generate/',   GenerateColdEmailView.as_view()),
+    path('cold-email/deduct/',     ColdEmailDeductView.as_view()),
 ]

@@ -10,7 +10,9 @@ from .models import JDMatch, InterviewSession, LinkedInDM, LinkedInOptimize, Sal
 from .tasks import (
     run_jd_match, run_interview_questions, run_interview_evaluation,
     run_linkedin_dm, run_linkedin_optimize, run_salary_analysis,
+    _client, _json_call,
 )
+from .prompts import get_cold_email_prompt
 
 
 def _dispatch(fn, obj_id):
@@ -183,3 +185,38 @@ class SalaryDetailView(APIView):
     def get(self, request, pk):
         obj = get_object_or_404(SalaryAnalysis, pk=pk, user=request.user)
         return Response({'id': str(obj.id), 'status': obj.status, 'result': obj.result})
+
+
+# ── Cold Email ────────────────────────────────────────────────────────────────
+
+class GenerateColdEmailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        target_name     = request.data.get('target_name', '').strip()
+        target_role     = request.data.get('target_role', '').strip()
+        target_company  = request.data.get('target_company', '').strip()
+        purpose         = request.data.get('purpose', 'job_application')
+        tone            = request.data.get('tone', 'professional')
+        user_background = request.data.get('user_background', '').strip()
+
+        if not all([target_name, target_role, target_company, user_background]):
+            return Response({'detail': 'Name, role, company, and your background are required.'}, status=400)
+
+        prompt = get_cold_email_prompt(target_name, target_role, target_company, purpose, tone, user_background)
+        try:
+            result = _json_call(_client(), prompt)
+        except Exception:
+            return Response({'detail': 'Generation failed. Please try again.'}, status=500)
+
+        return Response(result)
+
+
+class ColdEmailDeductView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        ok, _ = _check_and_deduct(request.user)
+        if not ok:
+            return Response({'detail': 'No credits remaining.', 'code': 'no_credits'}, status=402)
+        return Response({'ok': True})
