@@ -44,7 +44,7 @@ export default function Result() {
   if (!data || data.status === 'pending' || data.status === 'processing') {
     return (
       <div className="max-w-2xl mx-auto px-6 py-36 text-center">
-        <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-gray-200 border-t-orange-500 animate-spin" />
+        <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
         <h2 className="text-xl font-bold text-gray-900 mb-2">Roasting in progress</h2>
         <p className="text-gray-500 text-sm">Generating roast, fix report, and improved file — usually 20–40 seconds.</p>
       </div>

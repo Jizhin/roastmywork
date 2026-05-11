@@ -50,14 +50,14 @@ export default function Pricing() {
             key={plan.name}
             className={`relative flex flex-col rounded-2xl border p-7 ${
               plan.highlight
-                ? 'border-orange-300 bg-orange-50/40 shadow-[0_0_0_1px_theme(colors.orange.300)]'
+                ? 'border-blue-300 bg-blue-50/40 shadow-[0_0_0_1px_theme(colors.blue.300)]'
                 : 'border-gray-200 bg-white'
             }`}
-            style={plan.highlight ? { boxShadow: '0 4px 24px rgba(249,115,22,0.12)' } : { boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+            style={plan.highlight ? { boxShadow: '0 4px 24px rgba(37,99,235,0.12)' } : { boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
           >
             {plan.highlight && (
               <div className="absolute -top-3.5 inset-x-0 flex justify-center">
-                <span className="bg-orange-500 text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-sm">
+                <span className="bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-sm">
                   Most Popular
                 </span>
               </div>

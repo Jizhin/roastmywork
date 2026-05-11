@@ -43,7 +43,7 @@ export default function History() {
   if (loading) {
     return (
       <div className="max-w-8xl mx-auto px-6 py-32 flex justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-orange-500 animate-spin" />
+        <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
       </div>
     )
   }

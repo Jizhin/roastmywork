@@ -21,7 +21,7 @@ export default function UpgradeModal() {
 
           <h2 className="text-xl font-bold text-gray-900 mb-1.5">You're out of credits</h2>
           <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-            Upgrade to Pro for <span className="text-orange-600 font-semibold">unlimited roasts</span>,
+            Upgrade to Pro for <span className="text-blue-600 font-semibold">unlimited roasts</span>,
             full history, and priority processing.
           </p>
 

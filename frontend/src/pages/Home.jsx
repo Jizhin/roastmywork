@@ -83,11 +83,11 @@ function Sidebar({ activeTool, onSelect }) {
                 <button key={key} onClick={() => onSelect(key)}
                   className={`w-full text-left text-[13px] px-4 py-2 transition-colors relative
                     ${isActive
-                      ? 'text-orange-600 bg-orange-50 font-medium'
+                      ? 'text-blue-600 bg-blue-50 font-medium'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}>
                   {isActive && (
-                    <span className="absolute right-0 top-1 bottom-1 w-0.5 bg-orange-500 rounded-l" />
+                    <span className="absolute right-0 top-1 bottom-1 w-0.5 bg-blue-600 rounded-l" />
                   )}
                   {tool.label}
                 </button>
@@ -143,7 +143,7 @@ function WelcomeDashboard({ user, onSelect }) {
           <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6 gap-3">
             {user.profile?.is_pro ? (
               <span className="text-sm font-medium text-gray-700">
-                <span className="text-orange-600 font-bold">PRO</span> — Unlimited access to all tools
+                <span className="text-blue-600 font-bold">PRO</span> — Unlimited access to all tools
               </span>
             ) : (
               <>
@@ -151,7 +151,7 @@ function WelcomeDashboard({ user, onSelect }) {
                   <span className="font-semibold text-gray-900">{user.profile?.roast_credits ?? 0}</span> credits remaining
                 </span>
                 <Link to="/pricing"
-                  className="text-xs font-semibold text-orange-600 hover:text-orange-700 border border-orange-200 hover:border-orange-300 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-all">
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-300 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all">
                   Upgrade to Pro
                 </Link>
               </>
@@ -169,7 +169,7 @@ function WelcomeDashboard({ user, onSelect }) {
             History
           </Link>
           <Link to="/pricing"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-orange-200 bg-orange-50 text-[13px] text-orange-600 font-medium hover:bg-orange-100 transition-colors">
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-[13px] text-blue-600 font-medium hover:bg-blue-100 transition-colors">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>

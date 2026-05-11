@@ -43,9 +43,9 @@ const DM_PURPOSES = [
 ]
 
 const TOOL_META = {
-  build_resume: { name: 'Build Resume',       category: 'Resume',    dot: 'bg-orange-500'  },
-  fix_resume:   { name: 'Fix Resume',         category: 'Resume',    dot: 'bg-orange-500'  },
-  roast:        { name: 'Roast My Work',      category: 'Resume',    dot: 'bg-orange-500'  },
+  build_resume: { name: 'Build Resume',       category: 'Resume',    dot: 'bg-blue-600'    },
+  fix_resume:   { name: 'Fix Resume',         category: 'Resume',    dot: 'bg-blue-600'    },
+  roast:        { name: 'Roast My Work',      category: 'Resume',    dot: 'bg-blue-600'    },
   jd_match:     { name: 'JD Match Score',     category: 'Apply',     dot: 'bg-sky-500'     },
   interview:    { name: 'Interview Prep',     category: 'Apply',     dot: 'bg-sky-500'     },
   linkedin_dm:  { name: 'LinkedIn DM',        category: 'Network',   dot: 'bg-violet-500'  },
@@ -117,7 +117,7 @@ function AIBubble({ text, children }) {
 function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
-      <div className="bg-orange-500 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[78%] text-sm leading-relaxed">
+      <div className="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[78%] text-sm leading-relaxed">
         {text}
       </div>
     </div>
@@ -133,14 +133,14 @@ function Choices({ items, chosen, onChoose }) {
           <button key={c.value} onClick={() => !chosen && onChoose(c.value)} disabled={!!chosen}
             className={`px-3.5 py-2 rounded-xl border-2 text-sm font-medium transition-all text-left
               ${isThis
-                ? 'border-orange-500 bg-orange-500 text-white'
+                ? 'border-blue-600 bg-blue-600 text-white'
                 : chosen
                   ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-default'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
               }`}>
             <span className="block">{c.label}</span>
             {c.sub && (
-              <span className={`block text-xs font-normal mt-0.5 ${isThis ? 'text-orange-100' : chosen ? 'text-gray-300' : 'text-gray-400'}`}>
+              <span className={`block text-xs font-normal mt-0.5 ${isThis ? 'text-blue-100' : chosen ? 'text-gray-300' : 'text-gray-400'}`}>
                 {c.sub}
               </span>
             )}
@@ -167,7 +167,7 @@ function ResumeResult({ data, styleConfig, setStyleConfig, onPreview }) {
   return (
     <div className="mt-1 print:hidden">
       <button onClick={onPreview}
-        className="flex items-center gap-2 px-4 py-2 mb-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors">
+        className="flex items-center gap-2 px-4 py-2 mb-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
           <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
@@ -228,7 +228,7 @@ function JDMatchResult({ result }) {
           <div className="space-y-2">
             {result.improvements.map((imp, i) => (
               <div key={i} className="flex gap-2.5">
-                <div className="w-1 h-1 rounded-full bg-orange-400 mt-2 flex-shrink-0" />
+                <div className="w-1 h-1 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
                 <p className="text-xs text-gray-600 leading-relaxed"><span className="font-semibold text-gray-800">{imp.section}: </span>{imp.suggestion}</p>
               </div>
             ))}
@@ -410,8 +410,8 @@ function SalaryResult({ result }) {
         )}
       </div>
       {result.advice && (
-        <div className="bg-orange-50 border border-orange-100 rounded-xl p-3">
-          <p className="text-xs text-orange-800 leading-relaxed">{result.advice}</p>
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+          <p className="text-xs text-blue-800 leading-relaxed">{result.advice}</p>
         </div>
       )}
     </div>
@@ -920,7 +920,7 @@ export default function ToolChat({ tool, onRestart }) {
                   Back
                 </button>
                 <button onClick={() => window.print()}
-                  className="flex items-center gap-2 text-sm text-white bg-orange-500 hover:bg-orange-600 rounded-xl px-4 py-2 transition-colors">
+                  className="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-xl px-4 py-2 transition-colors">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                   Print / Save PDF
                 </button>
@@ -949,7 +949,7 @@ export default function ToolChat({ tool, onRestart }) {
                     placeholder={placeholder} className="flex-1 input-base text-sm" />
               }
               <button onClick={onText} disabled={!text.trim()}
-                className="w-9 h-9 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-gray-100 disabled:text-gray-300 flex items-center justify-center transition-colors flex-shrink-0">
+                className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-300 flex items-center justify-center transition-colors flex-shrink-0">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
@@ -961,7 +961,7 @@ export default function ToolChat({ tool, onRestart }) {
               <input ref={fixFileRef} type="file" accept=".txt,.pdf,.md" className="hidden"
                 onChange={e => { if (e.target.files[0]) { const f = e.target.files[0]; pushUser(`Uploaded: ${f.name}`); doFix(f) } }} />
               <button onClick={() => fixFileRef.current?.click()}
-                className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-orange-400 bg-gray-50/50 hover:bg-orange-50/50 py-8 text-center transition-all">
+                className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-400 bg-gray-50/50 hover:bg-blue-50/50 py-8 text-center transition-all">
                 <div className="w-10 h-10 mx-auto mb-3 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
@@ -991,7 +991,7 @@ export default function ToolChat({ tool, onRestart }) {
                       placeholder="Paste your resume, code, essay, LinkedIn bio…" rows={4}
                       className="flex-1 input-base resize-none text-[13px] font-mono leading-relaxed" />
                     <button onClick={doRoast} disabled={!roastText.trim()}
-                      className="w-9 h-9 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                      className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </button>
                   </div>
@@ -999,13 +999,13 @@ export default function ToolChat({ tool, onRestart }) {
                     <input ref={roastFileRef} type="file" accept=".txt,.pdf,.md,.py,.js,.ts,.jsx,.tsx,.java,.go,.rs,.cpp,.c" className="hidden"
                       onChange={e => e.target.files[0] && setRoastFile(e.target.files[0])} />
                     <div onClick={() => roastFileRef.current?.click()}
-                      className={`flex-1 rounded-xl border-2 border-dashed py-5 text-center cursor-pointer transition-all ${roastFile ? 'border-orange-300 bg-orange-50/50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'}`}>
+                      className={`flex-1 rounded-xl border-2 border-dashed py-5 text-center cursor-pointer transition-all ${roastFile ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'}`}>
                       {roastFile
-                        ? <p className="text-sm text-orange-700 font-medium">{roastFile.name} · Click to change</p>
+                        ? <p className="text-sm text-blue-700 font-medium">{roastFile.name} · Click to change</p>
                         : <><p className="text-sm font-medium text-gray-700">Click to upload</p><p className="text-xs text-gray-400 mt-0.5">.pdf .txt .py .js and more</p></>}
                     </div>
                     <button onClick={doRoast} disabled={!roastFile}
-                      className="w-9 h-9 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                      className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </button>
                   </div>

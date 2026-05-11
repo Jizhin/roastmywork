@@ -26,9 +26,9 @@ export default function AuthModal() {
       onClick={(e) => e.target === e.currentTarget && !loading && closeAuthModal()}
     >
       <div className="w-full max-w-[380px] bg-white rounded-2xl border border-gray-200 shadow-2xl animate-fade-up overflow-hidden">
-        <div className="h-1 bg-orange-500" />
+        <div className="h-1 bg-blue-600" />
         <div className="p-8 text-center">
-          <div className="w-11 h-11 mx-auto mb-5 rounded-xl bg-orange-500 flex items-center justify-center">
+          <div className="w-11 h-11 mx-auto mb-5 rounded-xl bg-blue-600 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z" fill="white" fillOpacity="0.95"/>
               <path d="M12 12c-.8 1.8-1.2 3-1.2 4a1.2 1.2 0 0 0 2.4 0c0-1-.4-2.2-1.2-4Z" fill="white" fillOpacity="0.4"/>
@@ -40,7 +40,7 @@ export default function AuthModal() {
               <h2 className="text-xl font-bold text-gray-900 mb-1.5">Signing you in...</h2>
               <p className="text-gray-500 text-sm mb-7 leading-relaxed">
                 The server is waking up. First sign-in can take up to{' '}
-                <span className="text-orange-600 font-semibold">30 seconds</span> — please wait.
+                <span className="text-blue-600 font-semibold">30 seconds</span> — please wait.
               </p>
               <div className="flex justify-center mb-6">
                 <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
@@ -51,7 +51,7 @@ export default function AuthModal() {
             <>
               <h2 className="text-xl font-bold text-gray-900 mb-1.5">Ready to get roasted?</h2>
               <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-                Sign in and get <span className="text-orange-600 font-semibold">5 free roasts</span> instantly.
+                Sign in and get <span className="text-blue-600 font-semibold">5 free roasts</span> instantly.
                 No credit card needed.
               </p>
 
