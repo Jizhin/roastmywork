@@ -468,7 +468,7 @@ function ToolHeader({ tool, onBack }) {
 
 // ── Main ToolChat ─────────────────────────────────────────────────────────────
 
-export default function ToolChat({ tool, onRestart }) {
+export default function ToolChat({ tool, onRestart, showHeader = true }) {
   const { user, openAuthModal, openUpgradeModal, refreshUser } = useAuth()
 
   // Initialize messages directly — avoids double-fire in React StrictMode
@@ -869,7 +869,7 @@ export default function ToolChat({ tool, onRestart }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      <ToolHeader tool={tool} onBack={onRestart} />
+      {showHeader && <ToolHeader tool={tool} onBack={onRestart} />}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
