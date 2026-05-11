@@ -28,14 +28,17 @@ export function AuthProvider({ children }) {
   useEffect(() => { refreshUser() }, [])
 
   // Called by AuthModal after successful Google sign-in
-  const onLoginSuccess = async (access, refresh) => {
+  // userData comes directly from the login response — no extra /me/ call needed
+  const onLoginSuccess = (access, refresh, userData) => {
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
-    await refreshUser()
+    setUser(userData)
+    setLoading(false)
     setShowAuthModal(false)
     if (afterLoginCallback.current) {
-      afterLoginCallback.current()
+      const cb = afterLoginCallback.current
       afterLoginCallback.current = null
+      cb()
     }
   }
 

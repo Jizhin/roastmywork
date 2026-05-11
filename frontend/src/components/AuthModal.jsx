@@ -11,7 +11,7 @@ export default function AuthModal() {
     setError('')
     try {
       const { data } = await api.post('/users/auth/google/', { credential: credentialResponse.credential })
-      await onLoginSuccess(data.access, data.refresh)
+      onLoginSuccess(data.access, data.refresh, data.user)
     } catch {
       setError('Sign-in failed. Please try again.')
     }
