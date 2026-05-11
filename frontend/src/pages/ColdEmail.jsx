@@ -69,7 +69,7 @@ export default function ColdEmail() {
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }))
 
   const generate = async () => {
-    if (!user) { openAuthModal(() => generate()); return }
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => generate()); return }
     const { recipientName, recipientRole, recipientCompany, userBackground } = form
     if (!recipientName || !recipientRole || !recipientCompany || !userBackground) {
       setError('Please fill in all required fields (marked *).')
