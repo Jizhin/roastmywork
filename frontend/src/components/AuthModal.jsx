@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/client'
@@ -7,15 +7,40 @@ export default function AuthModal() {
   const { closeAuthModal, onLoginSuccess } = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (loading) {
+      setElapsed(0)
+      timerRef.current = setInterval(() => setElapsed(s => s + 1), 1000)
+    } else {
+      clearInterval(timerRef.current)
+      setElapsed(0)
+    }
+    return () => clearInterval(timerRef.current)
+  }, [loading])
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setError('')
     setLoading(true)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 70000)
     try {
-      const { data } = await api.post('/users/auth/google/', { credential: credentialResponse.credential })
+      const { data } = await api.post(
+        '/users/auth/google/',
+        { credential: credentialResponse.credential },
+        { signal: controller.signal }
+      )
+      clearTimeout(timeout)
       onLoginSuccess(data.access, data.refresh, data.user)
-    } catch {
-      setError('Sign-in failed. Please try again.')
+    } catch (err) {
+      clearTimeout(timeout)
+      if (err.code === 'ERR_CANCELED' || err.name === 'AbortError' || err.name === 'CanceledError') {
+        setError('Server took too long to respond. Please try again.')
+      } else {
+        setError('Sign-in failed. Please try again.')
+      }
       setLoading(false)
     }
   }
@@ -37,15 +62,20 @@ export default function AuthModal() {
 
           {loading ? (
             <>
-              <h2 className="text-xl font-bold text-gray-900 mb-1.5">Signing you in...</h2>
-              <p className="text-gray-500 text-sm mb-7 leading-relaxed">
-                The server is waking up. First sign-in can take up to{' '}
-                <span className="text-blue-600 font-semibold">30 seconds</span> — please wait.
+              <h2 className="text-xl font-bold text-gray-900 mb-1.5">
+                {elapsed >= 15 ? 'Server is waking up...' : 'Signing you in...'}
+              </h2>
+              <p className="text-gray-500 text-sm mb-5 leading-relaxed">
+                {elapsed >= 15
+                  ? <>Almost there — Render server cold-starts take up to <span className="text-blue-600 font-semibold">60 seconds</span>. Please wait.</>
+                  : 'Verifying with Google...'}
               </p>
-              <div className="flex justify-center mb-6">
-                <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+              <div className="flex justify-center mb-4">
+                <div className="w-9 h-9 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
               </div>
-              <p className="text-gray-400 text-[12px]">Do not close this window</p>
+              {elapsed > 0 && (
+                <p className="text-gray-400 text-[12px] tabular-nums">{elapsed}s elapsed — do not close this window</p>
+              )}
             </>
           ) : (
             <>

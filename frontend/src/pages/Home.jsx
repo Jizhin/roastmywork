@@ -115,8 +115,8 @@ function AIBubble({ text, children }) {
       <AIAvatar />
       <div className="flex-1 min-w-0 space-y-2">
         {text && (
-          <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-            <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap break-words">{text}</p>
+          <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
+            <p className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap break-words">{text}</p>
           </div>
         )}
         {children}
@@ -128,7 +128,7 @@ function AIBubble({ text, children }) {
 function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
-      <div className="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[78%] text-sm leading-relaxed">{text}</div>
+      <div className="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[15px] leading-relaxed">{text}</div>
     </div>
   )
 }
@@ -773,7 +773,7 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 56px)' }}>
+    <div className="flex overflow-hidden h-full">
       <HistorySidebar onNew={resetToHome} sessions={sessions} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
@@ -782,7 +782,7 @@ export default function Home() {
         {/* Tool tab strip — only when chat is active, sits at top */}
         {chatActive && (
           <div className="bg-white border-b border-gray-100 flex-shrink-0">
-            <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {TOOLS.map(t => (
                 <button key={t.key} onClick={() => startTool(t.key)}
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
@@ -806,12 +806,12 @@ export default function Home() {
         )}
 
         {/* Messages / Greeting area — fills available space */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto flex flex-col">
           {!chatActive ? (
             /* Greeting — shown when no messages yet */
-            <div className="h-full flex flex-col items-center justify-center px-6 py-8">
-              <h1 className="text-[26px] font-bold text-[#0f2744] text-center mb-2">{greeting}</h1>
-              <p className="text-sm text-gray-400 text-center mb-6">
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+              <h1 className="text-3xl font-bold text-[#0f2744] text-center mb-2">{greeting}</h1>
+              <p className="text-base text-gray-400 text-center mb-6">
                 {activeTool ? `${activeMeta?.label} — type below and press send` : 'Pick a tool below to get started'}
               </p>
               {user && !user.profile?.is_pro && (
@@ -822,8 +822,8 @@ export default function Home() {
               )}
             </div>
           ) : (
-            /* Chat messages — centered column matching input width */
-            <div className="max-w-3xl mx-auto w-full px-4 pt-6 pb-4 space-y-5">
+            /* Chat messages — centered column matching input width, pinned to bottom */
+            <div className="max-w-4xl mx-auto w-full px-4 pt-4 pb-4 space-y-4 mt-auto">
               {msgs.map(msg => (
                 <div key={msg.id}>
                   {msg.type === 'user'
@@ -882,7 +882,7 @@ export default function Home() {
 
         {/* ── Input area — ALWAYS at the bottom, NEVER moves ── */}
         <div className="border-t border-gray-200 bg-white px-4 py-3 flex-shrink-0">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
 
             {/* Tool chips — only shown on the greeting/pre-start screen */}
             {!chatActive && (
@@ -998,19 +998,19 @@ export default function Home() {
                 {isMultiline
                   ? <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onText() } }}
-                      placeholder={placeholder} rows={3}
-                      className="flex-1 input-base resize-none text-sm leading-relaxed" />
+                      placeholder={placeholder} rows={4}
+                      className="flex-1 input-base resize-none text-[15px] leading-relaxed" />
                   : <input ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && (chatActive ? onText() : canSend && onText())}
                       placeholder={placeholder}
                       disabled={!activeTool || (!chatActive && !activeMeta?.placeholder)}
-                      className="flex-1 input-base text-sm" />
+                      className="flex-1 input-base text-[15px]" />
                 }
                 <button
                   onClick={() => chatActive ? onText() : (canSend && onText())}
                   disabled={!canSend}
-                  className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke={canSend ? 'white' : '#d1d5db'} strokeWidth="2.5" strokeLinecap="round">
                     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                   </svg>

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Home from './pages/Home'
 import Roast from './pages/Roast'
@@ -16,10 +16,13 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 
 function AppShell() {
   const { showAuthModal, showUpgradeModal } = useAuth()
+  const { pathname } = useLocation()
+  const isHome = pathname === '/'
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={isHome ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen flex flex-col'}>
       <Navbar />
-      <main className="flex-1">
+      <main className={isHome ? 'flex-1 min-h-0 overflow-hidden' : 'flex-1'}>
         <Routes>
           <Route path="/"                element={<Home />} />
           <Route path="/roast"           element={<Roast />} />
@@ -31,12 +34,14 @@ function AppShell() {
           <Route path="/admin-users"     element={<AdminUsers />} />
         </Routes>
       </main>
-      <footer className="border-t border-gray-200 py-6 bg-white">
-        <div className="max-w-8xl mx-auto px-6 flex items-center justify-between text-[12px] text-gray-400">
-          <span className="font-semibold text-gray-600">RoastMyWork</span>
-          <span>© {new Date().getFullYear()} · AI-powered resume and career tools</span>
-        </div>
-      </footer>
+      {!isHome && (
+        <footer className="border-t border-gray-200 py-6 bg-white">
+          <div className="max-w-8xl mx-auto px-6 flex items-center justify-between text-[12px] text-gray-400">
+            <span className="font-semibold text-gray-600">RoastMyWork</span>
+            <span>© {new Date().getFullYear()} · AI-powered resume and career tools</span>
+          </div>
+        </footer>
+      )}
       {showAuthModal && <AuthModal />}
       {showUpgradeModal && <UpgradeModal />}
     </div>
@@ -45,7 +50,6 @@ function AppShell() {
 
 export default function App() {
   return (
-    console.log("GOOGLE CLIENT:", import.meta.env.VITE_GOOGLE_CLIENT_ID),
     <GoogleOAuthProvider clientId="917303497941-s27tb7s60q24fo9qvk8aqgk9mui703b5.apps.googleusercontent.com">
       <AuthProvider>
         <Routes>
