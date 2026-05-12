@@ -123,7 +123,7 @@ class ActivityHistoryView(APIView):
             items.append({
                 'id': str(r.id),
                 'entry_type': 'roast',
-                'tool_key': r.work_type,
+                'tool_key': 'roast',
                 'title': f"Roast: {r.get_work_type_display()}",
                 'status': r.status,
                 'score': r.score,

@@ -394,12 +394,33 @@ export default function Home() {
 
   const chatActive = msgs.length > 0
 
+  const mergeActivity = useCallback((entry) => {
+    setSessions(prev => {
+      const next = [entry, ...prev.filter(p => !(p.id === entry.id && p.entry_type === entry.entry_type))]
+      next.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      return next.slice(0, 40)
+    })
+  }, [])
+
+  const refreshActivity = useCallback(async () => {
+    if (!user) return
+    try {
+      const { data } = await authApi.activity(40)
+      setSessions((data.results ?? data).slice(0, 40))
+    } catch {
+      // ignore transient activity refresh errors
+    }
+  }, [user])
+
+  useEffect(() => {
+    refreshActivity()
+  }, [refreshActivity])
+
   useEffect(() => {
     if (!user) return
-    authApi.activity(40)
-      .then(({ data }) => setSessions((data.results ?? data).slice(0, 40)))
-      .catch(() => {})
-  }, [user])
+    const timer = setInterval(() => { refreshActivity() }, 7000)
+    return () => clearInterval(timer)
+  }, [user, refreshActivity])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [msgs, isLoading])
   useEffect(() => { if (!isLoading) inputRef.current?.focus() }, [step, isLoading])
@@ -692,9 +713,21 @@ export default function Home() {
       try {
         const raw = [snap.contact, snap.experience, snap.education && `Education: ${snap.education}`, snap.skills && `Skills: ${snap.skills}`].filter(Boolean).join('\n\n')
         const { data } = await resumeApi.generate({ target_role: snap.role || 'Professional', raw_input: raw })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'resume_builder',
+            tool_key: 'build_resume',
+            title: `Resume Builder${snap.role ? ` - ${snap.role}` : ''}`,
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => resumeApi.get(data.id),
-          (r) => { setResumeData(r.resume_data); setIsLoading(false); setStep('done'); pushAI({ kind: 'resume', text: "Here's your resume! Click Customise to change fonts, colors and layout." }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('role'); pushAI({ text: msg }) })
+          (r) => { setResumeData(r.resume_data); setIsLoading(false); setStep('done'); pushAI({ kind: 'resume', text: "Here's your resume! Click Customise to change fonts, colors and layout." }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('role'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('role')
         if (err.response?.status === 402) openUpgradeModal()
@@ -712,9 +745,21 @@ export default function Home() {
       try {
         const fd = new FormData(); fd.append('file', file)
         const { data } = await updaterApi.submit(fd)
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'resume_update',
+            tool_key: 'fix_resume',
+            title: 'Resume Fix',
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => updaterApi.get(data.id),
-          (r) => { setResumeData(r.resume_data); setIsLoading(false); setStep('done'); pushAI({ kind: 'resume_fix', text: "Here's your improved resume!", issues: r.issues }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('upload'); pushAI({ text: msg }) })
+          (r) => { setResumeData(r.resume_data); setIsLoading(false); setStep('done'); pushAI({ kind: 'resume_fix', text: "Here's your improved resume!", issues: r.issues }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('upload'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('upload')
         if (err.response?.status === 402) openUpgradeModal()
@@ -739,10 +784,22 @@ export default function Home() {
         if (hasFile) fd.append('file', roastFile)
         else fd.append('input_text', roastText.trim())
         const { data } = await roastApi.submit(fd)
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'roast',
+            tool_key: 'roast',
+            title: `Roast: ${WORK_LABELS[collected.workType || 'resume'] || 'Resume'}`,
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         refreshUser()
         startPoll(() => roastApi.get(data.id),
-          (r) => { setResult(r); setIsLoading(false); setStep('done'); pushAI({ kind: 'roast', text: "Here's your roast!", result: r }) },
-          (msg) => { setIsLoading(false); setStep('content'); pushAI({ text: msg }) })
+          (r) => { setResult(r); setIsLoading(false); setStep('done'); pushAI({ kind: 'roast', text: "Here's your roast!", result: r }); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('content'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('content')
         if (err.response?.status === 402) openUpgradeModal()
@@ -759,10 +816,22 @@ export default function Home() {
     const go = async () => {
       try {
         const { data } = await toolsApi.interview.create({ role: snap.role, company_type: snap.companyType, round_type: snap.roundType })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'interview',
+            tool_key: 'interview',
+            title: `Interview Prep${snap.role ? ` - ${snap.role}` : ''}`,
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         setSessionId(data.id)
         startPoll(() => toolsApi.interview.get(data.id),
-          (r) => { if (r.questions?.length > 0) { setQuestions(r.questions); setQIdx(0); setAnswers([]); setIsLoading(false); setStep('interview_answer'); pushAI({ text: `Question 1 of ${r.questions.length}:\n\n${r.questions[0]}` }) } },
-          (msg) => { setIsLoading(false); setStep('role'); pushAI({ text: msg }) })
+          (r) => { if (r.questions?.length > 0) { setQuestions(r.questions); setQIdx(0); setAnswers([]); setIsLoading(false); setStep('interview_answer'); pushAI({ text: `Question 1 of ${r.questions.length}:\n\n${r.questions[0]}` }); refreshActivity() } },
+          (msg) => { setIsLoading(false); setStep('role'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('role')
         if (err.response?.status === 402) openUpgradeModal()
@@ -785,8 +854,8 @@ export default function Home() {
         try {
           await toolsApi.interview.evaluate(sessionId, { answers: newAnswers })
           startPoll(() => toolsApi.interview.get(sessionId),
-            (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'interview', text: "Here's your interview feedback!" }) },
-            (msg) => { setIsLoading(false); pushAI({ text: msg }) })
+            (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'interview', text: "Here's your interview feedback!" }); refreshActivity() },
+            (msg) => { setIsLoading(false); pushAI({ text: msg }); refreshActivity() })
         } catch { setIsLoading(false); pushAI({ text: 'Something went wrong with evaluation.' }) }
       }
       go()
@@ -800,9 +869,21 @@ export default function Home() {
     const go = async () => {
       try {
         const { data } = await toolsApi.jdMatch.submit({ resume_text: snap.resumeText, jd_text: snap.jdText })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'jd_match',
+            tool_key: 'jd_match',
+            title: 'JD Match',
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => toolsApi.jdMatch.get(data.id),
-          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'jd_match', text: "Here's your match analysis!", result: r.result }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('resume_text'); pushAI({ text: msg }) })
+          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'jd_match', text: "Here's your match analysis!", result: r.result }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('resume_text'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('resume_text')
         if (err.response?.status === 402) openUpgradeModal()
@@ -819,9 +900,21 @@ export default function Home() {
     const go = async () => {
       try {
         const { data } = await toolsApi.linkedinDm.submit({ target_info: snap.targetInfo, purpose: snap.purpose, user_background: snap.background })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'linkedin_dm',
+            tool_key: 'linkedin_dm',
+            title: 'LinkedIn DM',
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => toolsApi.linkedinDm.get(data.id),
-          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'linkedin_dm', text: "Here are your outreach messages!", result: r.result }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('target'); pushAI({ text: msg }) })
+          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'linkedin_dm', text: "Here are your outreach messages!", result: r.result }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('target'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('target')
         if (err.response?.status === 402) openUpgradeModal()
@@ -838,9 +931,21 @@ export default function Home() {
     const go = async () => {
       try {
         const { data } = await toolsApi.linkedinOpt.submit({ current_profile: snap.profile, target_role: snap.targetRole || '' })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'linkedin_opt',
+            tool_key: 'linkedin_opt',
+            title: 'LinkedIn Optimize',
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => toolsApi.linkedinOpt.get(data.id),
-          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'linkedin_opt', text: "Here's your optimized profile!", result: r.result }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('profile'); pushAI({ text: msg }) })
+          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'linkedin_opt', text: "Here's your optimized profile!", result: r.result }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('profile'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('profile')
         if (err.response?.status === 402) openUpgradeModal()
@@ -857,9 +962,21 @@ export default function Home() {
     const go = async () => {
       try {
         const { data } = await toolsApi.salary.submit({ offer_details: snap.offer, experience_info: snap.experience, situation: snap.situation || '' })
+        if (user) {
+          mergeActivity({
+            id: data.id,
+            entry_type: 'salary',
+            tool_key: 'salary',
+            title: 'Salary Coach',
+            status: data.status || 'pending',
+            score: null,
+            created_at: new Date().toISOString(),
+          })
+          refreshActivity()
+        }
         startPoll(() => toolsApi.salary.get(data.id),
-          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'salary', text: "Here's your salary analysis!", result: r.result }); refreshUser() },
-          (msg) => { setIsLoading(false); setStep('offer'); pushAI({ text: msg }) })
+          (r) => { setResult(r.result); setIsLoading(false); setStep('done'); pushAI({ kind: 'salary', text: "Here's your salary analysis!", result: r.result }); refreshUser(); refreshActivity() },
+          (msg) => { setIsLoading(false); setStep('offer'); pushAI({ text: msg }); refreshActivity() })
       } catch (err) {
         setIsLoading(false); setStep('offer')
         if (err.response?.status === 402) openUpgradeModal()
