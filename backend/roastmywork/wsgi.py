@@ -3,3 +3,5 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'roastmywork.settings')
 application = get_wsgi_application()
+
+import roast.create_superuser
