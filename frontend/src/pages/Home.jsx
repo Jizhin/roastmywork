@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { resumeApi, updaterApi, roastApi, toolsApi } from '../api/client'
+import { resumeApi, updaterApi, roastApi, toolsApi, authApi } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ResumeRenderer, { DEFAULT_STYLE } from '../components/ResumeRenderer'
 import StylePanel from '../components/StylePanel'
@@ -329,16 +329,16 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
           <>
             <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2" style={{ color: 'var(--text-3)' }}>Recent</p>
             {sessions.map(s => (
-              <button key={s.id} onClick={() => onLoadSession(s.id)}
+              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)}
                 className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-lg mx-1 transition-all text-left"
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
                   style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
-                  <ToolIcon toolKey="roast" size={11} />
+                  <ToolIcon toolKey={s.tool_key || 'roast'} size={11} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium truncate" style={{ color: 'var(--text)' }}>{WORK_LABELS[s.work_type] || 'Roast'}</p>
+                  <p className="text-[12px] font-medium truncate" style={{ color: 'var(--text)' }}>{s.title || 'Activity'}</p>
                   <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>{fmt(s.created_at)}</p>
                 </div>
               </button>
@@ -395,7 +395,10 @@ export default function Home() {
   const chatActive = msgs.length > 0
 
   useEffect(() => {
-    if (user) roastApi.history().then(({ data }) => setSessions((data.results ?? data).slice(0, 20))).catch(() => {})
+    if (!user) return
+    authApi.activity(40)
+      .then(({ data }) => setSessions((data.results ?? data).slice(0, 40)))
+      .catch(() => {})
   }, [user])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [msgs, isLoading])
@@ -467,25 +470,96 @@ export default function Home() {
     setResumeData(null)
   }
 
-  // Load a historical roast session inline into the chat
-  const loadSession = async (id) => {
+  // Load a historical activity inline into the chat
+  const loadSession = async (item) => {
     stopPoll()
-    setActiveTool('roast')
+    setActiveTool(item?.tool_key || 'roast')
     setStep('loading')
     setMsgs([])
     setIsLoading(true)
     setResult(null)
+    setResumeData(null)
+
+    const showPending = (label, statusValue) => {
+      setMsgs([{ type: 'ai', id: 'hist-pending', text: `${label} is ${statusValue}. Check back shortly.` }])
+      setStep(null)
+      setActiveTool(null)
+    }
+
     try {
-      const { data } = await roastApi.get(id)
-      if (data.status === 'completed') {
-        setMsgs([{
-          type: 'ai', id: 'hist-result',
-          text: `${WORK_LABELS[data.work_type] || 'Work'} roast — ${new Date(data.created_at).toLocaleDateString()}`,
-          kind: 'roast', result: data,
-        }])
-        setStep('done')
+      if (item.entry_type === 'roast') {
+        const { data } = await roastApi.get(item.id)
+        if (data.status === 'completed') {
+          setMsgs([{
+            type: 'ai', id: 'hist-roast',
+            text: `${WORK_LABELS[data.work_type] || 'Work'} roast — ${new Date(data.created_at).toLocaleDateString()}`,
+            kind: 'roast', result: data,
+          }])
+          setStep('done')
+        } else {
+          showPending('This roast', data.status)
+        }
+      } else if (item.entry_type === 'resume_builder') {
+        const { data } = await resumeApi.get(item.id)
+        if (data.status === 'completed' && data.resume_data) {
+          setResumeData(data.resume_data)
+          setMsgs([{ type: 'ai', id: 'hist-resume', text: 'Loaded your generated resume.', kind: 'resume' }])
+          setStep('done')
+        } else {
+          showPending('This resume build', data.status)
+        }
+      } else if (item.entry_type === 'resume_update') {
+        const { data } = await updaterApi.get(item.id)
+        if (data.status === 'completed' && data.resume_data) {
+          setResumeData(data.resume_data)
+          setMsgs([{ type: 'ai', id: 'hist-resume-fix', text: 'Loaded your improved resume.', kind: 'resume_fix', issues: data.issues }])
+          setStep('done')
+        } else {
+          showPending('This resume fix', data.status)
+        }
+      } else if (item.entry_type === 'jd_match') {
+        const { data } = await toolsApi.jdMatch.get(item.id)
+        if (data.status === 'completed' && data.result) {
+          setMsgs([{ type: 'ai', id: 'hist-jd', text: 'Loaded your JD match analysis.', kind: 'jd_match', result: data.result }])
+          setStep('done')
+        } else {
+          showPending('This JD match', data.status)
+        }
+      } else if (item.entry_type === 'interview') {
+        const { data } = await toolsApi.interview.get(item.id)
+        if (data.status === 'completed' && data.result) {
+          setResult(data.result)
+          setMsgs([{ type: 'ai', id: 'hist-interview', text: 'Loaded your interview feedback.', kind: 'interview', result: data.result }])
+          setStep('done')
+        } else {
+          showPending('This interview session', data.status)
+        }
+      } else if (item.entry_type === 'linkedin_dm') {
+        const { data } = await toolsApi.linkedinDm.get(item.id)
+        if (data.status === 'completed' && data.result) {
+          setMsgs([{ type: 'ai', id: 'hist-lidm', text: 'Loaded your LinkedIn DM variants.', kind: 'linkedin_dm', result: data.result }])
+          setStep('done')
+        } else {
+          showPending('This LinkedIn DM request', data.status)
+        }
+      } else if (item.entry_type === 'linkedin_opt') {
+        const { data } = await toolsApi.linkedinOpt.get(item.id)
+        if (data.status === 'completed' && data.result) {
+          setMsgs([{ type: 'ai', id: 'hist-liopt', text: 'Loaded your LinkedIn optimization result.', kind: 'linkedin_opt', result: data.result }])
+          setStep('done')
+        } else {
+          showPending('This LinkedIn optimization', data.status)
+        }
+      } else if (item.entry_type === 'salary') {
+        const { data } = await toolsApi.salary.get(item.id)
+        if (data.status === 'completed' && data.result) {
+          setMsgs([{ type: 'ai', id: 'hist-salary', text: 'Loaded your salary analysis.', kind: 'salary', result: data.result }])
+          setStep('done')
+        } else {
+          showPending('This salary analysis', data.status)
+        }
       } else {
-        setMsgs([{ type: 'ai', id: 'hist-pending', text: `This roast is ${data.status}. Check back shortly.` }])
+        setMsgs([{ type: 'ai', id: 'hist-unknown', text: 'Unsupported history entry type.' }])
         setStep(null)
         setActiveTool(null)
       }
@@ -909,7 +983,7 @@ export default function Home() {
                         )}
                         {msg.kind === 'jd_match'   && msg.result && <JDMatchResult result={msg.result} />}
                         {msg.kind === 'roast'       && msg.result && <RoastResult result={msg.result} />}
-                        {msg.kind === 'interview'   && result     && <InterviewResult result={result} />}
+                        {msg.kind === 'interview'   && (msg.result || result) && <InterviewResult result={msg.result || result} />}
                         {msg.kind === 'linkedin_dm' && msg.result && <LinkedInDMResult result={msg.result} />}
                         {msg.kind === 'linkedin_opt'&& msg.result && <LinkedInOptResult result={msg.result} />}
                         {msg.kind === 'salary'      && msg.result && <SalaryResult result={msg.result} />}

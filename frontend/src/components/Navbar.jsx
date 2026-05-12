@@ -24,8 +24,8 @@ export default function Navbar() {
     <header
       className="sticky top-0 z-40"
       style={{
-        background: 'rgba(9,9,11,0.85)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(255,255,255,0.9)',
+        borderBottom: '1px solid var(--border)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
       }}
@@ -61,11 +61,11 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                   isActive
-                    ? 'text-white bg-white/8'
-                    : 'text-[--text-2] hover:text-white hover:bg-white/5'
+                    ? 'text-white'
+                    : 'text-[--text-2] hover:text-[--text]'
                 }`
               }
-              style={({ isActive }) => isActive ? { background: 'rgba(255,255,255,0.08)' } : {}}
+              style={({ isActive }) => isActive ? { background: 'var(--accent)' } : {}}
             >
               {label}
             </NavLink>
@@ -97,15 +97,15 @@ export default function Navbar() {
                 </Link>
               )}
 
-              <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
 
               {/* User menu */}
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(o => !o)}
                   className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg transition-all duration-150"
-                  style={{ ':hover': { background: 'rgba(255,255,255,0.06)' } }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                  style={{ ':hover': { background: 'rgba(79,70,229,0.08)' } }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(79,70,229,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
                   <div
@@ -129,7 +129,7 @@ export default function Navbar() {
                     style={{
                       background: 'var(--surface-2)',
                       border: '1px solid var(--border-strong)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                      boxShadow: '0 12px 30px rgba(15,23,42,0.16)',
                     }}
                   >
                     <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
@@ -141,7 +141,7 @@ export default function Navbar() {
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] transition-colors"
                       style={{ color: 'var(--text-2)' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,70,229,0.08)'; e.currentTarget.style.color = 'var(--text)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = 'var(--text-2)' }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

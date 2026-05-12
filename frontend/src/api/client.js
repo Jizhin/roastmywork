@@ -73,6 +73,8 @@ export const authApi = {
   register: (data) => api.post('/users/register/', data),
   login: (data) => api.post('/auth/token/', data),
   me: () => api.get('/users/me/'),
+  activity: (limit = 40) => api.get(`/users/activity/?limit=${limit}`),
+  clearActivity: () => api.delete('/users/activity/'),
 }
 
 export default api
