@@ -35,7 +35,7 @@ export default function Result() {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-32 text-center">
-        <p className="text-red-600 text-lg mb-6">{error}</p>
+        <p className="text-[15px] mb-6" style={{ color: '#f87171' }}>{error}</p>
         <Link to="/" className="btn-primary">Try Again</Link>
       </div>
     )
@@ -44,9 +44,12 @@ export default function Result() {
   if (!data || data.status === 'pending' || data.status === 'processing') {
     return (
       <div className="max-w-2xl mx-auto px-6 py-36 text-center">
-        <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Roasting in progress</h2>
-        <p className="text-gray-500 text-sm">Generating roast, fix report, and improved file — usually 20–40 seconds.</p>
+        <div
+          className="w-12 h-12 mx-auto mb-6 rounded-full border-2 border-t-transparent animate-spin"
+          style={{ borderColor: 'rgba(255,255,255,0.1)', borderTopColor: 'var(--accent)' }}
+        />
+        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>Roasting in progress</h2>
+        <p className="text-[14px]" style={{ color: 'var(--text-2)' }}>Generating roast, fix report, and improved file — usually 20–40 seconds.</p>
       </div>
     )
   }
@@ -54,8 +57,8 @@ export default function Result() {
   if (data.status === 'failed') {
     return (
       <div className="max-w-2xl mx-auto px-6 py-32 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Roast failed</h2>
-        <p className="text-gray-500 mb-7">The AI couldn't process your submission. Please try again.</p>
+        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>Roast failed</h2>
+        <p className="mb-7" style={{ color: 'var(--text-2)' }}>The AI couldn't process your submission. Please try again.</p>
         <Link to="/" className="btn-primary">Start Over</Link>
       </div>
     )
@@ -63,7 +66,11 @@ export default function Result() {
 
   return (
     <div className="max-w-8xl mx-auto px-6 py-8">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-800 transition-colors mb-6">
+      <Link to="/" className="inline-flex items-center gap-1.5 text-[13px] transition-colors mb-6"
+        style={{ color: 'var(--text-3)' }}
+        onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}
+      >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
         Back
       </Link>
@@ -90,14 +97,17 @@ function FixedOutputSection({ data }) {
 
   if (data.work_type === 'resume' && data.fixed_resume_data) {
     return (
-      <div className="card overflow-hidden animate-fade-up" style={{ animationDelay: '120ms' }}>
+      <div className="overflow-hidden animate-fade-up" style={{ animationDelay: '120ms', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
         <button
           onClick={() => setOpen((o) => !o)}
-          className="w-full flex items-center justify-between p-6 text-left"
+          className="w-full flex items-center justify-between p-6 text-left transition-colors"
+          style={{ background: open ? 'rgba(249,115,22,0.04)' : 'transparent', borderBottom: open ? '1px solid var(--border)' : 'none' }}
+          onMouseEnter={e => { if (!open) e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
+          onMouseLeave={e => { if (!open) e.currentTarget.style.background = 'transparent' }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.8">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="1.8">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
                 <line x1="9" y1="13" x2="15" y2="13"/>
@@ -105,8 +115,8 @@ function FixedOutputSection({ data }) {
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">ATS-Optimized Version</h2>
-              <p className="text-gray-500 text-sm mt-0.5">Same content, improved language — ready to print or copy back into your original</p>
+              <h2 className="text-[15px] font-bold" style={{ color: 'var(--text)' }}>ATS-Optimized Version</h2>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-3)' }}>Same content, improved language — ready to print or copy</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 ml-4">
@@ -123,24 +133,24 @@ function FixedOutputSection({ data }) {
                 Print / PDF
               </button>
             )}
-            <div className={`w-7 h-7 rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <div className="w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', transform: open ? 'rotate(180deg)' : '', color: 'var(--text-3)' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
         </button>
 
         {open && (
-          <div className="border-t border-gray-100">
-            {/* Notice banner */}
-            <div className="flex items-start gap-3 px-6 py-4 bg-amber-50 border-b border-amber-100">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+          <div>
+            <div className="flex items-start gap-3 px-6 py-4" style={{ background: 'rgba(245,158,11,0.06)', borderBottom: '1px solid rgba(245,158,11,0.15)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" className="flex-shrink-0 mt-0.5">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              <p className="text-sm text-amber-800 leading-relaxed">
-                <strong>Your original styling is not changed.</strong> This is your same content re-rendered in a clean ATS-friendly format with language improvements applied. Copy the improved bullet points back into your original file to keep your design.
+              <p className="text-[13px] leading-relaxed" style={{ color: '#fcd34d' }}>
+                <strong style={{ color: '#fde68a' }}>Original styling not changed.</strong> Copy improved bullet points back into your original file to keep your design.
               </p>
             </div>
-            <div className="p-6 bg-gray-50">
+            <div className="p-6" style={{ background: 'var(--surface-2)' }}>
               <ResumePreview data={data.fixed_resume_data} />
             </div>
           </div>
@@ -151,20 +161,23 @@ function FixedOutputSection({ data }) {
 
   if (data.work_type === 'code' && data.fixed_code) {
     return (
-      <div className="card overflow-hidden animate-fade-up" style={{ animationDelay: '120ms' }}>
+      <div className="overflow-hidden animate-fade-up" style={{ animationDelay: '120ms', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
         <button
           onClick={() => setOpen((o) => !o)}
-          className="w-full flex items-center justify-between p-6 text-left"
+          className="w-full flex items-center justify-between p-6 text-left transition-colors"
+          style={{ background: open ? 'rgba(99,102,241,0.04)' : 'transparent', borderBottom: open ? '1px solid var(--border)' : 'none' }}
+          onMouseEnter={e => { if (!open) e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
+          onMouseLeave={e => { if (!open) e.currentTarget.style.background = 'transparent' }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.8">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="1.8">
                 <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">Fixed Code</h2>
-              <p className="text-gray-500 text-sm mt-0.5">All suggested improvements applied — download and use directly</p>
+              <h2 className="text-[15px] font-bold" style={{ color: 'var(--text)' }}>Fixed Code</h2>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-3)' }}>All improvements applied — download and use directly</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 ml-4">
@@ -181,15 +194,17 @@ function FixedOutputSection({ data }) {
                 Download
               </button>
             )}
-            <div className={`w-7 h-7 rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <div className="w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', transform: open ? 'rotate(180deg)' : '', color: 'var(--text-3)' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
         </button>
 
         {open && (
-          <div className="border-t border-gray-100">
-            <pre className="p-6 text-[13px] font-mono text-gray-800 leading-relaxed overflow-x-auto bg-gray-50 max-h-[600px] overflow-y-auto whitespace-pre-wrap">
+          <div style={{ borderTop: '1px solid var(--border)' }}>
+            <pre className="p-6 text-[13px] font-mono leading-relaxed overflow-x-auto max-h-[600px] overflow-y-auto whitespace-pre-wrap"
+              style={{ background: 'var(--surface-2)', color: '#a5b4fc' }}>
               {data.fixed_code}
             </pre>
           </div>
@@ -228,26 +243,31 @@ function ScoreSidebar({ submission }) {
   if (!score) return null
 
   const color =
-    score >= 80 ? '#16a34a' :
-    score >= 60 ? '#d97706' :
-    score >= 40 ? '#ea580c' : '#dc2626'
+    score >= 80 ? '#10b981' :
+    score >= 60 ? '#f59e0b' :
+    score >= 40 ? '#f97316' : '#ef4444'
 
   const label =
-    score >= 80 ? 'Solid work'  :
+    score >= 80 ? 'Solid work'   :
     score >= 60 ? 'Needs polish' :
-    score >= 40 ? 'Rough edges' : 'Needs work'
+    score >= 40 ? 'Rough edges'  : 'Needs work'
 
   const r    = 52
   const circ = 2 * Math.PI * r
   const dash = circ - (score / 100) * circ
 
   return (
-    <div className="card p-5 text-center space-y-4 no-print">
+    <div className="p-5 text-center space-y-4 no-print" style={{
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 14,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+    }}>
       <p className="section-title">Score</p>
 
       <div className="relative inline-flex items-center justify-center">
         <svg width="130" height="130" viewBox="0 0 130 130" className="-rotate-90">
-          <circle cx="65" cy="65" r={r} fill="none" stroke="#f3f4f6" strokeWidth="9"/>
+          <circle cx="65" cy="65" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="9"/>
           <circle
             cx="65" cy="65" r={r} fill="none"
             stroke={color} strokeWidth="9"
@@ -258,35 +278,35 @@ function ScoreSidebar({ submission }) {
           />
         </svg>
         <div className="absolute flex flex-col items-center">
-          <span className="text-4xl font-extrabold text-gray-900 tabular-nums leading-none">{score}</span>
-          <span className="text-gray-400 text-xs mt-0.5">/100</span>
+          <span className="text-4xl font-extrabold tabular-nums leading-none" style={{ color: 'var(--text)' }}>{score}</span>
+          <span className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>/100</span>
         </div>
       </div>
 
       <div>
-        <p className="font-bold text-gray-900">{label}</p>
-        <p className="text-gray-400 text-xs mt-0.5">{work_type_display} · {intensity_display}</p>
+        <p className="font-bold" style={{ color: 'var(--text)' }}>{label}</p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>{work_type_display} · {intensity_display}</p>
       </div>
 
-      <div className="border-t border-gray-100 pt-4 text-left space-y-3">
+      <div className="pt-4 text-left space-y-3" style={{ borderTop: '1px solid var(--border)' }}>
         {[
           { label: 'First impression', val: Math.max(10, Math.min(100, score + Math.round((Math.random() - 0.5) * 14))) },
           { label: 'Content quality',  val: Math.max(10, Math.min(100, score + Math.round((Math.random() - 0.5) * 12))) },
           { label: 'Professionalism',  val: Math.max(10, Math.min(100, score + Math.round((Math.random() - 0.5) * 10))) },
         ].map((bar) => (
           <div key={bar.label}>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-gray-500">{bar.label}</span>
-              <span className="text-gray-500 tabular-nums font-medium">{bar.val}</span>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span style={{ color: 'var(--text-2)' }}>{bar.label}</span>
+              <span className="tabular-nums font-medium" style={{ color: 'var(--text-2)' }}>{bar.val}</span>
             </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${bar.val}%`, background: color }} />
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <div className="h-full rounded-full" style={{ width: `${bar.val}%`, background: color, transition: 'width 0.7s ease-out' }} />
             </div>
           </div>
         ))}
       </div>
 
-      <p className="text-gray-400 text-[11px] pt-1">
+      <p className="text-[11px] pt-1" style={{ color: 'var(--text-3)' }}>
         {new Date(created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
       </p>
     </div>

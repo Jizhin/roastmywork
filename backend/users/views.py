@@ -34,14 +34,26 @@ class GoogleAuthView(APIView):
         if not credential:
             return Response({'detail': 'Credential required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        allowed_client_ids = _allowed_google_client_ids()
+        if not allowed_client_ids:
+            return Response(
+                {'detail': 'Google sign-in is not configured on the server.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         try:
             idinfo = id_token.verify_oauth2_token(
                 credential,
                 google_requests.Request(),
-                settings.GOOGLE_CLIENT_ID,
             )
         except ValueError:
             return Response({'detail': 'Invalid Google token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if idinfo.get('aud') not in allowed_client_ids:
+            return Response({'detail': 'Token audience mismatch.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not idinfo.get('email_verified', False):
+            return Response({'detail': 'Google email is not verified.'}, status=status.HTTP_400_BAD_REQUEST)
 
         email = idinfo['email']
         first_name = idinfo.get('given_name', '')
@@ -100,3 +112,13 @@ def _unique_username(email):
         username = f'{base}{n}'
         n += 1
     return username
+
+
+def _allowed_google_client_ids():
+    raw = getattr(settings, 'GOOGLE_CLIENT_IDS', '')
+    client_ids = [v.strip() for v in raw.split(',') if v.strip()]
+    if client_ids:
+        return client_ids
+
+    single = getattr(settings, 'GOOGLE_CLIENT_ID', '').strip()
+    return [single] if single else []

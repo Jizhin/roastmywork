@@ -1,69 +1,175 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&family=Geist:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg:           #09090b;
+  --surface:      #111115;
+  --surface-2:    #18181c;
+  --surface-3:    #1e1e24;
+  --border:       rgba(255,255,255,0.07);
+  --border-strong:rgba(255,255,255,0.13);
+  --text:         #f4f4f5;
+  --text-2:       #a1a1aa;
+  --text-3:       #52525b;
+  --accent:       #6366f1;
+  --accent-2:     #818cf8;
+  --accent-glow:  rgba(99,102,241,0.18);
+  --green:        #10b981;
+  --amber:        #f59e0b;
+  --red:          #ef4444;
+}
+
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
 
+  html { color-scheme: dark; }
+
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', 'Geist', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { @apply bg-gray-100; }
-  ::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+  ::selection { background: rgba(99,102,241,0.35); color: #fff; }
 }
 
 @layer components {
+  /* ── Buttons ── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           bg-blue-600 hover:bg-blue-700 active:bg-blue-800
-           text-white font-semibold py-2.5 px-5 rounded-lg text-sm
-           transition-all duration-150
+           font-semibold py-2.5 px-5 rounded-lg text-sm
+           transition-all duration-150 cursor-pointer
            disabled:opacity-40 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: #fff;
+    box-shadow: 0 0 0 0 transparent;
   }
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #818cf8, #8b5cf6);
+    box-shadow: 0 0 20px rgba(99,102,241,0.35);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
+
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           border border-gray-200 hover:border-gray-300
-           bg-white hover:bg-gray-50
-           text-gray-700 hover:text-gray-900 font-medium text-sm
-           py-2.5 px-5 rounded-lg transition-all duration-150;
+           font-medium text-sm py-2.5 px-5 rounded-lg transition-all duration-150 cursor-pointer;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text-2);
   }
+  .btn-secondary:hover {
+    background: var(--surface-3);
+    border-color: rgba(255,255,255,0.2);
+    color: var(--text);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 font-medium text-sm
+           px-3 py-2 rounded-lg transition-all duration-150 cursor-pointer;
+    color: var(--text-2);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+  }
+
+  /* ── Cards ── */
   .card {
-    @apply bg-white border border-gray-200 rounded-xl;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.03);
   }
+
+  .card-hover {
+    @apply card;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .card-hover:hover {
+    border-color: rgba(99,102,241,0.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.15);
+    transform: translateY(-1px);
+  }
+
+  /* ── Inputs ── */
   .input-base {
-    @apply w-full bg-white border border-gray-300 rounded-lg
-           px-3.5 py-2.5 text-gray-900 placeholder-gray-400 text-sm
-           focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
-           transition-all duration-150;
+    @apply w-full text-sm transition-all duration-150;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 0.6rem 0.875rem;
+    color: var(--text);
+    outline: none;
   }
+  .input-base::placeholder { color: var(--text-3); }
+  .input-base:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  /* ── Labels ── */
   .section-title {
-    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* ── Badge ── */
+  .badge {
+    @apply inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full;
+    border: 1px solid var(--border-strong);
+  }
+  .badge-green  { background: rgba(16,185,129,0.1);  color: #34d399; border-color: rgba(16,185,129,0.2);  }
+  .badge-amber  { background: rgba(245,158,11,0.1);  color: #fbbf24; border-color: rgba(245,158,11,0.2);  }
+  .badge-red    { background: rgba(239,68,68,0.1);   color: #f87171; border-color: rgba(239,68,68,0.2);   }
+  .badge-blue   { background: rgba(99,102,241,0.12); color: #a5b4fc; border-color: rgba(99,102,241,0.2);  }
+  .badge-gray   { background: rgba(255,255,255,0.05); color: var(--text-2); }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* ── Score ring colors ── */
+  .score-ring-high   { stroke: #10b981; }
+  .score-ring-mid    { stroke: #f59e0b; }
+  .score-ring-low    { stroke: #f97316; }
+  .score-ring-bad    { stroke: #ef4444; }
+
+  /* ── Gradient text ── */
+  .grad-text {
+    background: linear-gradient(135deg, #6366f1, #a78bfa, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Glow accent ── */
+  .glow-accent {
+    box-shadow: 0 0 30px var(--accent-glow);
   }
 }
 
 @media print {
-  /* Hide everything on the page */
   body * { visibility: hidden; }
-
-  /* Show only the resume and all its children */
-  #resume-preview,
-  #resume-preview * {
-    visibility: visible;
-  }
-
-  /* Place the resume at the very top of the printed page */
+  #resume-preview, #resume-preview * { visibility: visible; }
   #resume-preview {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    position: absolute; top: 0; left: 0; width: 100%;
+    box-shadow: none !important; border-radius: 0 !important;
   }
 }

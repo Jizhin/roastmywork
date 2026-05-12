@@ -5,24 +5,55 @@ export default function FixReport({ fixOutput }) {
   if (!fixOutput) return null
 
   return (
-    <div className="card p-6 animate-fade-up" style={{ animationDelay: '60ms' }}>
+    <div
+      className="overflow-hidden animate-fade-up"
+      style={{
+        animationDelay: '60ms',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 14,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+      }}
+    >
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between text-left"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-6 py-4 text-left transition-colors"
+        style={{ background: open ? 'rgba(99,102,241,0.04)' : 'transparent', borderBottom: open ? '1px solid var(--border)' : 'none' }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.background = 'transparent' }}
       >
-        <div>
-          <h2 className="text-base font-bold text-gray-900">Fix Report</h2>
-          <p className="text-gray-500 text-sm mt-0.5">Actionable steps to improve your work</p>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-[15px] font-bold" style={{ color: 'var(--text)' }}>Fix Report</h2>
+            <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-3)' }}>Actionable steps to improve your work</p>
+          </div>
         </div>
-        <div className={`w-7 h-7 rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <div
+          className="w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--border)',
+            transform: open ? 'rotate(180deg)' : '',
+            color: 'var(--text-3)',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </div>
       </button>
 
       {open && (
-        <div className="mt-5 border-t border-gray-100 pt-5">
+        <div className="px-6 py-5">
           <MarkdownRenderer content={fixOutput} />
         </div>
       )}
@@ -32,60 +63,61 @@ export default function FixReport({ fixOutput }) {
 
 function MarkdownRenderer({ content }) {
   const lines = content.split('\n')
-  const elements = []
-  let listItems = []
+  const els   = []
+  let list    = []
 
-  const flushList = () => {
-    if (listItems.length > 0) {
-      elements.push(
-        <ul key={elements.length} className="mt-2 space-y-2">
-          {listItems.map((item, i) => (
-            <li key={i} className="flex gap-2.5 text-sm text-gray-700 leading-relaxed">
-              <span className="mt-2 w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
-              <span dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
-            </li>
-          ))}
-        </ul>
-      )
-      listItems = []
-    }
+  const flush = () => {
+    if (!list.length) return
+    els.push(
+      <ul key={els.length} className="mt-2 space-y-2">
+        {list.map((item, i) => (
+          <li key={i} className="flex gap-2.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-2)' }}>
+            <span className="mt-[7px] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#f97316' }} />
+            <span dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
+          </li>
+        ))}
+      </ul>
+    )
+    list = []
   }
 
   lines.forEach((line, i) => {
     if (line.startsWith('## ')) {
-      flushList()
-      elements.push(
-        <h3 key={i} className="text-xs font-bold uppercase tracking-wider text-orange-600 mt-5 mb-1">
+      flush()
+      els.push(
+        <p key={i} className="text-[10px] font-bold uppercase tracking-widest mt-5 mb-1.5"
+          style={{ color: '#fb923c' }}>
           {line.replace('## ', '')}
-        </h3>
+        </p>
       )
     } else if (line.startsWith('# ')) {
-      flushList()
-      elements.push(
-        <h2 key={i} className="text-sm font-bold text-gray-900 mt-5 mb-1">
+      flush()
+      els.push(
+        <p key={i} className="text-[14px] font-semibold mt-4 mb-1" style={{ color: 'var(--text)' }}>
           {line.replace('# ', '')}
-        </h2>
+        </p>
       )
     } else if (line.match(/^(\d+\.|-|\*)\s/)) {
-      listItems.push(line.replace(/^(\d+\.|-|\*)\s/, ''))
+      list.push(line.replace(/^(\d+\.|-|\*)\s/, ''))
     } else if (line.trim() === '') {
-      flushList()
-      elements.push(<div key={i} className="h-1" />)
+      flush()
+      els.push(<div key={i} className="h-1.5" />)
     } else {
-      flushList()
-      elements.push(
-        <p key={i} className="text-sm text-gray-700 leading-relaxed"
+      flush()
+      els.push(
+        <p key={i} className="text-[13px] leading-relaxed" style={{ color: 'var(--text-2)' }}
           dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
       )
     }
   })
-  flushList()
-  return <div className="space-y-0.5">{elements}</div>
+  flush()
+  return <div className="space-y-0.5">{els}</div>
 }
 
 function formatInline(text) {
   return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
-    .replace(/`(.+?)`/g, '<code class="bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded text-orange-600 font-mono text-xs">$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text);font-weight:600">$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/`(.+?)`/g,       '<code style="background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11px;color:#a5b4fc">$1</code>')
 }
+

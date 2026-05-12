@@ -39,11 +39,14 @@ export function AuthProvider({ children }) {
     setUser(userData)
     setLoading(false)
     setShowAuthModal(false)
+    let resumedPendingAction = false
     if (afterLoginCallback.current) {
       const cb = afterLoginCallback.current
       afterLoginCallback.current = null
       cb()
+      resumedPendingAction = true
     }
+    return resumedPendingAction
   }
 
   const openAuthModal = (callback = null) => {

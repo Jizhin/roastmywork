@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/client'
 
 export default function AuthModal() {
   const { closeAuthModal, onLoginSuccess } = useAuth()
+  const navigate = useNavigate()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [elapsed, setElapsed] = useState(0)
@@ -33,7 +35,10 @@ export default function AuthModal() {
         { signal: controller.signal }
       )
       clearTimeout(timeout)
-      onLoginSuccess(data.access, data.refresh, data.user)
+      const resumedPendingAction = onLoginSuccess(data.access, data.refresh, data.user)
+      if (!resumedPendingAction) {
+        navigate('/')
+      }
     } catch (err) {
       clearTimeout(timeout)
       if (err.code === 'ERR_CANCELED' || err.name === 'AbortError' || err.name === 'CanceledError') {

@@ -87,10 +87,11 @@ function ToolIcon({ toolKey, size = 20 }) {
 
 function AIAvatar() {
   return (
-    <div className="w-7 h-7 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
+    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
         <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
-        <path d="M12 12c-.8 1.8-1.2 3-1.2 4a1.2 1.2 0 0 0 2.4 0c0-1-.4-2.2-1.2-4Z" fillOpacity="0.4"/>
+        <path d="M12 12c-.8 1.8-1.2 3-1.2 4a1.2 1.2 0 0 0 2.4 0c0-1-.4-2.2-1.2-4Z" fillOpacity="0.5"/>
       </svg>
     </div>
   )
@@ -100,9 +101,10 @@ function TypingDots() {
   return (
     <div className="flex gap-2.5 items-start">
       <AIAvatar />
-      <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+      <div className="rounded-2xl rounded-tl-sm px-4 py-3"
+        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
         <div className="flex gap-1 items-center h-4">
-          {[0, 140, 280].map(d => <span key={d} className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
+          {[0, 140, 280].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent-2)', animationDelay: `${d}ms` }} />)}
         </div>
       </div>
     </div>
@@ -115,8 +117,9 @@ function AIBubble({ text, children }) {
       <AIAvatar />
       <div className="flex-1 min-w-0 space-y-2">
         {text && (
-          <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
-            <p className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap break-words">{text}</p>
+          <div className="rounded-2xl rounded-tl-sm px-5 py-4"
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+            <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words" style={{ color: 'var(--text)' }}>{text}</p>
           </div>
         )}
         {children}
@@ -128,7 +131,10 @@ function AIBubble({ text, children }) {
 function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
-      <div className="bg-blue-600 text-white rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[15px] leading-relaxed">{text}</div>
+      <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[14px] leading-relaxed"
+        style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', color: '#fff' }}>
+        {text}
+      </div>
     </div>
   )
 }
@@ -140,13 +146,15 @@ function Choices({ items, chosen, onChoose }) {
         const isThis = chosen === c.value
         return (
           <button key={c.value} onClick={() => !chosen && onChoose(c.value)} disabled={!!chosen}
-            className={`px-3.5 py-2 rounded-xl border-2 text-sm font-medium transition-all text-left ${
-              isThis ? 'border-blue-600 bg-blue-600 text-white'
-              : chosen ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-default'
-              : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
-            }`}>
+            className="px-3.5 py-2 rounded-xl text-sm font-medium transition-all text-left"
+            style={{
+              border: `2px solid ${isThis ? 'var(--accent)' : chosen ? 'rgba(255,255,255,0.05)' : 'var(--border-strong)'}`,
+              background: isThis ? 'var(--accent)' : chosen ? 'rgba(255,255,255,0.02)' : 'var(--surface-3)',
+              color: isThis ? '#fff' : chosen ? 'var(--text-3)' : 'var(--text)',
+              cursor: chosen && !isThis ? 'default' : 'pointer',
+            }}>
             <span className="block">{c.label}</span>
-            {c.sub && <span className={`block text-xs font-normal mt-0.5 ${isThis ? 'text-blue-100' : chosen ? 'text-gray-300' : 'text-gray-400'}`}>{c.sub}</span>}
+            {c.sub && <span className="block text-xs font-normal mt-0.5" style={{ color: isThis ? 'rgba(255,255,255,0.7)' : 'var(--text-3)' }}>{c.sub}</span>}
           </button>
         )
       })}
@@ -158,7 +166,8 @@ function CopyButton({ text }) {
   const [copied, setCopied] = useState(false)
   return (
     <button onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all ${copied ? 'bg-green-100 text-green-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}>
+      className="text-xs px-2.5 py-1 rounded-lg font-medium transition-all"
+      style={copied ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' } : { background: 'rgba(255,255,255,0.07)', color: 'var(--text-2)' }}>
       {copied ? 'Copied!' : 'Copy'}
     </button>
   )
@@ -169,11 +178,11 @@ function CopyButton({ text }) {
 function ResumeResult({ data, styleConfig, setStyleConfig, onPreview }) {
   return (
     <div className="mt-1 print:hidden">
-      <button onClick={onPreview} className="flex items-center gap-2 px-4 py-2 mb-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
+      <button onClick={onPreview} className="btn-primary flex items-center gap-2 px-4 py-2 mb-3 text-sm">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         Customise &amp; Download
       </button>
-      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm" style={{ height: 230 }}>
+      <div className="rounded-xl overflow-hidden" style={{ height: 230, border: '1px solid var(--border)' }}>
         <div style={{ width: 816, transformOrigin: 'top left', transform: 'scale(0.62)' }}>
           <ResumeRenderer data={data} style={styleConfig} />
         </div>
@@ -182,41 +191,51 @@ function ResumeResult({ data, styleConfig, setStyleConfig, onPreview }) {
   )
 }
 
+const DS = { card: { background: 'var(--surface-3)', border: '1px solid var(--border)', borderRadius: 12, padding: '1rem' }, text: { color: 'var(--text)' }, text2: { color: 'var(--text-2)' }, text3: { color: 'var(--text-3)' }, label: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-3)', marginBottom: 6, display: 'block' }, bar: { height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } }
+
+function ScoreCard({ score, sub }) {
+  const color = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444'
+  return (
+    <div className="flex items-center gap-4" style={DS.card}>
+      <div><div className="text-4xl font-extrabold tabular-nums leading-none" style={{ color: 'var(--text)' }}>{score}</div><div className="text-xs mt-0.5" style={DS.text3}>{sub || 'out of 100'}</div></div>
+      <div className="flex-1"><div style={DS.bar}><div style={{ height: '100%', borderRadius: 99, background: color, width: `${score}%`, transition: 'width 0.7s ease' }} /></div></div>
+    </div>
+  )
+}
+
 function JDMatchResult({ result }) {
-  const verdictCls = { strong_match: 'text-green-700 bg-green-50 border-green-200', good_match: 'text-blue-700 bg-blue-50 border-blue-200', partial_match: 'text-yellow-700 bg-yellow-50 border-yellow-200', weak_match: 'text-red-700 bg-red-50 border-red-200' }[result.verdict] || 'text-gray-700 bg-gray-50 border-gray-200'
+  const verdictStyle = { strong_match: 'rgba(16,185,129,0.12)', good_match: 'rgba(99,102,241,0.12)', partial_match: 'rgba(245,158,11,0.12)', weak_match: 'rgba(239,68,68,0.12)' }[result.verdict] || 'rgba(255,255,255,0.06)'
+  const verdictColor = { strong_match: '#34d399', good_match: '#a5b4fc', partial_match: '#fbbf24', weak_match: '#f87171' }[result.verdict] || 'var(--text-2)'
   return (
     <div className="mt-1 space-y-3">
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-4 mb-3">
-          <div><div className="text-4xl font-bold text-gray-900 leading-none">{result.score}</div><div className="text-xs text-gray-400 mt-0.5">out of 100</div></div>
-          <div className="flex-1">
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${result.score >= 70 ? 'bg-green-500' : result.score >= 50 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${result.score}%` }} /></div>
-            <span className={`inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${verdictCls}`}>{(result.verdict || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
-          </div>
-        </div>
-        <p className="text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">{result.summary}</p>
+      <ScoreCard score={result.score} sub="match score" />
+      <div style={{ ...DS.card, paddingTop: 14 }}>
+        <span className="section-title">Verdict</span>
+        <span className="inline-block mt-1 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: verdictStyle, color: verdictColor }}>{(result.verdict || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+        <p className="text-[13px] leading-relaxed mt-2" style={DS.text2}>{result.summary}</p>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {result.matching_keywords?.length > 0 && <div className="bg-green-50 border border-green-100 rounded-xl p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-2">Matching</p><div className="flex flex-wrap gap-1">{result.matching_keywords.map((k, i) => <span key={i} className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">{k}</span>)}</div></div>}
-        {result.missing_keywords?.length > 0 && <div className="bg-red-50 border border-red-100 rounded-xl p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-red-600 mb-2">Missing</p><div className="flex flex-wrap gap-1">{result.missing_keywords.map((k, i) => <span key={i} className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full">{k}</span>)}</div></div>}
+        {result.matching_keywords?.length > 0 && <div style={{ ...DS.card, background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}><span style={{ ...DS.label, color: '#34d399' }}>Matching</span><div className="flex flex-wrap gap-1">{result.matching_keywords.map((k, i) => <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399' }}>{k}</span>)}</div></div>}
+        {result.missing_keywords?.length > 0 && <div style={{ ...DS.card, background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.2)' }}><span style={{ ...DS.label, color: '#f87171' }}>Missing</span><div className="flex flex-wrap gap-1">{result.missing_keywords.map((k, i) => <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171' }}>{k}</span>)}</div></div>}
       </div>
-      {result.improvements?.length > 0 && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">What to fix</p><div className="space-y-2">{result.improvements.map((imp, i) => <div key={i} className="flex gap-2.5"><div className="w-1 h-1 rounded-full bg-blue-400 mt-2 flex-shrink-0" /><p className="text-xs text-gray-600 leading-relaxed"><span className="font-semibold text-gray-800">{imp.section}: </span>{imp.suggestion}</p></div>)}</div></div>}
+      {result.improvements?.length > 0 && <div style={DS.card}><span className="section-title">What to fix</span><div className="space-y-2 mt-1">{result.improvements.map((imp, i) => <div key={i} className="flex gap-2.5"><div className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: 'var(--accent)' }} /><p className="text-[12px] leading-relaxed" style={DS.text2}><span className="font-semibold" style={DS.text}>{imp.section}: </span>{imp.suggestion}</p></div>)}</div></div>}
     </div>
   )
 }
 
 function InterviewResult({ result }) {
-  const recCls = { 'Strong Hire': 'text-green-700 bg-green-50 border-green-200', 'Hire': 'text-blue-700 bg-blue-50 border-blue-200', 'Maybe': 'text-yellow-700 bg-yellow-50 border-yellow-200', 'No Hire': 'text-red-700 bg-red-50 border-red-200' }[result.hiring_recommendation] || 'text-gray-700 bg-gray-50 border-gray-200'
+  const recColor = { 'Strong Hire': '#34d399', 'Hire': '#a5b4fc', 'Maybe': '#fbbf24', 'No Hire': '#f87171' }[result.hiring_recommendation] || 'var(--text-2)'
+  const recBg    = { 'Strong Hire': 'rgba(16,185,129,0.1)', 'Hire': 'rgba(99,102,241,0.1)', 'Maybe': 'rgba(245,158,11,0.1)', 'No Hire': 'rgba(239,68,68,0.1)' }[result.hiring_recommendation] || 'rgba(255,255,255,0.06)'
   return (
     <div className="mt-1 space-y-3">
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex items-center gap-4">
-        <div><div className="text-4xl font-bold text-gray-900 leading-none">{result.overall_score}</div><div className="text-xs text-gray-400 mt-0.5">/ 100</div></div>
-        <div><span className={`text-sm font-bold px-3 py-1 rounded-full border ${recCls}`}>{result.hiring_recommendation}</span><p className="text-xs text-gray-500 mt-2 leading-relaxed max-w-xs">{result.summary}</p></div>
+      <div className="flex items-center gap-4" style={DS.card}>
+        <div><div className="text-4xl font-extrabold tabular-nums leading-none" style={DS.text}>{result.overall_score}</div><div className="text-xs mt-0.5" style={DS.text3}>/ 100</div></div>
+        <div><span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: recBg, color: recColor }}>{result.hiring_recommendation}</span><p className="text-[12px] mt-2 leading-relaxed max-w-xs" style={DS.text2}>{result.summary}</p></div>
       </div>
-      {result.per_question?.length > 0 && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Per Question</p><div className="space-y-4">{result.per_question.map((q, i) => <div key={i} className="border-l-2 border-gray-100 pl-3"><div className="flex items-center gap-2 mb-1"><span className="text-xs font-bold text-gray-500">Q{i + 1}</span><span className={`text-xs font-bold px-1.5 py-0.5 rounded ${q.score >= 7 ? 'bg-green-100 text-green-700' : q.score >= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{q.score}/10</span></div>{q.what_was_good && <p className="text-xs text-green-700 mb-0.5"><span className="font-semibold">Good: </span>{q.what_was_good}</p>}{q.what_was_missing && <p className="text-xs text-red-600"><span className="font-semibold">Improve: </span>{q.what_was_missing}</p>}</div>)}</div></div>}
+      {result.per_question?.length > 0 && <div style={DS.card}><span className="section-title">Per Question</span><div className="space-y-3 mt-2">{result.per_question.map((q, i) => <div key={i} className="pl-3" style={{ borderLeft: '2px solid var(--border-strong)' }}><div className="flex items-center gap-2 mb-1"><span className="text-xs font-bold" style={DS.text3}>Q{i + 1}</span><span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ background: q.score >= 7 ? 'rgba(16,185,129,0.12)' : q.score >= 5 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', color: q.score >= 7 ? '#34d399' : q.score >= 5 ? '#fbbf24' : '#f87171' }}>{q.score}/10</span></div>{q.what_was_good && <p className="text-xs mb-0.5" style={{ color: '#34d399' }}><span className="font-semibold">Good: </span>{q.what_was_good}</p>}{q.what_was_missing && <p className="text-xs" style={{ color: '#f87171' }}><span className="font-semibold">Improve: </span>{q.what_was_missing}</p>}</div>)}</div></div>}
       <div className="grid grid-cols-2 gap-2">
-        {result.strengths?.length > 0 && <div className="bg-green-50 border border-green-100 rounded-xl p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-2">Strengths</p>{result.strengths.map((s, i) => <p key={i} className="text-xs text-green-800 mb-1">• {s}</p>)}</div>}
-        {result.areas_to_improve?.length > 0 && <div className="bg-amber-50 border border-amber-100 rounded-xl p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-2">Improve</p>{result.areas_to_improve.map((a, i) => <p key={i} className="text-xs text-amber-800 mb-1">• {a}</p>)}</div>}
+        {result.strengths?.length > 0 && <div style={{ ...DS.card, background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}><span style={{ ...DS.label, color: '#34d399' }}>Strengths</span>{result.strengths.map((s, i) => <p key={i} className="text-xs mb-1" style={{ color: '#34d399' }}>• {s}</p>)}</div>}
+        {result.areas_to_improve?.length > 0 && <div style={{ ...DS.card, background: 'rgba(245,158,11,0.06)', borderColor: 'rgba(245,158,11,0.2)' }}><span style={{ ...DS.label, color: '#fbbf24' }}>Improve</span>{result.areas_to_improve.map((a, i) => <p key={i} className="text-xs mb-1" style={{ color: '#fbbf24' }}>• {a}</p>)}</div>}
       </div>
     </div>
   )
@@ -225,8 +244,8 @@ function InterviewResult({ result }) {
 function LinkedInDMResult({ result }) {
   return (
     <div className="mt-1 space-y-2">
-      {result.variants?.map((v, i) => <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between mb-2"><span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{v.style}</span><CopyButton text={v.message} /></div><p className="text-sm text-gray-700 leading-relaxed">{v.message}</p><p className="text-[11px] text-gray-400 mt-2">{v.message?.length || 0} chars</p></div>)}
-      {result.tips?.length > 0 && <div className="bg-blue-50 border border-blue-100 rounded-xl p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">Tips</p>{result.tips.map((t, i) => <p key={i} className="text-xs text-blue-800 mb-1">• {t}</p>)}</div>}
+      {result.variants?.map((v, i) => <div key={i} style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">{v.style}</span><CopyButton text={v.message} /></div><p className="text-[13px] leading-relaxed" style={DS.text2}>{v.message}</p><p className="text-[11px] mt-2" style={DS.text3}>{v.message?.length || 0} chars</p></div>)}
+      {result.tips?.length > 0 && <div style={{ ...DS.card, background: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.2)' }}><span style={{ ...DS.label, color: '#a5b4fc' }}>Tips</span>{result.tips.map((t, i) => <p key={i} className="text-xs mb-1" style={{ color: '#a5b4fc' }}>• {t}</p>)}</div>}
     </div>
   )
 }
@@ -234,35 +253,36 @@ function LinkedInDMResult({ result }) {
 function LinkedInOptResult({ result }) {
   return (
     <div className="mt-1 space-y-3">
-      {result.score_before != null && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-center gap-4"><div className="text-center"><div className="text-2xl font-bold text-gray-400">{result.score_before}</div><div className="text-[10px] text-gray-400">Before</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg><div className="text-center"><div className="text-2xl font-bold text-green-600">{result.score_after}</div><div className="text-[10px] text-gray-400">After</div></div></div>}
-      {result.headline && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between mb-2"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">New Headline</p><CopyButton text={result.headline} /></div><p className="text-sm font-semibold text-gray-800">{result.headline}</p></div>}
-      {result.about && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between mb-2"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">About Section</p><CopyButton text={result.about} /></div><p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{result.about}</p></div>}
-      {result.top_keywords?.length > 0 && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Top Keywords</p><div className="flex flex-wrap gap-1.5">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 bg-violet-50 text-violet-700 border border-violet-100 rounded-full">{k}</span>)}</div></div>}
+      {result.score_before != null && <div className="flex items-center gap-4" style={DS.card}><div className="text-center"><div className="text-2xl font-bold" style={DS.text3}>{result.score_before}</div><div className="text-[10px]" style={DS.text3}>Before</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg><div className="text-center"><div className="text-2xl font-bold" style={{ color: '#10b981' }}>{result.score_after}</div><div className="text-[10px]" style={DS.text3}>After</div></div></div>}
+      {result.headline && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">New Headline</span><CopyButton text={result.headline} /></div><p className="text-[13px] font-semibold" style={DS.text}>{result.headline}</p></div>}
+      {result.about && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">About Section</span><CopyButton text={result.about} /></div><p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={DS.text2}>{result.about}</p></div>}
+      {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}>{k}</span>)}</div></div>}
     </div>
   )
 }
 
 function SalaryResult({ result }) {
   const fmt = (n) => n ? (n >= 100000 ? `₹${(n / 100000).toFixed(1)}L` : `$${(n / 1000).toFixed(0)}K`) : '—'
-  const verdictCls = { 'Below Market': 'text-red-700 bg-red-50 border-red-200', 'At Market': 'text-yellow-700 bg-yellow-50 border-yellow-200', 'Above Market': 'text-green-700 bg-green-50 border-green-200' }[result.verdict] || 'text-gray-700 bg-gray-50 border-gray-200'
+  const verdictColor = { 'Below Market': '#f87171', 'At Market': '#fbbf24', 'Above Market': '#34d399' }[result.verdict] || 'var(--text-2)'
+  const verdictBg    = { 'Below Market': 'rgba(239,68,68,0.1)', 'At Market': 'rgba(245,158,11,0.1)', 'Above Market': 'rgba(16,185,129,0.1)' }[result.verdict] || 'rgba(255,255,255,0.06)'
   const range = result.market_range || {}
   return (
     <div className="mt-1 space-y-3">
-      <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-        <div className="flex justify-between text-xs text-gray-500 mb-1"><span>{fmt(range.low)}</span><span className="font-semibold text-gray-800">{fmt(range.mid)} mid</span><span>{fmt(range.high)}</span></div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-3"><div className="h-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 rounded-full" style={{ width: '100%' }} /></div>
+      <div style={DS.card}>
+        <div className="flex justify-between text-xs mb-1" style={DS.text3}><span>{fmt(range.low)}</span><span style={{ ...DS.text, fontWeight: 600 }}>{fmt(range.mid)} mid</span><span>{fmt(range.high)}</span></div>
+        <div style={{ ...DS.bar, marginBottom: 12 }}><div style={{ height: '100%', background: 'linear-gradient(to right,#ef4444,#f59e0b,#10b981)', width: '100%', borderRadius: 99 }} /></div>
         <div className="flex items-center justify-between">
-          <div><div className="text-xs text-gray-400 mb-0.5">Your offer</div><div className="text-xl font-bold text-gray-900">{fmt(result.offer_amount)}</div></div>
-          <span className={`text-sm font-semibold px-3 py-1 rounded-full border ${verdictCls}`}>{result.verdict}</span>
+          <div><div className="text-xs mb-0.5" style={DS.text3}>Your offer</div><div className="text-xl font-bold" style={DS.text}>{fmt(result.offer_amount)}</div></div>
+          <span className="text-sm font-semibold px-3 py-1 rounded-full" style={{ background: verdictBg, color: verdictColor }}>{result.verdict}</span>
         </div>
-        {result.recommended_counter && <div className="mt-3 pt-3 border-t border-gray-100"><span className="text-xs text-gray-400">Recommended counter: </span><span className="text-sm font-bold text-green-700">{fmt(result.recommended_counter)}</span></div>}
+        {result.recommended_counter && <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}><span className="text-xs" style={DS.text3}>Recommended counter: </span><span className="text-sm font-bold" style={{ color: '#34d399' }}>{fmt(result.recommended_counter)}</span></div>}
       </div>
-      {result.negotiation_script && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><div className="flex items-center justify-between mb-2"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Script</p><CopyButton text={result.negotiation_script} /></div><p className="text-sm text-gray-700 leading-relaxed italic">"{result.negotiation_script}"</p></div>}
+      {result.negotiation_script && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">Script</span><CopyButton text={result.negotiation_script} /></div><p className="text-[13px] leading-relaxed italic" style={DS.text2}>"{result.negotiation_script}"</p></div>}
       <div className="grid grid-cols-2 gap-2">
-        {result.talking_points?.length > 0 && <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Talking Points</p>{result.talking_points.map((t, i) => <p key={i} className="text-xs text-gray-700 mb-1">• {t}</p>)}</div>}
-        {result.benefits_to_negotiate?.length > 0 && <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Also Negotiate</p>{result.benefits_to_negotiate.map((b, i) => <p key={i} className="text-xs text-gray-700 mb-1">• {b}</p>)}</div>}
+        {result.talking_points?.length > 0 && <div style={DS.card}><span className="section-title">Talking Points</span>{result.talking_points.map((t, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {t}</p>)}</div>}
+        {result.benefits_to_negotiate?.length > 0 && <div style={DS.card}><span className="section-title">Also Negotiate</span>{result.benefits_to_negotiate.map((b, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {b}</p>)}</div>}
       </div>
-      {result.advice && <div className="bg-blue-50 border border-blue-100 rounded-xl p-3"><p className="text-xs text-blue-800 leading-relaxed">{result.advice}</p></div>}
+      {result.advice && <div style={{ ...DS.card, background: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.2)' }}><p className="text-xs leading-relaxed" style={{ color: '#a5b4fc' }}>{result.advice}</p></div>}
     </div>
   )
 }
@@ -270,9 +290,9 @@ function SalaryResult({ result }) {
 function RoastResult({ result }) {
   return (
     <div className="mt-1 space-y-3">
-      {result.score != null && <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex items-center gap-4"><div className="text-4xl font-bold text-gray-900 leading-none">{result.score}</div><div><div className="text-xs text-gray-400 mb-1.5">out of 100</div><div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${result.score >= 70 ? 'bg-green-500' : result.score >= 50 ? 'bg-yellow-400' : 'bg-red-500'}`} style={{ width: `${result.score}%` }} /></div></div></div>}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Roast</p><p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{result.roast_output}</p></div>
-      {result.fix_output && <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"><p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">How to fix it</p><p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{result.fix_output}</p></div>}
+      {result.score != null && <ScoreCard score={result.score} sub="roast score" />}
+      <div style={DS.card}><span className="section-title">Roast</span><p className="text-[13px] leading-relaxed whitespace-pre-wrap mt-1" style={DS.text2}>{result.roast_output}</p></div>
+      {result.fix_output && <div style={DS.card}><span className="section-title">How to fix it</span><p className="text-[13px] leading-relaxed whitespace-pre-wrap mt-1" style={DS.text2}>{result.fix_output}</p></div>}
     </div>
   )
 }
@@ -287,9 +307,12 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
     return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric' })
   }
   return (
-    <aside className="hidden md:flex flex-shrink-0 flex-col bg-[#f8fafc] border-r border-gray-200" style={{ width: 220 }}>
-      <div className="p-3 border-b border-gray-200">
-        <button onClick={onNew} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-sm font-medium text-gray-700 hover:text-blue-700 transition-all shadow-sm">
+    <aside className="hidden md:flex flex-shrink-0 flex-col" style={{ width: 220, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+      <div className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>
+        <button onClick={onNew} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all"
+          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.18)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New session
         </button>
@@ -297,34 +320,40 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
       <div className="flex-1 overflow-y-auto py-2">
         {!user ? (
           <div className="px-3 py-6 text-center">
-            <p className="text-xs text-gray-400 mb-3 leading-relaxed">Sign in to save sessions and access history</p>
-            <button onClick={openAuthModal} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Sign in →</button>
+            <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--text-3)' }}>Sign in to save sessions and access history</p>
+            <button onClick={openAuthModal} className="text-xs font-semibold transition-colors" style={{ color: 'var(--accent-2)' }}>Sign in →</button>
           </div>
         ) : sessions.length === 0 ? (
-          <p className="text-xs text-gray-400 text-center px-4 py-6 leading-relaxed">Your sessions will appear here</p>
+          <p className="text-xs text-center px-4 py-6 leading-relaxed" style={{ color: 'var(--text-3)' }}>Your sessions will appear here</p>
         ) : (
           <>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-3 py-2">Recent</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2" style={{ color: 'var(--text-3)' }}>Recent</p>
             {sessions.map(s => (
               <button key={s.id} onClick={() => onLoadSession(s.id)}
-                className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-white rounded-lg mx-1 transition-all group text-left">
-                <div className="w-6 h-6 rounded-md bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 text-gray-400 group-hover:text-blue-500 group-hover:border-blue-200 mt-0.5 transition-colors">
+                className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-lg mx-1 transition-all text-left"
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
+                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
                   <ToolIcon toolKey="roast" size={11} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium text-gray-700 truncate">{WORK_LABELS[s.work_type] || 'Roast'}</p>
-                  <p className="text-[11px] text-gray-400">{fmt(s.created_at)}</p>
+                  <p className="text-[12px] font-medium truncate" style={{ color: 'var(--text)' }}>{WORK_LABELS[s.work_type] || 'Roast'}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>{fmt(s.created_at)}</p>
                 </div>
               </button>
             ))}
           </>
         )}
       </div>
-      <div className="border-t border-gray-200 p-2">
+      <div className="border-t py-2" style={{ borderColor: 'var(--border)' }}>
         {user?.profile?.is_pro ? (
-          <div className="px-3 py-2 text-[11px] font-bold text-blue-600">PRO — Unlimited</div>
+          <div className="px-3 py-2 text-[11px] font-bold" style={{ color: 'var(--accent-2)' }}>PRO — Unlimited</div>
         ) : (
-          <Link to="/pricing" className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium text-blue-600 hover:bg-blue-50 transition-colors">
+          <Link to="/pricing" className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-colors"
+            style={{ color: 'var(--accent-2)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Upgrade to Pro
           </Link>
@@ -808,26 +837,29 @@ export default function Home() {
       <HistorySidebar onNew={resetToHome} onLoadSession={loadSession} sessions={sessions} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-gray-50">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: 'var(--bg)' }}>
 
         {/* Tool tab strip — only when chat is active, sits at top */}
         {chatActive && (
-          <div className="bg-white border-b border-gray-100 flex-shrink-0">
+          <div className="flex-shrink-0" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
             <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {TOOLS.map(t => (
                 <button key={t.key} onClick={() => startTool(t.key)}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
-                    activeTool === t.key
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                      : 'bg-white border-gray-200 text-gray-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600'
-                  }`}>
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 transition-all"
+                  style={activeTool === t.key
+                    ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
+                    : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
+                  }
+                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.color = 'var(--accent-2)' } }}
+                  onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}>
                   <ToolIcon toolKey={t.key} size={10} />
                   {t.label}
                 </button>
               ))}
               <Link to="/cold-email"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium bg-[#0f2744] border border-[#0f2744] text-white whitespace-nowrap flex-shrink-0 hover:bg-[#1a3a6e] transition-colors">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 transition-colors"
+                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', color: '#a5b4fc' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
                 Cold Email ↗
@@ -841,14 +873,15 @@ export default function Home() {
           {!chatActive ? (
             /* Greeting — shown when no messages yet */
             <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-              <h1 className="text-3xl font-bold text-[#0f2744] text-center mb-2">{greeting}</h1>
-              <p className="text-base text-gray-400 text-center mb-6">
+              <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--text)' }}>{greeting}</h1>
+              <p className="text-base text-center mb-6" style={{ color: 'var(--text-2)' }}>
                 {activeTool ? `${activeMeta?.label} — type below and press send` : 'Pick a tool below to get started'}
               </p>
               {user && !user.profile?.is_pro && (
-                <div className="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
-                  <span className="text-gray-500"><span className="font-semibold text-gray-900">{user.profile?.roast_credits ?? 0}</span> credits</span>
-                  <Link to="/pricing" className="text-xs font-semibold text-blue-600 hover:text-blue-700 border-l border-gray-200 pl-3">Upgrade to Pro →</Link>
+                <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm"
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                  <span style={{ color: 'var(--text-2)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits</span>
+                  <Link to="/pricing" className="text-xs font-semibold pl-3 transition-colors" style={{ color: 'var(--accent-2)', borderLeft: '1px solid var(--border)' }}>Upgrade to Pro →</Link>
                 </div>
               )}
             </div>
@@ -893,13 +926,16 @@ export default function Home() {
         {/* Resume preview modal */}
         {previewOpen && resumeData && (
           <div className="fixed inset-0 z-50 flex">
-            <div className="flex-1 bg-gray-100 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" style={{ background: 'var(--surface-2)' }}>
               <div className="max-w-3xl mx-auto px-6 py-8">
                 <div className="flex items-center gap-3 mb-6 print:hidden">
-                  <button onClick={() => setPreviewOpen(false)} className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 bg-white rounded-xl px-3 py-2 transition-colors">
+                  <button onClick={() => setPreviewOpen(false)} className="flex items-center gap-1.5 text-[13px] font-medium rounded-xl px-3 py-2 transition-all"
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-2)' }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'var(--text-2)'}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back
                   </button>
-                  <button onClick={() => window.print()} className="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-xl px-4 py-2 transition-colors">
+                  <button onClick={() => window.print()} className="btn-primary flex items-center gap-2 text-[13px] py-2 px-4">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                     Print / Save PDF
                   </button>
@@ -912,7 +948,7 @@ export default function Home() {
         )}
 
         {/* ── Input area — ALWAYS at the bottom, NEVER moves ── */}
-        <div className="border-t border-gray-200 bg-white px-4 py-3 flex-shrink-0">
+        <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
           <div className="max-w-4xl mx-auto">
 
             {/* Tool chips — only shown on the greeting/pre-start screen */}
@@ -920,18 +956,22 @@ export default function Home() {
               <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5" style={{ scrollbarWidth: 'none' }}>
                 {TOOLS.map(t => (
                   <button key={t.key} onClick={() => startTool(t.key)}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium border whitespace-nowrap flex-shrink-0 transition-all ${
-                      activeTool === t.key
-                        ? 'bg-blue-50 border-blue-300 text-blue-700'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
-                    }`}>
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap flex-shrink-0 transition-all"
+                    style={activeTool === t.key
+                      ? { background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }
+                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
+                    }
+                    onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--accent-2)' } }}
+                    onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}
+                  >
                     <ToolIcon toolKey={t.key} size={11} />
                     {t.label}
                   </button>
                 ))}
                 <Link to="/cold-email"
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium bg-[#0f2744] border border-[#0f2744] text-white whitespace-nowrap flex-shrink-0 hover:bg-[#1a3a6e] transition-colors">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap flex-shrink-0 transition-colors"
+                  style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
                   Cold Email ↗
@@ -943,7 +983,10 @@ export default function Home() {
 
             {step === 'done' && (
               <button onClick={resetToHome}
-                className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 bg-white hover:bg-gray-50 rounded-xl py-2.5 transition-colors">
+                className="w-full flex items-center justify-center gap-2 text-[13px] font-medium py-2.5 rounded-xl transition-all"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-3)'; e.currentTarget.style.color = 'var(--text)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-2)' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
                 Start a new conversation
               </button>
@@ -954,12 +997,15 @@ export default function Home() {
                 <input ref={fixFileRef} type="file" accept=".txt,.pdf,.md" className="hidden"
                   onChange={e => { if (e.target.files[0]) { const f = e.target.files[0]; pushUser(`Uploaded: ${f.name}`); doFix(f) } }} />
                 <button onClick={() => fixFileRef.current?.click()}
-                  className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-400 bg-gray-50/50 hover:bg-blue-50/50 py-6 text-center transition-all">
-                  <div className="w-9 h-9 mx-auto mb-2 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  className="w-full rounded-xl py-6 text-center transition-all"
+                  style={{ border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.background = 'rgba(99,102,241,0.05)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.background = 'var(--surface-2)' }}>
+                  <div className="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-3)', border: '1px solid var(--border)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   </div>
-                  <p className="text-sm font-medium text-gray-700">Click to upload your resume</p>
-                  <p className="text-xs text-gray-400 mt-1">.pdf · .txt · .md</p>
+                  <p className="text-[13px] font-medium" style={{ color: 'var(--text)' }}>Click to upload your resume</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>.pdf · .txt · .md</p>
                 </button>
               </>
             )}
@@ -967,11 +1013,14 @@ export default function Home() {
             {activeTool === 'roast' && step === 'content' && !isLoading && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-400">Your content</span>
-                  <div className="flex border border-gray-200 rounded-lg overflow-hidden text-xs">
+                  <span className="text-xs font-medium" style={{ color: 'var(--text-3)' }}>Your content</span>
+                  <div className="flex rounded-lg overflow-hidden text-xs" style={{ border: '1px solid var(--border-strong)' }}>
                     {['text', 'file'].map(m => (
                       <button key={m} onClick={() => setRoastMode(m)}
-                        className={`px-3 py-1.5 font-medium transition-colors ${roastMode === m ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 hover:text-gray-800'}`}>
+                        className="px-3 py-1.5 font-medium transition-colors"
+                        style={roastMode === m
+                          ? { background: 'var(--accent)', color: '#fff' }
+                          : { background: 'var(--surface-2)', color: 'var(--text-2)' }}>
                         {m === 'text' ? 'Paste text' : 'Upload file'}
                       </button>
                     ))}
@@ -983,7 +1032,8 @@ export default function Home() {
                         placeholder="Paste your resume, code, essay, LinkedIn bio…" rows={4}
                         className="flex-1 input-base resize-none text-[13px] font-mono leading-relaxed" />
                       <button onClick={doRoast} disabled={!roastText.trim()}
-                        className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ background: roastText.trim() ? 'var(--accent)' : 'var(--surface-3)', cursor: roastText.trim() ? 'pointer' : 'not-allowed' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </button>
                     </div>
@@ -991,12 +1041,17 @@ export default function Home() {
                       <input ref={roastFileRef} type="file" accept=".txt,.pdf,.md,.py,.js,.ts,.jsx,.tsx,.java,.go,.rs,.cpp,.c" className="hidden"
                         onChange={e => e.target.files[0] && setRoastFile(e.target.files[0])} />
                       <div onClick={() => roastFileRef.current?.click()}
-                        className={`flex-1 rounded-xl border-2 border-dashed py-5 text-center cursor-pointer transition-all ${roastFile ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'}`}>
-                        {roastFile ? <p className="text-sm text-blue-700 font-medium">{roastFile.name} · Click to change</p>
-                          : <><p className="text-sm font-medium text-gray-700">Click to upload</p><p className="text-xs text-gray-400 mt-0.5">.pdf .txt .py .js and more</p></>}
+                        className="flex-1 rounded-xl py-5 text-center cursor-pointer transition-all"
+                        style={roastFile
+                          ? { border: '2px dashed rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.06)' }
+                          : { border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}>
+                        {roastFile
+                          ? <p className="text-sm font-medium" style={{ color: '#a5b4fc' }}>{roastFile.name} · Click to change</p>
+                          : <><p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Click to upload</p><p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>.pdf .txt .py .js and more</p></>}
                       </div>
                       <button onClick={doRoast} disabled={!roastFile}
-                        className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ background: roastFile ? 'var(--accent)' : 'var(--surface-3)', cursor: roastFile ? 'pointer' : 'not-allowed' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </button>
                     </div>
@@ -1005,21 +1060,24 @@ export default function Home() {
             )}
 
             {isChoiceStep && !isLoading && (
-              <p className="text-center text-xs text-gray-400 py-1">Choose an option above to continue</p>
+              <p className="text-center text-xs py-1" style={{ color: 'var(--text-3)' }}>Choose an option above to continue</p>
             )}
 
             {isLoading && (
-              <p className="text-center text-xs text-gray-400 py-1">Processing… please wait</p>
+              <p className="text-center text-xs py-1" style={{ color: 'var(--text-3)' }}>Processing… please wait</p>
             )}
 
             {/* Main text input — for pre-start and text steps */}
             {step !== 'done' && step !== 'upload' && step !== 'content' && !isChoiceStep && !isLoading && (
               <div className="flex gap-2 items-end">
                 {activeTool && !chatActive && (
-                  <span className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 mb-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 mb-0.5"
+                    style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
                     <ToolIcon toolKey={activeTool} size={11} />
                     {activeMeta?.label}
-                    <button onClick={() => setActiveTool(null)} className="ml-0.5 text-blue-400 hover:text-blue-700">
+                    <button onClick={() => setActiveTool(null)} className="ml-0.5 transition-colors" style={{ color: 'rgba(165,180,252,0.5)' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#a5b4fc'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(165,180,252,0.5)'}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
@@ -1040,9 +1098,12 @@ export default function Home() {
                 <button
                   onClick={() => chatActive ? onText() : (canSend && onText())}
                   disabled={!canSend}
-                  className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                  style={{ background: canSend ? 'var(--accent)' : 'var(--surface-3)', cursor: canSend ? 'pointer' : 'not-allowed' }}
+                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(99,102,241,0.4)' }}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke={canSend ? 'white' : '#d1d5db'} strokeWidth="2.5" strokeLinecap="round">
+                    stroke={canSend ? 'white' : 'var(--text-3)'} strokeWidth="2.5" strokeLinecap="round">
                     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                   </svg>
                 </button>
