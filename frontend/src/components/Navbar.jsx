@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useLocation, NavLink } from 'react-router-dom'
+import { Link, useLocation, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
@@ -7,6 +7,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogoClick = (e) => {
+    e.preventDefault()
+    if (pathname === '/') {
+      window.location.href = '/'
+      return
+    }
+    navigate('/')
+  }
 
   useEffect(() => {
     const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false) }
@@ -33,7 +43,7 @@ export default function Navbar() {
       <div className="max-w-screen-2xl mx-auto px-5 h-14 flex items-center justify-between gap-6">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+        <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 flex-shrink-0 group">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}

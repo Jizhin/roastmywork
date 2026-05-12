@@ -21,6 +21,17 @@ const TOOLS = [
   { key: 'salary',       label: 'Salary Coach',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
 ]
 
+const TOOL_SUBTEXT = {
+  build_resume: 'Generate polished resume',
+  fix_resume: 'Improve existing resume',
+  roast: 'Get AI critique + fixes',
+  jd_match: 'Score against job post',
+  interview: 'Practice interview rounds',
+  linkedin_dm: 'Draft outreach messages',
+  linkedin_opt: 'Optimize profile copy',
+  salary: 'Analyze and negotiate offer',
+}
+
 const WORK_TYPES = [
   { value: 'resume', label: 'Resume / CV' }, { value: 'code', label: 'Code' },
   { value: 'pitch_deck', label: 'Pitch Deck' }, { value: 'linkedin', label: 'LinkedIn' }, { value: 'essay', label: 'Essay' },
@@ -1144,28 +1155,48 @@ export default function Home() {
 
             {/* Tool chips — only shown on the greeting/pre-start screen */}
             {!chatActive && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5" style={{ scrollbarWidth: 'none' }}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-3">
                 {TOOLS.map(t => (
-                  <button key={t.key} onClick={() => startTool(t.key)}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap flex-shrink-0 transition-all"
+                  <button
+                    key={t.key}
+                    onClick={() => startTool(t.key)}
+                    className="rounded-xl p-3.5 text-left transition-all"
                     style={activeTool === t.key
-                      ? { background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#a5b4fc' }
-                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
+                      ? { background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)' }
+                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)' }
                     }
-                    onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--accent-2)' } }}
-                    onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}
+                    onMouseEnter={e => {
+                      if (activeTool !== t.key) {
+                        e.currentTarget.style.borderColor = 'rgba(79,70,229,0.35)'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (activeTool !== t.key) {
+                        e.currentTarget.style.borderColor = 'var(--border-strong)'
+                        e.currentTarget.style.transform = 'none'
+                      }
+                    }}
                   >
-                    <ToolIcon toolKey={t.key} size={11} />
-                    {t.label}
+                    <div className="flex items-center gap-2 mb-1.5" style={{ color: activeTool === t.key ? 'var(--accent)' : 'var(--text)' }}>
+                      <ToolIcon toolKey={t.key} size={13} />
+                      <span className="text-[13px] font-semibold">{t.label}</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>{TOOL_SUBTEXT[t.key]}</p>
                   </button>
                 ))}
-                <Link to="/cold-email"
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap flex-shrink-0 transition-colors"
-                  style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                  Cold Email ↗
+                <Link
+                  to="/cold-email"
+                  className="rounded-xl p-3.5 text-left transition-all"
+                  style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.25)' }}
+                >
+                  <div className="flex items-center gap-2 mb-1.5" style={{ color: 'var(--accent)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span className="text-[13px] font-semibold">Cold Email</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Generate targeted outreach emails</p>
                 </Link>
               </div>
             )}
