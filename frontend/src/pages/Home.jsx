@@ -279,7 +279,7 @@ function RoastResult({ result }) {
 
 // ── History sidebar ────────────────────────────────────────────────────────────
 
-function HistorySidebar({ onNew, sessions, user, openAuthModal }) {
+function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal }) {
   const fmt = (iso) => {
     const diff = (Date.now() - new Date(iso)) / 1000
     if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`
@@ -306,7 +306,8 @@ function HistorySidebar({ onNew, sessions, user, openAuthModal }) {
           <>
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-3 py-2">Recent</p>
             {sessions.map(s => (
-              <Link key={s.id} to={`/result/${s.id}`} className="flex items-start gap-2.5 px-3 py-2.5 hover:bg-white rounded-lg mx-1 transition-all group">
+              <button key={s.id} onClick={() => onLoadSession(s.id)}
+                className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-white rounded-lg mx-1 transition-all group text-left">
                 <div className="w-6 h-6 rounded-md bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 text-gray-400 group-hover:text-blue-500 group-hover:border-blue-200 mt-0.5 transition-colors">
                   <ToolIcon toolKey="roast" size={11} />
                 </div>
@@ -314,7 +315,7 @@ function HistorySidebar({ onNew, sessions, user, openAuthModal }) {
                   <p className="text-[12px] font-medium text-gray-700 truncate">{WORK_LABELS[s.work_type] || 'Roast'}</p>
                   <p className="text-[11px] text-gray-400">{fmt(s.created_at)}</p>
                 </div>
-              </Link>
+              </button>
             ))}
           </>
         )}
@@ -435,6 +436,36 @@ export default function Home() {
     setIsLoading(false)
     setResult(null)
     setResumeData(null)
+  }
+
+  // Load a historical roast session inline into the chat
+  const loadSession = async (id) => {
+    stopPoll()
+    setActiveTool('roast')
+    setStep('loading')
+    setMsgs([])
+    setIsLoading(true)
+    setResult(null)
+    try {
+      const { data } = await roastApi.get(id)
+      if (data.status === 'completed') {
+        setMsgs([{
+          type: 'ai', id: 'hist-result',
+          text: `${WORK_LABELS[data.work_type] || 'Work'} roast — ${new Date(data.created_at).toLocaleDateString()}`,
+          kind: 'roast', result: data,
+        }])
+        setStep('done')
+      } else {
+        setMsgs([{ type: 'ai', id: 'hist-pending', text: `This roast is ${data.status}. Check back shortly.` }])
+        setStep(null)
+        setActiveTool(null)
+      }
+    } catch {
+      setMsgs([{ type: 'ai', id: 'hist-err', text: 'Could not load this session. Please try again.' }])
+      setStep(null)
+      setActiveTool(null)
+    }
+    setIsLoading(false)
   }
 
   // ── Choice handler ──────────────────────────────────────────────────────────
@@ -774,7 +805,7 @@ export default function Home() {
 
   return (
     <div className="flex overflow-hidden h-full">
-      <HistorySidebar onNew={resetToHome} sessions={sessions} user={user} openAuthModal={openAuthModal} />
+      <HistorySidebar onNew={resetToHome} onLoadSession={loadSession} sessions={sessions} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-gray-50">
