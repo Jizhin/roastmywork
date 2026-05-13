@@ -16,11 +16,15 @@ const TOOLS = [
   { key: 'roast',        label: 'Roast My Work',    placeholder: null                                               },
   { key: 'jd_match',     label: 'JD Match',         placeholder: null                                               },
   { key: 'interview',    label: 'Interview Prep',   placeholder: 'e.g. Software Engineer at Google'                  },
-  { key: 'outreach',     label: 'Apply to Job',      placeholder: 'Paste a job post, recruiter profile, or company lead' },
   { key: 'linkedin_dm',  label: 'LinkedIn DM',      placeholder: 'e.g. Priya Sharma, Engineering Manager at Swiggy' },
   { key: 'linkedin_opt', label: 'LinkedIn Profile', placeholder: null                                               },
   { key: 'salary',       label: 'Salary Coach',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
 ]
+
+const TOOL_META = {
+  ...Object.fromEntries(TOOLS.map(t => [t.key, t])),
+  outreach: { key: 'outreach', label: 'Application Kit', placeholder: 'Paste a job post, recruiter profile, or company lead' },
+}
 
 const STARTER_PROMPTS = [
   'Paste a job post and my resume',
@@ -99,7 +103,7 @@ function ToolIcon({ toolKey, size = 20 }) {
 function AIAvatar() {
   return (
     <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-      style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+      style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)' }}>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
         <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
         <path d="M12 12c-.8 1.8-1.2 3-1.2 4a1.2 1.2 0 0 0 2.4 0c0-1-.4-2.2-1.2-4Z" fillOpacity="0.5"/>
@@ -143,7 +147,7 @@ function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
       <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[14px] leading-relaxed"
-        style={{ background: 'linear-gradient(135deg,#6366f1,#7c3aed)', color: '#fff' }}>
+        style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)', color: '#fff' }}>
         {text}
       </div>
     </div>
@@ -198,7 +202,7 @@ function detectWorkspaceActions(input) {
 
   const actions = []
   if (looksLikeJob && looksLikeResume) actions.push({ value: 'jd_match', label: 'Match resume to job', sub: 'Score fit and gaps' })
-  if (looksLikeJob || looksLikeOutreach) actions.push({ value: 'outreach', label: 'Create application plan', sub: 'Messages + follow-ups' })
+  if (looksLikeJob || looksLikeOutreach) actions.push({ value: 'outreach', label: 'Create application kit', sub: 'Messages + follow-ups' })
   if (looksLikeResume) actions.push({ value: 'roast', label: 'Review this content', sub: 'Score and improve it' })
   if (looksLikeInterview) actions.push({ value: 'interview', label: 'Practice interview', sub: 'Questions and feedback' })
   if (looksLikeSalary) actions.push({ value: 'salary', label: 'Analyze offer', sub: 'Market range + script' })
@@ -206,7 +210,7 @@ function detectWorkspaceActions(input) {
     actions.push(
       { value: 'roast', label: 'Review this', sub: 'Critique and improve' },
       { value: 'build_resume', label: 'Build resume', sub: 'Create a resume draft' },
-      { value: 'outreach', label: 'Create application plan', sub: 'Messages and next steps' },
+      { value: 'outreach', label: 'Create application kit', sub: 'Messages and next steps' },
     )
   }
   return actions.slice(0, 4)
@@ -243,8 +247,8 @@ function ScoreCard({ score, sub }) {
 }
 
 function JDMatchResult({ result }) {
-  const verdictStyle = { strong_match: 'rgba(16,185,129,0.12)', good_match: 'rgba(99,102,241,0.12)', partial_match: 'rgba(245,158,11,0.12)', weak_match: 'rgba(239,68,68,0.12)' }[result.verdict] || 'rgba(255,255,255,0.06)'
-  const verdictColor = { strong_match: '#34d399', good_match: '#a5b4fc', partial_match: '#fbbf24', weak_match: '#f87171' }[result.verdict] || 'var(--text-2)'
+  const verdictStyle = { strong_match: 'rgba(16,185,129,0.12)', good_match: 'rgba(37,99,235,0.10)', partial_match: 'rgba(245,158,11,0.12)', weak_match: 'rgba(239,68,68,0.12)' }[result.verdict] || 'rgba(255,255,255,0.06)'
+  const verdictColor = { strong_match: '#34d399', good_match: '#2563eb', partial_match: '#fbbf24', weak_match: '#f87171' }[result.verdict] || 'var(--text-2)'
   return (
     <div className="mt-1 space-y-3">
       <ScoreCard score={result.score} sub="match score" />
@@ -263,8 +267,8 @@ function JDMatchResult({ result }) {
 }
 
 function InterviewResult({ result }) {
-  const recColor = { 'Strong Hire': '#34d399', 'Hire': '#a5b4fc', 'Maybe': '#fbbf24', 'No Hire': '#f87171' }[result.hiring_recommendation] || 'var(--text-2)'
-  const recBg    = { 'Strong Hire': 'rgba(16,185,129,0.1)', 'Hire': 'rgba(99,102,241,0.1)', 'Maybe': 'rgba(245,158,11,0.1)', 'No Hire': 'rgba(239,68,68,0.1)' }[result.hiring_recommendation] || 'rgba(255,255,255,0.06)'
+  const recColor = { 'Strong Hire': '#34d399', 'Hire': '#2563eb', 'Maybe': '#fbbf24', 'No Hire': '#f87171' }[result.hiring_recommendation] || 'var(--text-2)'
+  const recBg    = { 'Strong Hire': 'rgba(16,185,129,0.1)', 'Hire': 'rgba(37,99,235,0.10)', 'Maybe': 'rgba(245,158,11,0.1)', 'No Hire': 'rgba(239,68,68,0.1)' }[result.hiring_recommendation] || 'rgba(255,255,255,0.06)'
   return (
     <div className="mt-1 space-y-3">
       <div className="flex items-center gap-4" style={DS.card}>
@@ -284,7 +288,7 @@ function LinkedInDMResult({ result }) {
   return (
     <div className="mt-1 space-y-2">
       {result.variants?.map((v, i) => <div key={i} style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">{v.style}</span><CopyButton text={v.message} /></div><p className="text-[13px] leading-relaxed" style={DS.text2}>{v.message}</p><p className="text-[11px] mt-2" style={DS.text3}>{v.message?.length || 0} chars</p></div>)}
-      {result.tips?.length > 0 && <div style={{ ...DS.card, background: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.2)' }}><span style={{ ...DS.label, color: '#a5b4fc' }}>Tips</span>{result.tips.map((t, i) => <p key={i} className="text-xs mb-1" style={{ color: '#a5b4fc' }}>• {t}</p>)}</div>}
+      {result.tips?.length > 0 && <div style={{ ...DS.card, background: 'rgba(37,99,235,0.06)', borderColor: 'rgba(37,99,235,0.18)' }}><span style={{ ...DS.label, color: '#2563eb' }}>Tips</span>{result.tips.map((t, i) => <p key={i} className="text-xs mb-1" style={{ color: '#2563eb' }}>• {t}</p>)}</div>}
     </div>
   )
 }
@@ -295,7 +299,7 @@ function LinkedInOptResult({ result }) {
       {result.score_before != null && <div className="flex items-center gap-4" style={DS.card}><div className="text-center"><div className="text-2xl font-bold" style={DS.text3}>{result.score_before}</div><div className="text-[10px]" style={DS.text3}>Before</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg><div className="text-center"><div className="text-2xl font-bold" style={{ color: '#10b981' }}>{result.score_after}</div><div className="text-[10px]" style={DS.text3}>After</div></div></div>}
       {result.headline && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">New Headline</span><CopyButton text={result.headline} /></div><p className="text-[13px] font-semibold" style={DS.text}>{result.headline}</p></div>}
       {result.about && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">About Section</span><CopyButton text={result.about} /></div><p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={DS.text2}>{result.about}</p></div>}
-      {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}>{k}</span>)}</div></div>}
+      {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(37,99,235,0.10)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.18)' }}>{k}</span>)}</div></div>}
     </div>
   )
 }
@@ -377,7 +381,7 @@ function SalaryResult({ result }) {
         {result.talking_points?.length > 0 && <div style={DS.card}><span className="section-title">Talking Points</span>{result.talking_points.map((t, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {t}</p>)}</div>}
         {result.benefits_to_negotiate?.length > 0 && <div style={DS.card}><span className="section-title">Also Negotiate</span>{result.benefits_to_negotiate.map((b, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {b}</p>)}</div>}
       </div>
-      {result.advice && <div style={{ ...DS.card, background: 'rgba(99,102,241,0.06)', borderColor: 'rgba(99,102,241,0.2)' }}><p className="text-xs leading-relaxed" style={{ color: '#a5b4fc' }}>{result.advice}</p></div>}
+      {result.advice && <div style={{ ...DS.card, background: 'rgba(37,99,235,0.06)', borderColor: 'rgba(37,99,235,0.18)' }}><p className="text-xs leading-relaxed" style={{ color: '#2563eb' }}>{result.advice}</p></div>}
     </div>
   )
 }
@@ -399,9 +403,9 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
     <aside className="hidden lg:flex flex-shrink-0 flex-col" style={{ width: 248, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
       <div className="p-3 w-full" style={{ borderBottom: '1px solid var(--border)' }}>
         <button onClick={onNew} className="w-full h-11 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all"
-          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: 'var(--accent)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.18)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}>
+          style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)', color: 'var(--accent)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.14)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,99,235,0.08)'}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New workspace
         </button>
@@ -420,10 +424,10 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
             {sessions.map(s => (
               <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)}
                 className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left"
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.07)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
+                  style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.16)', color: '#2563eb' }}>
                   <ToolIcon toolKey={s.tool_key || 'roast'} size={13} />
                 </div>
                 <div className="min-w-0">
@@ -437,11 +441,11 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
       </div>
       <div className="border-t p-3 w-full" style={{ borderColor: 'var(--border)' }}>
         {user?.profile?.is_pro ? (
-          <div className="rounded-xl px-3 py-2 text-xs font-bold text-center" style={{ background: 'rgba(99,102,241,0.12)', color: 'var(--accent)' }}>PRO - Unlimited</div>
+          <div className="rounded-xl px-3 py-2 text-xs font-bold text-center" style={{ background: 'rgba(37,99,235,0.10)', color: 'var(--accent)' }}>PRO - Unlimited</div>
         ) : (
           <Link to="/pricing" className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
             style={{ color: 'var(--accent-2)' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.07)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
             Upgrade
           </Link>
@@ -1093,7 +1097,7 @@ export default function Home() {
       return
     }
     setIsLoading(true); setStep('loading')
-    pushAI({ text: 'Creating your application plan… messages, follow-ups, and next action.' })
+    pushAI({ text: 'Creating your application kit… messages, follow-ups, and next action.' })
     const go = async () => {
       try {
         const { data } = await outreachWorkspaceApi.generate({
@@ -1109,7 +1113,7 @@ export default function Home() {
         setResult(data)
         setIsLoading(false)
         setStep('done')
-        pushAI({ kind: 'outreach', text: 'Here is your application plan.', result: data })
+        pushAI({ kind: 'outreach', text: 'Here is your application kit.', result: data })
         refreshUser()
       } catch (err) {
         setIsLoading(false); setStep('outreach_context')
@@ -1187,7 +1191,7 @@ export default function Home() {
   const isChoiceStep  = ['intent', 'work_type', 'intensity', 'company_type', 'round_type', 'purpose'].includes(step)
   const isMultiline   = ['free_context', 'outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
   const isTextStep    = ['free_context', 'outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
-  const activeMeta    = TOOLS.find(t => t.key === activeTool)
+  const activeMeta    = TOOL_META[activeTool]
   const preStartInput = !chatActive && activeTool && activeMeta?.placeholder
   const workspaceInput = !chatActive && !activeTool
   const canSend       = !chatActive ? (!activeTool ? text.trim() : (!activeMeta?.placeholder || text.trim())) : (isTextStep && text.trim())
@@ -1240,7 +1244,7 @@ export default function Home() {
                     ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
                     : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
                   }
-                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.color = 'var(--accent-2)' } }}
+                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.32)'; e.currentTarget.style.color = 'var(--accent)' } }}
                   onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}>
                   <ToolIcon toolKey={t.key} size={10} />
                   {t.label}
@@ -1269,7 +1273,7 @@ export default function Home() {
                         <button key={prompt} onClick={() => setText(prompt)}
                           className="rounded-full px-3.5 py-2 text-sm font-medium transition-all"
                           style={{ background: '#fff', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--text)' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.30)'; e.currentTarget.style.color = 'var(--text)' }}
                           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' }}>
                           {prompt}
                         </button>
@@ -1422,7 +1426,7 @@ export default function Home() {
                 <button onClick={() => fixFileRef.current?.click()}
                   className="w-full rounded-xl py-6 text-center transition-all"
                   style={{ border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.background = 'rgba(99,102,241,0.05)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.32)'; e.currentTarget.style.background = 'rgba(37,99,235,0.05)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.background = 'var(--surface-2)' }}>
                   <div className="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-3)', border: '1px solid var(--border)' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1466,10 +1470,10 @@ export default function Home() {
                       <div onClick={() => roastFileRef.current?.click()}
                         className="flex-1 rounded-xl py-5 text-center cursor-pointer transition-all"
                         style={roastFile
-                          ? { border: '2px dashed rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.06)' }
+                          ? { border: '2px dashed rgba(37,99,235,0.32)', background: 'rgba(37,99,235,0.06)' }
                           : { border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}>
                         {roastFile
-                          ? <p className="text-sm font-medium" style={{ color: '#a5b4fc' }}>{roastFile.name} · Click to change</p>
+                          ? <p className="text-sm font-medium" style={{ color: '#2563eb' }}>{roastFile.name} · Click to change</p>
                           : <><p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Click to upload</p><p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>.pdf .txt .py .js and more</p></>}
                       </div>
                       <button onClick={doRoast} disabled={!roastFile}
@@ -1495,12 +1499,12 @@ export default function Home() {
               <div className="flex gap-2 items-end">
                 {activeTool && !chatActive && (
                   <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 mb-0.5"
-                    style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                    style={{ background: 'rgba(37,99,235,0.10)', border: '1px solid rgba(37,99,235,0.18)', color: '#2563eb' }}>
                     <ToolIcon toolKey={activeTool} size={11} />
                     {activeMeta?.label}
                     <button onClick={() => setActiveTool(null)} className="ml-0.5 transition-colors" style={{ color: 'rgba(165,180,252,0.5)' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#a5b4fc'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(165,180,252,0.5)'}>
+                      onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(37,99,235,0.5)'}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
@@ -1523,7 +1527,7 @@ export default function Home() {
                   disabled={!canSend}
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                   style={{ background: canSend ? 'var(--accent)' : 'var(--surface-3)', cursor: canSend ? 'pointer' : 'not-allowed' }}
-                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(99,102,241,0.4)' }}
+                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(37,99,235,0.25)' }}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke={canSend ? 'white' : 'var(--text-3)'} strokeWidth="2.5" strokeLinecap="round">

@@ -45,7 +45,7 @@ export default function Navbar() {
         <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5 flex-shrink-0 group">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
+            style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)' }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
               <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z" fill="white" fillOpacity="0.95"/>
@@ -89,7 +89,7 @@ export default function Navbar() {
               {user.profile?.is_pro ? (
                 <span
                   className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold tracking-wider px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)' }}
+                  style={{ background: 'rgba(37,99,235,0.10)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.18)' }}
                 >
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   PRO
@@ -119,7 +119,7 @@ export default function Navbar() {
                 >
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold uppercase flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff' }}
+                    style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)', color: '#fff' }}
                   >
                     {(user.username || 'U')[0]}
                   </div>
@@ -161,8 +161,8 @@ export default function Navbar() {
                         to="/pricing"
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] transition-colors"
-                        style={{ color: '#a5b4fc' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)' }}
+                        style={{ color: 'var(--accent)' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.07)' }}
                         onMouseLeave={e => { e.currentTarget.style.background = '' }}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
