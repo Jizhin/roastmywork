@@ -638,7 +638,7 @@ function ChatHeader({ toolKey, user, onBack }) {
 function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
   return (
     <aside className="hidden lg:flex flex-col flex-shrink-0"
-      style={{ width: 'var(--sidebar-w)', background: '#0d1117', borderRadius: 16, overflow: 'hidden' }}>
+      style={{ width: 'var(--sidebar-w)', background: 'linear-gradient(180deg,#1a1d2e 0%,#0f1117 100%)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(255,255,255,0.06)' }}>
 
       {/* Logo */}
       <button onClick={onNew} style={{
@@ -657,7 +657,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
 
       {/* Tool list */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }}>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#374151', padding: '4px 8px 10px', display: 'block' }}>TOOLS</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', padding: '4px 8px 10px', display: 'block' }}>TOOLS</span>
         {SIDEBAR_TOOLS.map(tool => {
           const isActive = activeTool === tool.key
           const color = TOOL_COLORS[tool.key] || '#6366f1'
@@ -677,7 +677,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</span>
-                <span style={{ display: 'block', color: '#475569', fontSize: 12, lineHeight: 1.3 }}>{tool.desc}</span>
+                <span style={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: 12, lineHeight: 1.3 }}>{tool.desc}</span>
               </div>
             </button>
           )
@@ -698,7 +698,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
           </div>
           <div style={{ minWidth: 0 }}>
             <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>Cold Email</span>
-            <span style={{ display: 'block', color: '#475569', fontSize: 12, lineHeight: 1.3 }}>Write cold outreach emails</span>
+            <span style={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: 12, lineHeight: 1.3 }}>Write cold outreach emails</span>
           </div>
         </Link>
       </nav>
@@ -731,7 +731,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3 }}>{user.first_name || user.username}</div>
-            <div style={{ color: '#475569', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
+            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
           </div>
         </div>
       ) : (
@@ -1515,11 +1515,11 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-full" style={{ background: '#060a10', padding: 10, gap: 10 }}>
+    <div className="flex h-full" style={{ background: '#03040a', padding: 10, gap: 10 }}>
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
-      {/* ONE unified panel — rounded card */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#fff' : 'var(--bg)', borderRadius: 16 }}>
+      {/* ONE unified panel — white rounded card */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#ffffff' : 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)', borderRadius: 16, boxShadow: '0 0 0 1px rgba(255,255,255,0.08)' }}>
 
         {/* Chat header — only when chat is active */}
         {chatActive && activeTool && (
@@ -1530,10 +1530,10 @@ export default function Home() {
         <div className="flex-1 overflow-hidden flex min-h-0">
 
         {/* Messages / Greeting area — fills available space */}
-        <div className="flex-1 overflow-y-auto" style={chatActive ? { background: '#f4f5fb' } : {}}>
+        <div className="flex-1 overflow-y-auto" style={chatActive ? { background: '#f3f4f8' } : {}}>
           {!chatActive ? (
-            /* Greeting — reference design: gradient bg, search, tool grid */
-            <div className="min-h-full flex flex-col" style={{ background: 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)' }}>
+            /* Greeting */
+            <div className="min-h-full flex flex-col">
 
               {/* Top header — user info right */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '16px 28px 0' }}>
