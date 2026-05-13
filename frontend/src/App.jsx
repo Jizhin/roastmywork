@@ -9,6 +9,7 @@ import ResumeBuilder from './pages/ResumeBuilder'
 import ResumeUpdater from './pages/ResumeUpdater'
 import AdminUsers from './pages/AdminUsers'
 import ColdEmail from './pages/ColdEmail'
+import OutreachWorkspace from './pages/OutreachWorkspace'
 import Navbar from './components/Navbar'
 import AuthModal from './components/AuthModal'
 import UpgradeModal from './components/UpgradeModal'
@@ -72,10 +73,10 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/cold-email" element={<ColdEmail />} />
+          <Route path="/outreach-workspace" element={<OutreachWorkspace />} />
           <Route path="/*"          element={<AppShell />} />
         </Routes>
       </AuthProvider>
     </GoogleOAuthProvider>
   )
 }
-

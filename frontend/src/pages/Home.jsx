@@ -1198,6 +1198,20 @@ export default function Home() {
                   </div>
                   <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Generate targeted outreach emails</p>
                 </Link>
+                <Link
+                  to="/outreach-workspace"
+                  className="rounded-xl p-3.5 text-left transition-all"
+                  style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}
+                >
+                  <div className="flex items-center gap-2 mb-1.5" style={{ color: '#10b981' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 4h16v16H4z"/>
+                      <path d="M8 9h8M8 13h5M8 17h3"/>
+                    </svg>
+                    <span className="text-[13px] font-semibold">Outreach Workspace</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Plan messages, follow-ups and status</p>
+                </Link>
               </div>
             )}
 

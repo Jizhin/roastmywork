@@ -12,7 +12,7 @@ from .tasks import (
     run_linkedin_dm, run_linkedin_optimize, run_salary_analysis,
     _client, _json_call,
 )
-from .prompts import get_cold_email_prompt
+from .prompts import get_cold_email_prompt, get_outreach_workspace_prompt
 
 
 def _dispatch(fn, obj_id):
@@ -220,3 +220,37 @@ class ColdEmailDeductView(APIView):
         if not ok:
             return Response({'detail': 'No credits remaining.', 'code': 'no_credits'}, status=402)
         return Response({'ok': True})
+
+
+# ── Outreach Workspace ────────────────────────────────────────────────────────
+
+class OutreachWorkspaceGenerateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        company          = request.data.get('company', '').strip()
+        target_role      = request.data.get('target_role', '').strip()
+        job_description  = request.data.get('job_description', '').strip()
+        contact_name     = request.data.get('contact_name', '').strip()
+        contact_role     = request.data.get('contact_role', '').strip()
+        contact_channel  = request.data.get('contact_channel', '').strip()
+        user_background  = request.data.get('user_background', '').strip()
+        resume_highlights = request.data.get('resume_highlights', '').strip()
+
+        if not all([company, target_role, user_background]):
+            return Response({'detail': 'Company, target role, and your background are required.'}, status=400)
+
+        ok, _ = _check_and_deduct(request.user)
+        if not ok:
+            return Response({'detail': 'No credits remaining.', 'code': 'no_credits'}, status=402)
+
+        prompt = get_outreach_workspace_prompt(
+            company, target_role, job_description, contact_name,
+            contact_role, contact_channel, user_background, resume_highlights,
+        )
+        try:
+            result = _json_call(_client(), prompt)
+        except Exception:
+            return Response({'detail': 'Generation failed. Please try again.'}, status=500)
+
+        return Response(result)

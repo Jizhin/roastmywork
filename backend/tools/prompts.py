@@ -155,6 +155,71 @@ Return ONLY valid JSON:
 }}"""
 
 
+def get_outreach_workspace_prompt(company, target_role, job_description, contact_name, contact_role, contact_channel, user_background, resume_highlights):
+    contact = contact_name or "the best-fit recruiter, hiring manager, or employee"
+    contact_title = contact_role or "relevant contact"
+    channel = contact_channel or "email and LinkedIn"
+    jd = job_description[:2500] if job_description else "No job description provided."
+    highlights = resume_highlights[:1500] if resume_highlights else "No resume highlights provided."
+
+    return f"""You are a senior career strategist helping a job seeker turn one target company into a practical outreach plan.
+
+TARGET OPPORTUNITY:
+Company: {company}
+Target role: {target_role}
+Job description:
+{jd}
+
+CONTACT:
+Name: {contact}
+Role: {contact_title}
+Preferred channel: {channel}
+
+CANDIDATE:
+Background:
+{user_background[:1800]}
+
+Resume highlights or proof points:
+{highlights}
+
+Create a complete outreach workspace, not just one generic message.
+
+STRICT RULES:
+- Make every message specific to the company, role, and candidate background.
+- Do not invent fake achievements, metrics, or relationships.
+- Keep LinkedIn connection messages under 280 characters.
+- Keep cold emails under 130 words.
+- No hollow phrases like "I hope this finds you well", "I came across your profile", "touch base", or "synergy".
+- Give practical next actions the user can track.
+- If details are missing, use careful placeholders the user can edit.
+
+Return ONLY valid JSON:
+{{
+  "positioning": {{
+    "angle": "<one sentence positioning angle for this opportunity>",
+    "proof_points": ["<proof point to mention>", "<proof point to mention>", "<proof point to mention>"],
+    "gaps_to_fix": ["<gap or missing detail the user should improve before outreach>"]
+  }},
+  "messages": [
+    {{"type": "Cold email", "label": "Direct recruiter email", "subject": "<subject under 60 chars>", "body": "<email body with natural line breaks>", "best_for": "<when to use this>"}},
+    {{"type": "LinkedIn", "label": "Connection request", "subject": "", "body": "<under 280 chars>", "best_for": "<when to use this>"}},
+    {{"type": "Referral", "label": "Employee referral ask", "subject": "<subject under 60 chars>", "body": "<message body>", "best_for": "<when to use this>"}},
+    {{"type": "Follow-up", "label": "Follow-up after no reply", "subject": "<subject under 60 chars>", "body": "<message body>", "best_for": "<when to use this>"}},
+    {{"type": "Thank-you", "label": "After a reply or call", "subject": "<subject under 60 chars>", "body": "<message body>", "best_for": "<when to use this>"}}
+  ],
+  "follow_up_plan": [
+    {{"day": "Day 0", "action": "<what to do>", "channel": "<Email|LinkedIn|Both>"}},
+    {{"day": "Day 3", "action": "<what to do>", "channel": "<Email|LinkedIn|Both>"}},
+    {{"day": "Day 7", "action": "<what to do>", "channel": "<Email|LinkedIn|Both>"}}
+  ],
+  "tracker": {{
+    "initial_status": "Drafted",
+    "next_action": "<single next action>",
+    "success_signal": "<what progress looks like>"
+  }}
+}}"""
+
+
 def get_salary_prompt(offer, experience, situation):
     return f"""You are a compensation expert and negotiation coach.
 

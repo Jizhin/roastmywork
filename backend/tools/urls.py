@@ -6,6 +6,7 @@ from .views import (
     LinkedInOptimizeView, LinkedInOptimizeDetailView,
     SalaryView, SalaryDetailView,
     GenerateColdEmailView, ColdEmailDeductView,
+    OutreachWorkspaceGenerateView,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('salary/<uuid:pk>/',      SalaryDetailView.as_view()),
     path('cold-email/generate/',   GenerateColdEmailView.as_view()),
     path('cold-email/deduct/',     ColdEmailDeductView.as_view()),
+    path('outreach-workspace/generate/', OutreachWorkspaceGenerateView.as_view()),
 ]
