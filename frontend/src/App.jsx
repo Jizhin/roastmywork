@@ -25,7 +25,7 @@ function AppShell() {
       className={isHome ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen flex flex-col'}
       style={{ background: 'var(--bg)' }}
     >
-      <Navbar />
+      {!isHome && <Navbar />}
       <main className={isHome ? 'flex-1 min-h-0 overflow-hidden' : 'flex-1'}>
         <Routes>
           <Route path="/"                element={<Home />} />

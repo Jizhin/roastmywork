@@ -396,6 +396,18 @@ function RoastResult({ result }) {
   )
 }
 
+const ALL_TOOLS_FOR_GRID = [
+  { key: 'build_resume', label: 'Build Resume',    desc: 'Generate a resume from scratch'    },
+  { key: 'fix_resume',   label: 'Fix Resume',       desc: 'Improve your existing resume'     },
+  { key: 'roast',        label: 'Roast My Work',    desc: 'Brutal honest critique with score' },
+  { key: 'jd_match',     label: 'JD Match',         desc: 'Score resume against a job post'  },
+  { key: 'outreach',     label: 'Application Kit',  desc: 'Messages, follow-ups & strategy'  },
+  { key: 'interview',    label: 'Interview Prep',   desc: 'Practice questions & get scored'  },
+  { key: 'linkedin_dm',  label: 'Outreach DM',      desc: 'LinkedIn & recruiter messages'    },
+  { key: 'linkedin_opt', label: 'Optimize Profile', desc: 'Rewrite your LinkedIn profile'    },
+  { key: 'salary',       label: 'Salary Coach',     desc: 'Analyze offers & negotiate'       },
+]
+
 const TOOL_CATEGORIES = [
   {
     label: 'Resume',
@@ -439,31 +451,21 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
     <aside className="hidden lg:flex flex-shrink-0 flex-col"
       style={{ width: 'var(--sidebar-w)', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
 
-      {/* Logo */}
-      <div className="px-4 py-4 flex items-center gap-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+      {/* Logo — click to go home */}
+      <button onClick={onNew}
+        className="px-4 py-4 flex items-center gap-2.5 w-full text-left transition-opacity hover:opacity-75"
+        style={{ borderBottom: '1px solid var(--border)' }}>
         <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
           style={{ background: 'var(--accent)' }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
             <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
           </svg>
         </div>
-        <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--text)' }}>RoastMyWork</span>
-      </div>
-
-      {/* New session button */}
-      <div className="px-3 pt-3">
-        <button onClick={onNew}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-          style={{ border: '1px dashed var(--border-strong)', color: 'var(--text-3)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-2)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New session
-        </button>
-      </div>
+        <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--text)' }}>RoastMyWork</span>
+      </button>
 
       {/* Tool categories */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         {TOOL_CATEGORIES.map(cat => (
           <div key={cat.label}>
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 mb-1.5"
@@ -1281,9 +1283,7 @@ export default function Home() {
   const isMultiline   = ['free_context', 'outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
   const isTextStep    = ['free_context', 'outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
   const activeMeta    = TOOL_META[activeTool]
-  const preStartInput = !chatActive && activeTool && activeMeta?.placeholder
-  const workspaceInput = !chatActive && !activeTool
-  const canSend       = !chatActive ? (!activeTool ? text.trim() : (!activeMeta?.placeholder || text.trim())) : (isTextStep && text.trim())
+  const canSend       = isTextStep && !!text.trim()
 
   const placeholder = {
     role:             activeTool === 'interview' ? 'e.g. Software Engineer' : 'e.g. Senior Product Manager',
@@ -1303,7 +1303,7 @@ export default function Home() {
     experience:       'e.g. 4 years exp, currently at ₹16 LPA, 2 promotions',
     situation:        'e.g. currently employed, no competing offers, decision needed in 1 week',
     interview_answer: questions[qIdx] ? `Answer: "${questions[qIdx].slice(0, 55)}…"` : 'Your answer…',
-  }[step] || (preStartInput ? activeMeta.placeholder : 'Paste a resume, job post, offer, interview invite, or recruiter profile...')
+  }[step] || 'Your answer…'
 
   // ── Greeting ────────────────────────────────────────────────────────────────
 
@@ -1325,7 +1325,7 @@ export default function Home() {
         {/* Tool tab strip — only when chat is active, sits at top */}
         {chatActive && (
           <div className="flex-shrink-0" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-            <div className="max-w-4xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {TOOLS.map(t => (
                 <button key={t.key} onClick={() => startTool(t.key)}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 transition-all"
@@ -1344,42 +1344,94 @@ export default function Home() {
         )}
 
         {/* Messages / Greeting area — fills available space */}
-        <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="flex-1 overflow-y-auto">
           {!chatActive ? (
-            /* Greeting — shown when no messages yet */
-            <div className="flex-1 flex flex-col items-center justify-center px-6 pb-10">
-              <div className="w-full max-w-2xl mx-auto text-center">
-                <h1 className="text-[2rem] font-bold mb-3 anim-fade-up" style={{ color: 'var(--text)', letterSpacing: '-0.025em', lineHeight: 1.2 }}>
-                  {activeTool ? activeMeta?.label : greeting}
-                </h1>
-                <p className="text-[1.05rem] mb-8 anim-fade-up anim-d1" style={{ color: 'var(--text-3)' }}>
-                  {activeTool
-                    ? 'Type below and press Enter to get started.'
-                    : 'Your AI career workspace — resume, jobs, outreach, and interviews.'}
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 anim-fade-up anim-d2">
-                  {STARTER_PROMPTS.map(prompt => (
-                    <button key={prompt} onClick={() => setText(prompt)}
-                      className="rounded-full px-4 py-2 text-sm font-medium transition-all"
-                      style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text)' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-2)' }}>
-                      {prompt}
+            /* Greeting — centered search + tool grid */
+            <div className="min-h-full flex flex-col items-center justify-center px-6 py-10">
+              <div className="w-full max-w-[640px] mx-auto">
+
+                {/* Heading */}
+                <div className="text-center mb-8 anim-fade-up">
+                  <h1 className="font-bold mb-2" style={{ fontSize: '2.1rem', color: 'var(--text)', letterSpacing: '-0.035em', lineHeight: 1.15 }}>
+                    {greeting}
+                  </h1>
+                  <p style={{ fontSize: '1.05rem', color: 'var(--text-3)', lineHeight: 1.5 }}>
+                    Your AI career workspace — resume, jobs, outreach, and interviews.
+                  </p>
+                </div>
+
+                {/* Centered search input */}
+                <div className="relative mb-7 anim-fade-up anim-d1">
+                  <textarea
+                    ref={inputRef}
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); text.trim() && onText() } }}
+                    placeholder="Paste a resume, job post, offer, or describe what you need…"
+                    rows={3}
+                    className="w-full resize-none"
+                    style={{
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border-strong)',
+                      borderRadius: 14,
+                      padding: '0.9rem 3.75rem 0.9rem 1.1rem',
+                      fontSize: '15px',
+                      color: 'var(--text)',
+                      outline: 'none',
+                      lineHeight: 1.65,
+                      boxShadow: '0 2px 16px rgba(15,23,42,0.07)',
+                      transition: 'border-color 0.15s, box-shadow 0.15s',
+                    }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px var(--accent-glow), 0 2px 16px rgba(15,23,42,0.07)' }}
+                    onBlur={e => { e.target.style.borderColor = 'var(--border-strong)'; e.target.style.boxShadow = '0 2px 16px rgba(15,23,42,0.07)' }}
+                  />
+                  <button
+                    onClick={() => text.trim() && onText()}
+                    disabled={!text.trim()}
+                    className="absolute right-3 bottom-3 w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+                    style={{ background: text.trim() ? 'var(--accent)' : 'var(--surface-3)', cursor: text.trim() ? 'pointer' : 'not-allowed' }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4 mb-6 anim-fade-up anim-d2">
+                  <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+                  <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)' }}>or pick a tool</span>
+                  <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+                </div>
+
+                {/* Tool grid */}
+                <div className="grid grid-cols-3 gap-2.5 anim-fade-up anim-d3">
+                  {ALL_TOOLS_FOR_GRID.map(tool => (
+                    <button key={tool.key} onClick={() => startTool(tool.key)} className="tool-card">
+                      <span className="tool-card-icon">
+                        <ToolIcon toolKey={tool.key} size={16} />
+                      </span>
+                      <div>
+                        <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{tool.label}</p>
+                        <p style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.4 }}>{tool.desc}</p>
+                      </div>
                     </button>
                   ))}
                 </div>
+
+                {/* Credits */}
                 {user && !user.profile?.is_pro && (
-                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2 text-sm mt-8 anim-fade-up anim-d3"
-                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-                    <span style={{ color: 'var(--text-3)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits left</span>
-                    <Link to="/pricing" className="text-sm font-semibold pl-3 transition-colors" style={{ color: 'var(--accent)', borderLeft: '1px solid var(--border)' }}>Upgrade</Link>
+                  <div className="text-center mt-6 anim-fade-up anim-d4">
+                    <span style={{ fontSize: 13, color: 'var(--text-3)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits left ·{' '}
+                    </span>
+                    <Link to="/pricing" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>Upgrade to Pro</Link>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            /* Chat messages — centered column matching input width, pinned to bottom */
-            <div className="max-w-4xl mx-auto w-full px-4 pt-4 pb-4 space-y-4 mt-auto">
+            /* Chat messages */
+            <div className="max-w-3xl mx-auto w-full px-5 pt-7 pb-5 space-y-5">
               {msgs.map(msg => (
                 <div key={msg.id}>
                   {msg.type === 'user'
@@ -1440,10 +1492,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── Input area — ALWAYS at the bottom, NEVER moves ── */}
+        {/* ── Input area — only when chat is active ── */}
+        {chatActive && (
         <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
-          <div className="max-w-4xl mx-auto">
-
+          <div className="max-w-3xl mx-auto">
 
             {/* Input controls — adapt based on step */}
 
@@ -1533,36 +1585,21 @@ export default function Home() {
               <p className="text-center text-xs py-1" style={{ color: 'var(--text-3)' }}>Processing… please wait</p>
             )}
 
-            {/* Main text input — for pre-start and text steps */}
+            {/* Main text input — for text steps in chat */}
             {step !== 'done' && step !== 'upload' && step !== 'content' && !isChoiceStep && !isLoading && (
               <div className="flex gap-2 items-end">
-                {activeTool && !chatActive && (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 mb-0.5"
-                    style={{ background: 'var(--surface-3)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}>
-                    <ToolIcon toolKey={activeTool} size={11} />
-                    {activeMeta?.label}
-                    <button onClick={() => setActiveTool(null)} className="ml-0.5 transition-colors" style={{ color: 'var(--text-3)' }}
-                      onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                      </svg>
-                    </button>
-                  </span>
-                )}
-                {isMultiline || workspaceInput
+                {isMultiline
                   ? <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onText() } }}
-                      placeholder={placeholder} rows={workspaceInput ? 3 : 4}
+                      placeholder={placeholder} rows={4}
                       className="flex-1 input-base resize-none text-[15px] leading-relaxed" />
                   : <input ref={inputRef} value={text} onChange={e => setText(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && (chatActive ? onText() : canSend && onText())}
+                      onKeyDown={e => e.key === 'Enter' && onText()}
                       placeholder={placeholder}
-                      disabled={!!activeTool && !chatActive && !activeMeta?.placeholder}
                       className="flex-1 input-base text-[15px]" />
                 }
                 <button
-                  onClick={() => chatActive ? onText() : (canSend && onText())}
+                  onClick={onText}
                   disabled={!canSend}
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                   style={{ background: canSend ? 'var(--accent)' : 'var(--surface-3)', cursor: canSend ? 'pointer' : 'not-allowed' }}
@@ -1578,6 +1615,7 @@ export default function Home() {
 
           </div>
         </div>
+        )}
       </div>
     </div>
   )
