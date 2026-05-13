@@ -640,7 +640,7 @@ function ChatHeader({ toolKey, user, onBack }) {
 
 // ── Tool navigation sidebar ────────────────────────────────────────────────────
 
-function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
+function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal, onLogout }) {
   return (
     <aside className="hidden lg:flex flex-col flex-shrink-0"
       style={{ width: 'var(--sidebar-w)', background: 'linear-gradient(160deg,#252a3d 0%,#16192a 60%,#111420 100%)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(255,255,255,0.09), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
@@ -734,10 +734,18 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff', fontWeight: 700, fontSize: 13 }}>
             {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
           </div>
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3 }}>{user.first_name || user.username}</div>
             <div style={{ color: 'rgba(255,255,255,0.42)', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
           </div>
+          <button onClick={onLogout} title="Sign out"
+            style={{ width: 30, height: 30, borderRadius: 8, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.38)', flexShrink: 0, transition: 'color 0.12s, background 0.12s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.38)'; e.currentTarget.style.background = 'transparent' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       ) : (
         <div style={{ padding: '8px 8px 14px' }}>
@@ -753,7 +761,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
 // ── Main Home (unified chat interface) ─────────────────────────────────────────
 
 export default function Home() {
-  const { user, openAuthModal, openUpgradeModal, refreshUser } = useAuth()
+  const { user, logout, openAuthModal, openUpgradeModal, refreshUser } = useAuth()
   const [sessions,    setSessions]    = useState([])
   const [activeTool,  setActiveTool]  = useState(null)
   const [msgs,        setMsgs]        = useState([])
@@ -1525,7 +1533,7 @@ export default function Home() {
 
   return (
     <div className="flex h-full" style={{ background: '#03040a', padding: 'clamp(4px, 1.5vw, 10px)', gap: 'clamp(4px, 1.5vw, 10px)' }}>
-      <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
+      <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} onLogout={logout} />
 
       {/* ONE unified panel — white rounded card */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#ffffff' : 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)', borderRadius: 16, boxShadow: '0 0 0 1px rgba(255,255,255,0.08)' }}>
@@ -1555,6 +1563,14 @@ export default function Home() {
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
                       {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
                     </div>
+                    <button onClick={logout} title="Sign out"
+                      style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-strong)', background: 'var(--surface-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-3)', flexShrink: 0, transition: 'color 0.12s, background 0.12s, border-color 0.12s' }}
+                      onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; e.currentTarget.style.background = 'rgba(239,68,68,0.06)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.background = 'var(--surface-2)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                    </button>
                   </div>
                 ) : (
                   <button onClick={openAuthModal} className="btn-primary text-sm">Sign in</button>
