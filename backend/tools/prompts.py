@@ -155,14 +155,18 @@ Return ONLY valid JSON:
 }}"""
 
 
-def get_outreach_workspace_prompt(company, target_role, job_description, contact_name, contact_role, contact_channel, user_background, resume_highlights):
+def get_outreach_workspace_prompt(company, target_role, job_description, contact_name, contact_role, contact_channel, user_background, resume_highlights, raw_context=""):
     contact = contact_name or "the best-fit recruiter, hiring manager, or employee"
     contact_title = contact_role or "relevant contact"
     channel = contact_channel or "email and LinkedIn"
     jd = job_description[:2500] if job_description else "No job description provided."
     highlights = resume_highlights[:1500] if resume_highlights else "No resume highlights provided."
+    raw = raw_context[:4500] if raw_context else "No raw paste provided."
 
     return f"""You are a senior career strategist helping a job seeker turn one target company into a practical outreach plan.
+
+RAW USER PASTE:
+{raw}
 
 TARGET OPPORTUNITY:
 Company: {company}
@@ -186,6 +190,7 @@ Create a complete outreach workspace, not just one generic message.
 
 STRICT RULES:
 - Make every message specific to the company, role, and candidate background.
+- If the raw paste contains better details than the structured fields, use the raw paste as the source of truth.
 - Do not invent fake achievements, metrics, or relationships.
 - Keep LinkedIn connection messages under 280 characters.
 - Keep cold emails under 130 words.

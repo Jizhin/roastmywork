@@ -236,17 +236,25 @@ class OutreachWorkspaceGenerateView(APIView):
         contact_channel  = request.data.get('contact_channel', '').strip()
         user_background  = request.data.get('user_background', '').strip()
         resume_highlights = request.data.get('resume_highlights', '').strip()
+        raw_context      = request.data.get('raw_context', '').strip()
 
-        if not all([company, target_role, user_background]):
-            return Response({'detail': 'Company, target role, and your background are required.'}, status=400)
+        if not raw_context and not all([company, target_role, user_background]):
+            return Response({'detail': 'Paste context, or fill company, target role, and your background.'}, status=400)
 
         ok, _ = _check_and_deduct(request.user)
         if not ok:
             return Response({'detail': 'No credits remaining.', 'code': 'no_credits'}, status=402)
 
         prompt = get_outreach_workspace_prompt(
-            company, target_role, job_description, contact_name,
-            contact_role, contact_channel, user_background, resume_highlights,
+            company or 'Infer from raw paste',
+            target_role or 'Infer from raw paste',
+            job_description,
+            contact_name,
+            contact_role,
+            contact_channel,
+            user_background or raw_context,
+            resume_highlights,
+            raw_context,
         )
         try:
             result = _json_call(_client(), prompt)

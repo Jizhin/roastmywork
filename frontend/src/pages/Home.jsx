@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { resumeApi, updaterApi, roastApi, toolsApi, authApi } from '../api/client'
+import { resumeApi, updaterApi, roastApi, toolsApi, authApi, outreachWorkspaceApi } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ResumeRenderer, { DEFAULT_STYLE } from '../components/ResumeRenderer'
 import StylePanel from '../components/StylePanel'
@@ -16,6 +16,7 @@ const TOOLS = [
   { key: 'roast',        label: 'Roast My Work',    placeholder: null                                               },
   { key: 'jd_match',     label: 'JD Match',         placeholder: null                                               },
   { key: 'interview',    label: 'Interview Prep',   placeholder: 'e.g. Software Engineer at Google'                  },
+  { key: 'outreach',     label: 'Outreach Plan',     placeholder: 'Paste a job post, recruiter profile, or company lead' },
   { key: 'linkedin_dm',  label: 'LinkedIn DM',      placeholder: 'e.g. Priya Sharma, Engineering Manager at Swiggy' },
   { key: 'linkedin_opt', label: 'LinkedIn Profile', placeholder: null                                               },
   { key: 'salary',       label: 'Salary Coach',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
@@ -27,6 +28,7 @@ const TOOL_SUBTEXT = {
   roast: 'Get AI critique + fixes',
   jd_match: 'Score against job post',
   interview: 'Practice interview rounds',
+  outreach: 'Messages + follow-ups',
   linkedin_dm: 'Draft outreach messages',
   linkedin_opt: 'Optimize profile copy',
   salary: 'Analyze and negotiate offer',
@@ -68,6 +70,7 @@ const GREETINGS = {
   roast:        { text: "What would you like roasted today?", choices: WORK_TYPES },
   jd_match:     { text: "Paste your resume text below — I'll score it against any job description." },
   interview:    { text: "What role are you interviewing for?" },
+  outreach:     { text: "Paste the job post, recruiter profile, company note, or rough context. I'll turn it into messages, follow-ups, and next steps." },
   linkedin_dm:  { text: "Who are you reaching out to? Tell me their name, role, and company." },
   linkedin_opt: { text: "Paste your current LinkedIn headline and About section — I'll rewrite both for maximum recruiter visibility." },
   salary:       { text: "Tell me about the offer — role, company, base salary, location, and any other comp details." },
@@ -76,6 +79,7 @@ const GREETINGS = {
 const INITIAL_STEPS = {
   build_resume: 'role', fix_resume: 'upload', roast: 'work_type',
   jd_match: 'resume_text', interview: 'role',
+  outreach: 'outreach_context',
   linkedin_dm: 'target', linkedin_opt: 'profile', salary: 'offer',
 }
 
@@ -90,6 +94,7 @@ function ToolIcon({ toolKey, size = 20 }) {
   if (toolKey === 'roast')        return <svg {...s}><path d="M12 2C9.5 6.5 8 9.5 8 13a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11z"/></svg>
   if (toolKey === 'jd_match')     return <svg {...s}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>
   if (toolKey === 'interview')    return <svg {...s}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  if (toolKey === 'outreach')     return <svg {...s}><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h3"/></svg>
   if (toolKey === 'linkedin_dm')  return <svg {...s}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   if (toolKey === 'linkedin_opt') return <svg {...s}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
   if (toolKey === 'salary')       return <svg {...s}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
@@ -184,6 +189,30 @@ function CopyButton({ text }) {
   )
 }
 
+function detectWorkspaceActions(input) {
+  const t = input.toLowerCase()
+  const looksLikeResume = /\b(experience|education|skills|projects|summary|resume|cv)\b/.test(t)
+  const looksLikeJob = /\b(job description|responsibilities|requirements|qualifications|apply|hiring|role)\b/.test(t)
+  const looksLikeOutreach = /\b(recruiter|referral|linkedin|connect|message|outreach|email|hiring manager)\b/.test(t)
+  const looksLikeInterview = /\b(interview|round|question|screening|hr call)\b/.test(t)
+  const looksLikeSalary = /\b(offer|salary|ctc|lpa|compensation|negotiate|bonus)\b/.test(t)
+
+  const actions = []
+  if (looksLikeJob && looksLikeResume) actions.push({ value: 'jd_match', label: 'Match resume to job', sub: 'Score fit and gaps' })
+  if (looksLikeJob || looksLikeOutreach) actions.push({ value: 'outreach', label: 'Build outreach plan', sub: 'Messages + follow-ups' })
+  if (looksLikeResume) actions.push({ value: 'roast', label: 'Review this content', sub: 'Score and improve it' })
+  if (looksLikeInterview) actions.push({ value: 'interview', label: 'Practice interview', sub: 'Questions and feedback' })
+  if (looksLikeSalary) actions.push({ value: 'salary', label: 'Analyze offer', sub: 'Market range + script' })
+  if (!actions.length) {
+    actions.push(
+      { value: 'roast', label: 'Review this', sub: 'Critique and improve' },
+      { value: 'build_resume', label: 'Build resume', sub: 'Create a resume draft' },
+      { value: 'outreach', label: 'Create outreach', sub: 'Messages and next steps' },
+    )
+  }
+  return actions.slice(0, 4)
+}
+
 // ── Result components ──────────────────────────────────────────────────────────
 
 function ResumeResult({ data, styleConfig, setStyleConfig, onPreview }) {
@@ -268,6 +297,62 @@ function LinkedInOptResult({ result }) {
       {result.headline && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">New Headline</span><CopyButton text={result.headline} /></div><p className="text-[13px] font-semibold" style={DS.text}>{result.headline}</p></div>}
       {result.about && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">About Section</span><CopyButton text={result.about} /></div><p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={DS.text2}>{result.about}</p></div>}
       {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}>{k}</span>)}</div></div>}
+    </div>
+  )
+}
+
+function OutreachResult({ result }) {
+  const messages = result.messages || []
+  return (
+    <div className="space-y-3 mt-1">
+      {result.positioning?.angle && (
+        <div style={DS.card}>
+          <span style={DS.label}>Positioning</span>
+          <p className="text-sm font-semibold" style={DS.text}>{result.positioning.angle}</p>
+          {result.positioning.proof_points?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {result.positioning.proof_points.map((point, i) => (
+                <span key={i} className="badge badge-blue">{point}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="grid md:grid-cols-2 gap-3">
+        {messages.map((message, i) => {
+          const copy = message.subject ? `Subject: ${message.subject}\n\n${message.body}` : message.body
+          return (
+            <div key={`${message.type}-${i}`} style={DS.card}>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <span style={DS.label}>{message.type}</span>
+                  <p className="font-semibold text-sm" style={DS.text}>{message.label}</p>
+                </div>
+                <CopyButton text={copy} />
+              </div>
+              {message.subject && <p className="text-xs font-semibold mb-2" style={DS.text2}>Subject: {message.subject}</p>}
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={DS.text2}>{message.body}</p>
+              {message.best_for && <p className="text-xs mt-3" style={DS.text3}>{message.best_for}</p>}
+            </div>
+          )
+        })}
+      </div>
+      {result.follow_up_plan?.length > 0 && (
+        <div style={DS.card}>
+          <span style={DS.label}>Follow-up rhythm</span>
+          <div className="grid md:grid-cols-3 gap-2">
+            {result.follow_up_plan.map(item => (
+              <div key={item.day} className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)' }}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold" style={DS.text}>{item.day}</span>
+                  <span className="text-[11px]" style={DS.text3}>{item.channel}</span>
+                </div>
+                <p className="text-xs mt-1.5" style={DS.text2}>{item.action}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -608,6 +693,28 @@ export default function Home() {
   const onChoice = (value, label, msgId) => {
     markChosen(msgId, value)
     pushUser(label)
+    if (step === 'intent') {
+      const rawContext = collected.rawContext || ''
+      if (value === 'outreach') {
+        setActiveTool('outreach')
+        doOutreach({ rawContext })
+      } else if (value === 'roast') {
+        setActiveTool('roast')
+        setCollected({ workType: 'resume', intensity: 'honest' })
+        setRoastText(rawContext)
+        pushAI({ text: 'I can review this directly. Send it for critique, or edit the text below first.' })
+        setStep('content')
+      } else if (value === 'jd_match') {
+        setActiveTool('jd_match')
+        setCollected({ resumeText: rawContext })
+        pushAI({ text: 'I will use that as your resume/context. Now paste the job description to compare against.' })
+        setStep('jd_text')
+      } else {
+        startTool(value, rawContext)
+      }
+      return
+    }
+
     if (activeTool === 'roast') {
       if (step === 'work_type') {
         setCollected(c => ({ ...c, workType: value }))
@@ -643,6 +750,24 @@ export default function Home() {
 
     if (!chatActive) {
       // Starting chat from welcome state
+      if (!activeTool) {
+        const choices = detectWorkspaceActions(t)
+        setMsgs([
+          { type: 'user', id: 'u0', text: t.length > 260 ? t.slice(0, 260) + '…' : t },
+          { type: 'ai', id: 'intent', text: 'I can work with that. What should I do first?', choices },
+        ])
+        setCollected({ rawContext: t })
+        setStep('intent')
+        return
+      }
+      if (activeTool === 'outreach') {
+        setMsgs([
+          { type: 'ai', id: 'init', ...(GREETINGS.outreach) },
+          { type: 'user', id: 'u0', text: t.length > 260 ? t.slice(0, 260) + '…' : t },
+        ])
+        doOutreach({ rawContext: t })
+        return
+      }
       startTool(activeTool, t)
       return
     }
@@ -674,6 +799,11 @@ export default function Home() {
         setStep('company_type')
       } else if (step === 'interview_answer') {
         submitAnswer(t)
+      }
+    } else if (activeTool === 'outreach') {
+      if (step === 'outreach_context') {
+        pushUser(t.length > 180 ? t.slice(0, 180) + '…' : t)
+        doOutreach({ rawContext: t })
       }
     } else if (activeTool === 'jd_match') {
       if (step === 'resume_text') {
@@ -935,6 +1065,36 @@ export default function Home() {
     go()
   }
 
+  const doOutreach = (snap) => {
+    if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doOutreach(snap)); return }
+    setIsLoading(true); setStep('loading')
+    pushAI({ text: 'Building your outreach plan… messages, follow-ups, and next action.' })
+    const go = async () => {
+      try {
+        const { data } = await outreachWorkspaceApi.generate({
+          raw_context: snap.rawContext || '',
+          company: snap.company || '',
+          target_role: snap.targetRole || '',
+          contact_name: snap.contactName || '',
+          contact_role: snap.contactRole || '',
+          contact_channel: snap.contactChannel || 'Both',
+          user_background: snap.userBackground || snap.rawContext || '',
+          resume_highlights: snap.resumeHighlights || '',
+        })
+        setResult(data)
+        setIsLoading(false)
+        setStep('done')
+        pushAI({ kind: 'outreach', text: 'Here is your outreach workspace.', result: data })
+        refreshUser()
+      } catch (err) {
+        setIsLoading(false); setStep('outreach_context')
+        if (err.response?.status === 402) openUpgradeModal()
+        else pushAI({ text: err.response?.data?.detail || 'Something went wrong. Please try again.' })
+      }
+    }
+    go()
+  }
+
   const doLinkedInOpt = (snap) => {
     if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doLinkedInOpt(snap)); return }
     setIsLoading(true); setStep('loading')
@@ -999,12 +1159,13 @@ export default function Home() {
 
   // ── Input area derived state ────────────────────────────────────────────────
 
-  const isChoiceStep  = ['work_type', 'intensity', 'company_type', 'round_type', 'purpose'].includes(step)
-  const isMultiline   = ['exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
-  const isTextStep    = ['role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
+  const isChoiceStep  = ['intent', 'work_type', 'intensity', 'company_type', 'round_type', 'purpose'].includes(step)
+  const isMultiline   = ['outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
+  const isTextStep    = ['outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
   const activeMeta    = TOOLS.find(t => t.key === activeTool)
   const preStartInput = !chatActive && activeTool && activeMeta?.placeholder
-  const canSend       = !chatActive ? (activeTool && (!activeMeta?.placeholder || text.trim())) : (isTextStep && text.trim())
+  const workspaceInput = !chatActive && !activeTool
+  const canSend       = !chatActive ? (!activeTool ? text.trim() : (!activeMeta?.placeholder || text.trim())) : (isTextStep && text.trim())
 
   const placeholder = {
     role:             activeTool === 'interview' ? 'e.g. Software Engineer' : 'e.g. Senior Product Manager',
@@ -1014,6 +1175,7 @@ export default function Home() {
     contact:          'John Doe, john@email.com, +1-555-0123, New York',
     resume_text:      'Paste your full resume text here…',
     jd_text:          'Paste the full job description here…',
+    outreach_context: 'Paste the job post, recruiter profile, company lead, or rough context…',
     target:           'e.g. Priya Sharma, Engineering Manager at Swiggy',
     background:       'e.g. 4 years in backend engineering at a fintech startup',
     target_role:      "e.g. Senior SWE at FAANG, or 'keep current direction'",
@@ -1022,7 +1184,7 @@ export default function Home() {
     experience:       'e.g. 4 years exp, currently at ₹16 LPA, 2 promotions',
     situation:        'e.g. currently employed, no competing offers, decision needed in 1 week',
     interview_answer: questions[qIdx] ? `Answer: "${questions[qIdx].slice(0, 55)}…"` : 'Your answer…',
-  }[step] || (preStartInput ? activeMeta.placeholder : 'Choose a tool below to get started...')
+  }[step] || (preStartInput ? activeMeta.placeholder : 'Paste a resume, job post, offer, interview invite, or recruiter profile...')
 
   // ── Greeting ────────────────────────────────────────────────────────────────
 
@@ -1058,14 +1220,6 @@ export default function Home() {
                   {t.label}
                 </button>
               ))}
-              <Link to="/cold-email"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 transition-colors"
-                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', color: '#a5b4fc' }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Cold Email ↗
-              </Link>
             </div>
           </div>
         )}
@@ -1077,7 +1231,7 @@ export default function Home() {
             <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
               <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--text)' }}>{greeting}</h1>
               <p className="text-base text-center mb-6" style={{ color: 'var(--text-2)' }}>
-                {activeTool ? `${activeMeta?.label} — type below and press send` : 'Pick a tool below to get started'}
+                {activeTool ? `${activeMeta?.label} — type below and press send` : 'Paste anything from your job search. I will suggest the next best action.'}
               </p>
               {user && !user.profile?.is_pro && (
                 <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm"
@@ -1112,6 +1266,7 @@ export default function Home() {
                         {msg.kind === 'jd_match'   && msg.result && <JDMatchResult result={msg.result} />}
                         {msg.kind === 'roast'       && msg.result && <RoastResult result={msg.result} />}
                         {msg.kind === 'interview'   && (msg.result || result) && <InterviewResult result={msg.result || result} />}
+                        {msg.kind === 'outreach'    && msg.result && <OutreachResult result={msg.result} />}
                         {msg.kind === 'linkedin_dm' && msg.result && <LinkedInDMResult result={msg.result} />}
                         {msg.kind === 'linkedin_opt'&& msg.result && <LinkedInOptResult result={msg.result} />}
                         {msg.kind === 'salary'      && msg.result && <SalaryResult result={msg.result} />}
@@ -1185,33 +1340,6 @@ export default function Home() {
                     <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>{TOOL_SUBTEXT[t.key]}</p>
                   </button>
                 ))}
-                <Link
-                  to="/cold-email"
-                  className="rounded-xl p-3.5 text-left transition-all"
-                  style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.25)' }}
-                >
-                  <div className="flex items-center gap-2 mb-1.5" style={{ color: 'var(--accent)' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    <span className="text-[13px] font-semibold">Cold Email</span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Generate targeted outreach emails</p>
-                </Link>
-                <Link
-                  to="/outreach-workspace"
-                  className="rounded-xl p-3.5 text-left transition-all"
-                  style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}
-                >
-                  <div className="flex items-center gap-2 mb-1.5" style={{ color: '#10b981' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 4h16v16H4z"/>
-                      <path d="M8 9h8M8 13h5M8 17h3"/>
-                    </svg>
-                    <span className="text-[13px] font-semibold">Outreach Workspace</span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Plan messages, follow-ups and status</p>
-                </Link>
               </div>
             )}
 
@@ -1320,15 +1448,15 @@ export default function Home() {
                     </button>
                   </span>
                 )}
-                {isMultiline
+                {isMultiline || workspaceInput
                   ? <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onText() } }}
-                      placeholder={placeholder} rows={4}
+                      placeholder={placeholder} rows={workspaceInput ? 3 : 4}
                       className="flex-1 input-base resize-none text-[15px] leading-relaxed" />
                   : <input ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && (chatActive ? onText() : canSend && onText())}
                       placeholder={placeholder}
-                      disabled={!activeTool || (!chatActive && !activeMeta?.placeholder)}
+                      disabled={!!activeTool && !chatActive && !activeMeta?.placeholder}
                       className="flex-1 input-base text-[15px]" />
                 }
                 <button
