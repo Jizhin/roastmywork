@@ -638,7 +638,7 @@ function ChatHeader({ toolKey, user, onBack }) {
 function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
   return (
     <aside className="hidden lg:flex flex-col flex-shrink-0"
-      style={{ width: 'var(--sidebar-w)', background: '#0d1117' }}>
+      style={{ width: 'var(--sidebar-w)', background: '#0d1117', borderRadius: 16, overflow: 'hidden' }}>
 
       {/* Logo */}
       <button onClick={onNew} style={{
@@ -1515,11 +1515,11 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex overflow-hidden h-full">
+    <div className="flex h-full" style={{ background: '#060a10', padding: 10, gap: 10 }}>
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
-      {/* ONE unified panel — layout never changes */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#fff' : 'var(--bg)' }}>
+      {/* ONE unified panel — rounded card */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#fff' : 'var(--bg)', borderRadius: 16 }}>
 
         {/* Chat header — only when chat is active */}
         {chatActive && activeTool && (
