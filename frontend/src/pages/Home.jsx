@@ -134,12 +134,10 @@ function AIBubble({ text, children, toolKey }) {
         {text && (
           <div>
             <div className="rounded-2xl rounded-tl-sm px-5 py-4"
-              style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 6px rgba(15,23,42,0.07)' }}>
+              style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 8px rgba(15,23,42,0.07)' }}>
               <p className="text-[15px] leading-[1.7] whitespace-pre-wrap break-words" style={{ color: 'var(--text)' }}>{text}</p>
             </div>
-            <div className="mt-1.5 flex">
-              <CopyButton text={text} />
-            </div>
+            <MessageActions text={text} />
           </div>
         )}
         {children}
@@ -190,6 +188,38 @@ function CopyButton({ text }) {
       style={copied ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' } : { background: 'rgba(0,0,0,0.05)', color: 'var(--text-3)' }}>
       {copied ? 'Copied!' : 'Copy'}
     </button>
+  )
+}
+
+function MessageActions({ text }) {
+  const [copied, setCopied] = useState(false)
+  const [vote, setVote] = useState(null)
+  const iconBtn = (active, activeColor, onClick, children, title) => (
+    <button onClick={onClick} title={title}
+      className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+      style={{ color: active ? activeColor : 'var(--text-3)', background: 'transparent' }}
+      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.06)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+      {children}
+    </button>
+  )
+  return (
+    <div className="flex items-center gap-0.5 mt-2">
+      {iconBtn(copied, '#34d399', () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) },
+        copied
+          ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+        'Copy'
+      )}
+      {iconBtn(vote === 'up', '#34d399', () => setVote(v => v === 'up' ? null : 'up'),
+        <svg width="13" height="13" viewBox="0 0 24 24" fill={vote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>,
+        'Helpful'
+      )}
+      {iconBtn(vote === 'down', '#f87171', () => setVote(v => v === 'down' ? null : 'down'),
+        <svg width="13" height="13" viewBox="0 0 24 24" fill={vote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>,
+        'Not helpful'
+      )}
+    </div>
   )
 }
 
@@ -413,6 +443,18 @@ const TOOL_COLORS = {
   salary:       '#eab308',
 }
 
+const TOOL_INFO = {
+  build_resume:  { desc: 'Creates a complete ATS-friendly resume from scratch tailored to your target role and experience.', bestFor: ['Career starters', 'Role switchers', 'Tech roles'], strengths: 'ATS optimization, keyword targeting, clean formatting' },
+  fix_resume:    { desc: 'Rewrites weak bullets, fixes ATS issues, and strengthens your existing resume end-to-end.', bestFor: ['Resume polish', 'ATS fixes', 'Bullet rewrites'], strengths: 'Impact statements, keyword gaps, structure' },
+  roast:         { desc: 'Delivers a brutally honest, scored critique of your resume, code, essay, or LinkedIn profile.', bestFor: ['Honest feedback', 'Score check', 'Pre-apply review'], strengths: 'Detailed scoring, fix suggestions, multiple formats' },
+  jd_match:      { desc: 'Scores your resume against a job description and highlights every missing keyword and gap.', bestFor: ['Job targeting', 'Fit analysis', 'Keyword gaps'], strengths: 'Match scoring, gap analysis, keyword mapping' },
+  outreach:      { desc: 'Generates cover messages, follow-ups, and a full application strategy in one shot.', bestFor: ['Job applications', 'Follow-ups', 'Cold outreach'], strengths: 'Multi-channel, personalized, strategy included' },
+  interview:     { desc: 'Generates real interview questions for your role, lets you practice, and scores your answers.', bestFor: ['Interview prep', 'Role-specific', 'STAR practice'], strengths: 'Scoring, hiring recommendation, per-question feedback' },
+  linkedin_dm:   { desc: 'Writes personalized LinkedIn and recruiter messages that actually get responses.', bestFor: ['Networking', 'Referrals', 'Job inquiries'], strengths: '3 style variants, tone control, high reply rate' },
+  linkedin_opt:  { desc: 'Rewrites your LinkedIn headline and About section for maximum recruiter visibility.', bestFor: ['Profile rewrite', 'Recruiter reach', 'Keyword boost'], strengths: 'Headline + About, keyword targeting, score tracking' },
+  salary:        { desc: 'Benchmarks your offer against market data and gives you a proven negotiation script.', bestFor: ['Offer analysis', 'Counter offers', 'Negotiation'], strengths: 'Market ranges, script included, talking points' },
+}
+
 const SIDEBAR_TOOLS = [
   { key: 'build_resume', label: 'Build Resume',    desc: 'Create professional resume'   },
   { key: 'fix_resume',   label: 'Fix Resume',       desc: 'Improve existing resume'      },
@@ -472,6 +514,78 @@ const TOOL_CATEGORIES = [
     ],
   },
 ]
+
+// ── Chat right info panel ────────────────────────────────────────────────────
+
+function ChatRightPanel({ toolKey }) {
+  const color    = TOOL_COLORS[toolKey] || '#6366f1'
+  const toolInfo = ALL_TOOLS_FOR_GRID.find(t => t.key === toolKey)
+  const info     = TOOL_INFO[toolKey] || {}
+
+  return (
+    <aside className="hidden xl:flex flex-col flex-shrink-0 overflow-y-auto"
+      style={{ width: 252, borderLeft: '1px solid rgba(0,0,0,0.07)', background: '#fff' }}>
+      <div style={{ padding: '24px 18px 32px' }}>
+
+        {/* Large tool icon */}
+        <div style={{ width: 62, height: 62, borderRadius: 18, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', marginBottom: 14, boxShadow: `0 8px 24px ${color}44` }}>
+          <ToolIcon toolKey={toolKey} size={26} />
+        </div>
+
+        {/* Tool name */}
+        <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: 4 }}>
+          {toolInfo?.label || ''}
+        </h3>
+        <p style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 14, lineHeight: 1.4 }}>
+          {toolInfo?.tag || ''}
+        </p>
+
+        {/* Description */}
+        <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.65, marginBottom: 20 }}>
+          {toolInfo?.desc || info.desc || ''}
+        </p>
+
+        <div style={{ height: 1, background: 'var(--border)', marginBottom: 18 }} />
+
+        {/* Best for */}
+        {info.bestFor?.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)' }}>Best for</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {info.bestFor.map(t => (
+                <span key={t} style={{ fontSize: 11.5, fontWeight: 500, padding: '3px 10px', borderRadius: 99, background: `${color}14`, color, border: `1px solid ${color}28` }}>{t}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Strengths */}
+        {info.strengths && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)' }}>Strengths</span>
+            </div>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', lineHeight: 1.6 }}>{info.strengths}</p>
+          </div>
+        )}
+
+        <div style={{ height: 1, background: 'var(--border)', margin: '18px 0' }} />
+
+        {/* Tips hint */}
+        <div style={{ background: `${color}0d`, borderRadius: 10, padding: '10px 14px', border: `1px solid ${color}1a` }}>
+          <p style={{ fontSize: 12, color, lineHeight: 1.55, fontWeight: 500 }}>
+            Answer each question completely for the best output quality.
+          </p>
+        </div>
+
+      </div>
+    </aside>
+  )
+}
 
 // ── Chat header ───────────────────────────────────────────────────────────────
 
@@ -1405,15 +1519,18 @@ export default function Home() {
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: 'var(--bg)' }}>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#fff' : 'var(--bg)' }}>
 
         {/* Chat header — only when chat is active */}
         {chatActive && activeTool && (
           <ChatHeader toolKey={activeTool} user={user} onBack={resetToHome} />
         )}
 
+        {/* Content row: messages + right info panel */}
+        <div className="flex-1 overflow-hidden flex min-h-0">
+
         {/* Messages / Greeting area — fills available space */}
-        <div className="flex-1 overflow-y-auto" style={chatActive ? { background: 'var(--bg)' } : {}}>
+        <div className="flex-1 overflow-y-auto" style={chatActive ? { background: '#f4f5fb' } : {}}>
           {!chatActive ? (
             /* Greeting — reference design: gradient bg, search, tool grid */
             <div className="min-h-full flex flex-col" style={{ background: 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)' }}>
@@ -1584,6 +1701,11 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Right info panel — alongside messages when chat active */}
+        {chatActive && activeTool && <ChatRightPanel toolKey={activeTool} />}
+
+        </div>{/* end Content row */}
 
         {/* Resume preview modal */}
         {previewOpen && resumeData && (
