@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { resumeApi, updaterApi, roastApi, toolsApi, authApi, outreachWorkspaceApi } from '../api/client'
+import { resumeApi, updaterApi, roastApi, toolsApi, authApi, outreachWorkspaceApi, chatApi } from '../api/client'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ResumeRenderer, { DEFAULT_STYLE } from '../components/ResumeRenderer'
@@ -89,6 +89,7 @@ const WORK_LABELS = { resume: 'Resume', code: 'Code', pitch_deck: 'Pitch Deck', 
 
 function ToolIcon({ toolKey, size = 18 }) {
   const s = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  if (!toolKey) return <svg {...s}><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="currentColor" stroke="none"/></svg>
   if (toolKey === 'build_resume') return <svg {...s}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
   if (toolKey === 'fix_resume')   return <svg {...s}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
   if (toolKey === 'roast')        return <svg {...s}><path d="M12 2c-2.5 4.5-4 7.5-4 11a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11z"/><path d="M12 12c-.8 1.5-1 2.5-1 3a1 1 0 0 0 2 0c0-.5-.2-1.5-1-3z" fill="currentColor" strokeWidth="0"/></svg>
@@ -594,10 +595,10 @@ function ChatRightPanel({ toolKey }) {
 // ── Chat header ───────────────────────────────────────────────────────────────
 
 function ChatHeader({ toolKey, user, onBack }) {
-  const color = TOOL_COLORS[toolKey] || '#6366f1'
+  const color = (toolKey && TOOL_COLORS[toolKey]) || '#6366f1'
   const toolInfo = ALL_TOOLS_FOR_GRID.find(t => t.key === toolKey)
-  const label = toolInfo?.label || TOOL_META[toolKey]?.label || 'Chat'
-  const tag   = toolInfo?.tag   || ''
+  const label = toolKey ? (toolInfo?.label || TOOL_META[toolKey]?.label || 'Chat') : 'AI Assistant'
+  const tag   = toolKey ? (toolInfo?.tag || '') : 'Career advisor'
   return (
     <div className="flex-shrink-0 flex items-center justify-between px-5"
       style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.07)', height: 60 }}>
@@ -768,9 +769,10 @@ export default function Home() {
   const [roastMode,   setRoastMode]   = useState('text')
   const [roastFile,   setRoastFile]   = useState(null)
   const [sessionId,   setSessionId]   = useState(null)
-  const [questions,   setQuestions]   = useState([])
-  const [qIdx,        setQIdx]        = useState(0)
-  const [answers,     setAnswers]     = useState([])
+  const [questions,    setQuestions]   = useState([])
+  const [qIdx,         setQIdx]        = useState(0)
+  const [answers,      setAnswers]     = useState([])
+  const [chatHistory,  setChatHistory] = useState([])
 
   const bottomRef    = useRef()
   const inputRef     = useRef()
@@ -813,7 +815,7 @@ export default function Home() {
 
   const stopPoll = () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null } }
 
-  const pushAI   = useCallback((msg) => setMsgs(p => [...p, { type: 'ai',  id: Date.now() + Math.random(), ...msg }]), [])
+  const pushAI   = useCallback((msg) => setMsgs(p => [...p, { type: 'ai', id: Date.now() + Math.random(), toolKey: activeTool, ...msg }]), [activeTool])
   const pushUser = useCallback((t)   => setMsgs(p => [...p, { type: 'user', id: Date.now() + Math.random(), text: t }]), [])
   const markChosen = (msgId, val)    => setMsgs(p => p.map(m => m.id === msgId ? { ...m, chosen: val } : m))
 
@@ -875,6 +877,7 @@ export default function Home() {
     setIsLoading(false)
     setResult(null)
     setResumeData(null)
+    setChatHistory([])
   }
 
   // Load a historical activity inline into the chat
@@ -1038,30 +1041,44 @@ export default function Home() {
     if (!t) return
     if (!override) setText('')
 
-    if (!chatActive) {
-      // Starting chat from welcome state
-      if (!activeTool) {
-        const choices = detectWorkspaceActions(t)
-        if (!choices.length) {
-          setMsgs([
-            { type: 'user', id: 'u0', text: t },
-            {
-              type: 'ai',
-              id: 'hello',
-              text: "Hi. Paste a resume, job post, offer, interview invite, or recruiter profile and I'll suggest the right next step.",
-            },
-          ])
-          setStep('free_context')
-          return
-        }
-        setMsgs([
-          { type: 'user', id: 'u0', text: t.length > 260 ? t.slice(0, 260) + '…' : t },
-          { type: 'ai', id: 'intent', text: 'I can work with that. What should I do first?', choices },
-        ])
-        setCollected({ rawContext: t })
-        setStep('intent')
-        return
+    // ── General AI chat (no active tool) ─────────────────────────────────────
+    if (!activeTool) {
+      if (!chatActive) {
+        setMsgs([{ type: 'user', id: 'u0', text: t }])
+      } else {
+        pushUser(t)
       }
+      setIsLoading(true)
+      const historySnapshot = [...chatHistory]
+      setChatHistory(prev => [...prev, { role: 'user', content: t }])
+      setStep('chat')
+      ;(async () => {
+        try {
+          const { data } = await chatApi.send({ message: t, history: historySnapshot })
+          const suggestions = (data.suggestions || []).slice(0, 3).map(s => ({
+            value: s.key, label: s.label,
+            sub: TOOL_INFO[s.key]?.desc?.split('.')[0] || '',
+          }))
+          const aiReply = data.reply || "How can I help with your career?"
+          setIsLoading(false)
+          pushAI({ text: aiReply, ...(suggestions.length ? { choices: suggestions } : {}) })
+          if (suggestions.length) {
+            setCollected({ rawContext: t })
+            setStep('intent')
+          } else {
+            setChatHistory(prev => [...prev, { role: 'assistant', content: aiReply }])
+            setStep('chat')
+          }
+        } catch {
+          setIsLoading(false)
+          pushAI({ text: "I'm having trouble connecting. Please try again in a moment." })
+          setStep('chat')
+        }
+      })()
+      return
+    }
+
+    if (!chatActive) {
       if (activeTool === 'outreach') {
         setMsgs([
           { type: 'ai', id: 'init', ...(GREETINGS.outreach) },
@@ -1071,19 +1088,6 @@ export default function Home() {
         return
       }
       startTool(activeTool, t)
-      return
-    }
-
-    if (!activeTool && step === 'free_context') {
-      const choices = detectWorkspaceActions(t)
-      pushUser(t.length > 260 ? t.slice(0, 260) + '…' : t)
-      if (!choices.length) {
-        pushAI({ text: "Send me a little more job-search context: a resume, job post, offer details, interview invite, or recruiter profile." })
-        return
-      }
-      setCollected({ rawContext: t })
-      pushAI({ text: 'I can work with that. What should I do first?', choices })
-      setStep('intent')
       return
     }
 
@@ -1483,8 +1487,8 @@ export default function Home() {
   // ── Input area derived state ────────────────────────────────────────────────
 
   const isChoiceStep  = ['intent', 'work_type', 'intensity', 'company_type', 'round_type', 'purpose'].includes(step)
-  const isMultiline   = ['free_context', 'outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
-  const isTextStep    = ['free_context', 'outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
+  const isMultiline   = ['chat', 'free_context', 'outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
+  const isTextStep    = ['chat', 'free_context', 'outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
   const activeMeta    = TOOL_META[activeTool]
   const canSend       = isTextStep && !!text.trim()
 
@@ -1494,6 +1498,7 @@ export default function Home() {
     edu:              'Degree, school, year — or skip',
     skills:           'Python, React, SQL… — or skip',
     contact:          'John Doe, john@email.com, +1-555-0123, New York',
+    chat:             'Ask a follow-up, or paste a resume, job post, offer…',
     free_context:     'Paste a resume, job post, offer, interview invite, or recruiter profile...',
     resume_text:      'Paste your full resume text here…',
     jd_text:          'Paste the full job description here…',
@@ -1525,8 +1530,8 @@ export default function Home() {
       {/* ONE unified panel — white rounded card */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? '#ffffff' : 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)', borderRadius: 16, boxShadow: '0 0 0 1px rgba(255,255,255,0.08)' }}>
 
-        {/* Chat header — only when chat is active */}
-        {chatActive && activeTool && (
+        {/* Chat header — when chat is active (tool or general) */}
+        {chatActive && (
           <ChatHeader toolKey={activeTool} user={user} onBack={resetToHome} />
         )}
 
@@ -1574,7 +1579,7 @@ export default function Home() {
                       {greeting}
                     </h1>
                     <p style={{ fontSize: '1.05rem', color: 'var(--text-3)', lineHeight: 1.5 }}>
-                      Search tools or pick one below to get started
+                      Ask me anything about your career, or pick a tool below
                     </p>
                   </div>
 
@@ -1587,7 +1592,7 @@ export default function Home() {
                         value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); text.trim() && onText() } }}
-                        placeholder="Search AI tools or paste your resume, job post, offer…"
+                        placeholder="Ask anything — or paste your resume, job post, offer…"
                         style={{
                           width: '100%', background: '#fff',
                           border: '1.5px solid rgba(0,0,0,0.09)', borderRadius: 99,
@@ -1674,7 +1679,7 @@ export default function Home() {
                 <div key={msg.id}>
                   {msg.type === 'user'
                     ? <UserBubble text={msg.text} />
-                    : <AIBubble text={msg.text} toolKey={activeTool}>
+                    : <AIBubble text={msg.text} toolKey={msg.toolKey !== undefined ? msg.toolKey : activeTool || null}>
                         {msg.choices && (
                           <Choices items={msg.choices} chosen={msg.chosen}
                             onChoose={(val) => { const label = msg.choices.find(c => c.value === val)?.label || val; onChoice(val, label, msg.id) }} />
@@ -1700,7 +1705,7 @@ export default function Home() {
                   }
                 </div>
               ))}
-              {isLoading && <TypingDots toolKey={activeTool} />}
+              {isLoading && <TypingDots toolKey={activeTool || null} />}
               <div ref={bottomRef} />
             </div>
           )}
@@ -1742,7 +1747,7 @@ export default function Home() {
 
             {/* Input controls — adapt based on step */}
 
-            {step === 'done' && (
+            {(step === 'done' || (step === null && chatActive)) && (
               <button onClick={resetToHome}
                 className="w-full flex items-center justify-center gap-2 text-[13px] font-medium py-2.5 rounded-xl transition-all"
                 style={{ background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}

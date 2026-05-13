@@ -73,6 +73,10 @@ export const outreachWorkspaceApi = {
   generate: (data) => api.post('/tools/outreach-workspace/generate/', data),
 }
 
+export const chatApi = {
+  send: (data) => api.post('/tools/chat/', data),
+}
+
 export const authApi = {
   register: (data) => api.post('/users/register/', data),
   login: (data) => api.post('/auth/token/', data),

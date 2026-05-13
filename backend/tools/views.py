@@ -222,6 +222,68 @@ class ColdEmailDeductView(APIView):
         return Response({'ok': True})
 
 
+# ── General Chat ─────────────────────────────────────────────────────────────
+
+class GeneralChatView(APIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        message = request.data.get('message', '').strip()
+        history = request.data.get('history', [])[:6]
+        if not message:
+            return Response({'detail': 'Message required.'}, status=400)
+
+        history_text = ''
+        for h in history:
+            role = h.get('role', '')
+            content = str(h.get('content', ''))[:500]
+            if role in ('user', 'assistant') and content:
+                history_text += f'\n{role.upper()}: {content}'
+
+        prompt = f"""You are a friendly, concise career assistant for RoastMyWork, an AI career tools platform.
+Help job seekers with resumes, job applications, interview prep, LinkedIn, salary negotiation, and career advice.
+Be conversational and give specific actionable advice in 2-4 sentences.
+
+Available tools to suggest (only when clearly relevant):
+- build_resume: Build a professional resume from scratch
+- fix_resume: Improve an existing resume
+- roast: Honest scored critique of resume, code, or LinkedIn
+- jd_match: Score resume against a job description
+- interview: Practice interview questions with scoring
+- outreach: Create job application messages and strategy
+- linkedin_dm: Write personalized LinkedIn outreach messages
+- linkedin_opt: Optimize LinkedIn headline and About section
+- salary: Salary negotiation with market benchmarks
+{f'Prior conversation:{history_text}' if history_text else ''}
+User: {message[:2000]}
+
+Respond ONLY in valid JSON:
+{{
+  "reply": "<your helpful response, 2-4 sentences>",
+  "suggestions": [
+    {{"key": "<tool_key>", "label": "<action label, 3-5 words>"}}
+  ]
+}}
+Include 0-3 suggestions only when a specific tool is genuinely useful. Empty array for general conversation."""
+
+        try:
+            result = _json_call(_client(), prompt, max_tokens=512)
+            return Response({
+                'reply': str(result.get('reply', 'How can I help with your career?'))[:1000],
+                'suggestions': [
+                    {'key': s['key'], 'label': s['label']}
+                    for s in (result.get('suggestions') or [])[:3]
+                    if isinstance(s, dict) and s.get('key') and s.get('label')
+                ],
+            })
+        except Exception:
+            return Response({
+                'reply': "I'm here to help with your career. What are you working on?",
+                'suggestions': [],
+            })
+
+
 # ── Outreach Workspace ────────────────────────────────────────────────────────
 
 class OutreachWorkspaceGenerateView(APIView):

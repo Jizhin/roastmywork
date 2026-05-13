@@ -7,6 +7,7 @@ from .views import (
     SalaryView, SalaryDetailView,
     GenerateColdEmailView, ColdEmailDeductView,
     OutreachWorkspaceGenerateView,
+    GeneralChatView,
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path('cold-email/generate/',   GenerateColdEmailView.as_view()),
     path('cold-email/deduct/',     ColdEmailDeductView.as_view()),
     path('outreach-workspace/generate/', OutreachWorkspaceGenerateView.as_view()),
+    path('chat/', GeneralChatView.as_view()),
 ]
