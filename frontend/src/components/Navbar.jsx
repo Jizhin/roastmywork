@@ -25,8 +25,7 @@ export default function Navbar() {
   }, [])
 
   const navLinks = [
-    { to: '/',        label: 'Tools'   },
-    { to: '/history', label: 'History' },
+    { to: '/',        label: 'Workspace' },
     { to: '/pricing', label: 'Pricing' },
   ]
 
@@ -198,4 +197,3 @@ export default function Navbar() {
     </header>
   )
 }
-

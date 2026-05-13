@@ -22,17 +22,12 @@ const TOOLS = [
   { key: 'salary',       label: 'Salary Coach',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
 ]
 
-const TOOL_SUBTEXT = {
-  build_resume: 'Generate polished resume',
-  fix_resume: 'Improve existing resume',
-  roast: 'Get AI critique + fixes',
-  jd_match: 'Score against job post',
-  interview: 'Practice interview rounds',
-  outreach: 'Messages + follow-ups',
-  linkedin_dm: 'Draft outreach messages',
-  linkedin_opt: 'Optimize profile copy',
-  salary: 'Analyze and negotiate offer',
-}
+const STARTER_PROMPTS = [
+  'Paste a job post and my resume',
+  'Write outreach for this recruiter',
+  'Review my resume',
+  'Prepare me for this interview',
+]
 
 const WORK_TYPES = [
   { value: 'resume', label: 'Resume / CV' }, { value: 'code', label: 'Code' },
@@ -396,62 +391,52 @@ function RoastResult({ result }) {
 // ── History sidebar ────────────────────────────────────────────────────────────
 
 function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal }) {
-  const fmt = (iso) => {
-    const diff = (Date.now() - new Date(iso)) / 1000
-    if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-    return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric' })
-  }
   return (
-    <aside className="hidden md:flex flex-shrink-0 flex-col" style={{ width: 220, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
-      <div className="p-3" style={{ borderBottom: '1px solid var(--border)' }}>
-        <button onClick={onNew} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all"
+    <aside className="hidden lg:flex flex-shrink-0 flex-col items-center" style={{ width: 72, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+      <div className="p-3 w-full" style={{ borderBottom: '1px solid var(--border)' }}>
+        <button onClick={onNew} title="New session" className="w-full h-11 flex items-center justify-center rounded-xl transition-all"
           style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.18)'}
           onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New session
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto py-2">
+      <div className="flex-1 overflow-y-auto py-3 w-full">
         {!user ? (
-          <div className="px-3 py-6 text-center">
-            <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--text-3)' }}>Sign in to save sessions and access history</p>
-            <button onClick={openAuthModal} className="text-xs font-semibold transition-colors" style={{ color: 'var(--accent-2)' }}>Sign in →</button>
+          <div className="px-3 py-4 text-center">
+            <button onClick={openAuthModal} title="Sign in" className="w-10 h-10 rounded-xl inline-flex items-center justify-center transition-colors" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--accent)' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </button>
           </div>
         ) : sessions.length === 0 ? (
-          <p className="text-xs text-center px-4 py-6 leading-relaxed" style={{ color: 'var(--text-3)' }}>Your sessions will appear here</p>
+          <div className="px-3 py-4">
+            <div className="w-10 h-10 rounded-xl mx-auto" style={{ background: 'var(--surface-2)', border: '1px dashed var(--border-strong)' }} />
+          </div>
         ) : (
-          <>
-            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2" style={{ color: 'var(--text-3)' }}>Recent</p>
+          <div className="space-y-2 px-3">
             {sessions.map(s => (
-              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)}
-                className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-lg mx-1 transition-all text-left"
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)} title={s.title || 'Activity'}
+                className="w-10 h-10 flex items-center justify-center rounded-xl transition-all"
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
                   style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
-                  <ToolIcon toolKey={s.tool_key || 'roast'} size={11} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium truncate" style={{ color: 'var(--text)' }}>{s.title || 'Activity'}</p>
-                  <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>{fmt(s.created_at)}</p>
+                  <ToolIcon toolKey={s.tool_key || 'roast'} size={13} />
                 </div>
               </button>
             ))}
-          </>
+          </div>
         )}
       </div>
-      <div className="border-t py-2" style={{ borderColor: 'var(--border)' }}>
+      <div className="border-t p-3 w-full" style={{ borderColor: 'var(--border)' }}>
         {user?.profile?.is_pro ? (
-          <div className="px-3 py-2 text-[11px] font-bold" style={{ color: 'var(--accent-2)' }}>PRO — Unlimited</div>
+          <div title="PRO - Unlimited" className="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(99,102,241,0.12)', color: 'var(--accent)' }}>PRO</div>
         ) : (
-          <Link to="/pricing" className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-colors"
+          <Link to="/pricing" title="Upgrade" className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
             style={{ color: 'var(--accent-2)' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Upgrade to Pro
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </Link>
         )}
       </div>
@@ -1228,18 +1213,36 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto flex flex-col">
           {!chatActive ? (
             /* Greeting — shown when no messages yet */
-            <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-              <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--text)' }}>{greeting}</h1>
-              <p className="text-base text-center mb-6" style={{ color: 'var(--text-2)' }}>
-                {activeTool ? `${activeMeta?.label} — type below and press send` : 'Paste anything from your job search. I will suggest the next best action.'}
-              </p>
-              {user && !user.profile?.is_pro && (
-                <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-                  <span style={{ color: 'var(--text-2)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits</span>
-                  <Link to="/pricing" className="text-xs font-semibold pl-3 transition-colors" style={{ color: 'var(--accent-2)', borderLeft: '1px solid var(--border)' }}>Upgrade to Pro →</Link>
+            <div className="flex-1 flex flex-col items-center justify-center px-5 py-8">
+              <div className="w-full max-w-3xl mx-auto text-center">
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-5 text-xs font-semibold"
+                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', color: 'var(--accent)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)' }} />
+                  AI career workspace
                 </div>
-              )}
+                <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-3 tracking-tight" style={{ color: 'var(--text)' }}>{greeting}</h1>
+                <p className="text-base md:text-lg text-center max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
+                {activeTool ? `${activeMeta?.label} — type below and press send` : 'Paste anything from your job search. I will suggest the next best action.'}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2 mt-6">
+                  {STARTER_PROMPTS.map(prompt => (
+                    <button key={prompt} onClick={() => setText(prompt)}
+                      className="rounded-full px-3.5 py-2 text-sm font-medium transition-all"
+                      style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--text)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' }}>
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+                {user && !user.profile?.is_pro && (
+                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm mt-6"
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                    <span style={{ color: 'var(--text-2)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits</span>
+                    <Link to="/pricing" className="text-xs font-semibold pl-3 transition-colors" style={{ color: 'var(--accent-2)', borderLeft: '1px solid var(--border)' }}>Upgrade to Pro</Link>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             /* Chat messages — centered column matching input width, pinned to bottom */
@@ -1310,34 +1313,31 @@ export default function Home() {
 
             {/* Tool chips — only shown on the greeting/pre-start screen */}
             {!chatActive && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-3">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2" style={{ scrollbarWidth: 'none' }}>
                 {TOOLS.map(t => (
                   <button
                     key={t.key}
                     onClick={() => startTool(t.key)}
-                    className="rounded-xl p-3.5 text-left transition-all"
+                    className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-all"
                     style={activeTool === t.key
-                      ? { background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)' }
-                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)' }
+                      ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
+                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
                     }
                     onMouseEnter={e => {
                       if (activeTool !== t.key) {
                         e.currentTarget.style.borderColor = 'rgba(79,70,229,0.35)'
-                        e.currentTarget.style.transform = 'translateY(-1px)'
+                        e.currentTarget.style.color = 'var(--text)'
                       }
                     }}
                     onMouseLeave={e => {
                       if (activeTool !== t.key) {
                         e.currentTarget.style.borderColor = 'var(--border-strong)'
-                        e.currentTarget.style.transform = 'none'
+                        e.currentTarget.style.color = 'var(--text-2)'
                       }
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-1.5" style={{ color: activeTool === t.key ? 'var(--accent)' : 'var(--text)' }}>
-                      <ToolIcon toolKey={t.key} size={13} />
-                      <span className="text-[13px] font-semibold">{t.label}</span>
-                    </div>
-                    <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-3)' }}>{TOOL_SUBTEXT[t.key]}</p>
+                    <ToolIcon toolKey={t.key} size={14} />
+                    {t.label}
                   </button>
                 ))}
               </div>
