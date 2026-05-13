@@ -16,7 +16,7 @@ const TOOLS = [
   { key: 'roast',        label: 'Roast My Work',    placeholder: null                                               },
   { key: 'jd_match',     label: 'JD Match',         placeholder: null                                               },
   { key: 'interview',    label: 'Interview Prep',   placeholder: 'e.g. Software Engineer at Google'                  },
-  { key: 'outreach',     label: 'Outreach Plan',     placeholder: 'Paste a job post, recruiter profile, or company lead' },
+  { key: 'outreach',     label: 'Apply to Job',      placeholder: 'Paste a job post, recruiter profile, or company lead' },
   { key: 'linkedin_dm',  label: 'LinkedIn DM',      placeholder: 'e.g. Priya Sharma, Engineering Manager at Swiggy' },
   { key: 'linkedin_opt', label: 'LinkedIn Profile', placeholder: null                                               },
   { key: 'salary',       label: 'Salary Coach',     placeholder: 'e.g. Software Engineer, ₹22 LPA offer, Bangalore' },
@@ -24,7 +24,7 @@ const TOOLS = [
 
 const STARTER_PROMPTS = [
   'Paste a job post and my resume',
-  'Write outreach for this recruiter',
+  'Write a recruiter message',
   'Review my resume',
   'Prepare me for this interview',
 ]
@@ -65,7 +65,7 @@ const GREETINGS = {
   roast:        { text: "What would you like roasted today?", choices: WORK_TYPES },
   jd_match:     { text: "Paste your resume text below — I'll score it against any job description." },
   interview:    { text: "What role are you interviewing for?" },
-  outreach:     { text: "Paste the job post, recruiter profile, company note, or rough context. I'll turn it into messages, follow-ups, and next steps." },
+  outreach:     { text: "Paste the job post, recruiter profile, company note, or rough context. I'll create application messages, follow-ups, and next steps." },
   linkedin_dm:  { text: "Who are you reaching out to? Tell me their name, role, and company." },
   linkedin_opt: { text: "Paste your current LinkedIn headline and About section — I'll rewrite both for maximum recruiter visibility." },
   salary:       { text: "Tell me about the offer — role, company, base salary, location, and any other comp details." },
@@ -186,6 +186,10 @@ function CopyButton({ text }) {
 
 function detectWorkspaceActions(input) {
   const t = input.toLowerCase()
+  const compact = t.replace(/[^a-z0-9]+/g, '')
+  if (!compact || compact.length < 12 || /^(hi|hello|hey|yo|test|ok|okay|hii|hiii)$/.test(compact)) {
+    return []
+  }
   const looksLikeResume = /\b(experience|education|skills|projects|summary|resume|cv)\b/.test(t)
   const looksLikeJob = /\b(job description|responsibilities|requirements|qualifications|apply|hiring|role)\b/.test(t)
   const looksLikeOutreach = /\b(recruiter|referral|linkedin|connect|message|outreach|email|hiring manager)\b/.test(t)
@@ -194,7 +198,7 @@ function detectWorkspaceActions(input) {
 
   const actions = []
   if (looksLikeJob && looksLikeResume) actions.push({ value: 'jd_match', label: 'Match resume to job', sub: 'Score fit and gaps' })
-  if (looksLikeJob || looksLikeOutreach) actions.push({ value: 'outreach', label: 'Build outreach plan', sub: 'Messages + follow-ups' })
+  if (looksLikeJob || looksLikeOutreach) actions.push({ value: 'outreach', label: 'Create application plan', sub: 'Messages + follow-ups' })
   if (looksLikeResume) actions.push({ value: 'roast', label: 'Review this content', sub: 'Score and improve it' })
   if (looksLikeInterview) actions.push({ value: 'interview', label: 'Practice interview', sub: 'Questions and feedback' })
   if (looksLikeSalary) actions.push({ value: 'salary', label: 'Analyze offer', sub: 'Market range + script' })
@@ -202,7 +206,7 @@ function detectWorkspaceActions(input) {
     actions.push(
       { value: 'roast', label: 'Review this', sub: 'Critique and improve' },
       { value: 'build_resume', label: 'Build resume', sub: 'Create a resume draft' },
-      { value: 'outreach', label: 'Create outreach', sub: 'Messages and next steps' },
+      { value: 'outreach', label: 'Create application plan', sub: 'Messages and next steps' },
     )
   }
   return actions.slice(0, 4)
@@ -392,36 +396,39 @@ function RoastResult({ result }) {
 
 function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal }) {
   return (
-    <aside className="hidden lg:flex flex-shrink-0 flex-col items-center" style={{ width: 72, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+    <aside className="hidden lg:flex flex-shrink-0 flex-col" style={{ width: 248, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
       <div className="p-3 w-full" style={{ borderBottom: '1px solid var(--border)' }}>
-        <button onClick={onNew} title="New session" className="w-full h-11 flex items-center justify-center rounded-xl transition-all"
-          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}
+        <button onClick={onNew} className="w-full h-11 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all"
+          style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: 'var(--accent)' }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.18)'}
           onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New workspace
         </button>
       </div>
       <div className="flex-1 overflow-y-auto py-3 w-full">
         {!user ? (
-          <div className="px-3 py-4 text-center">
-            <button onClick={openAuthModal} title="Sign in" className="w-10 h-10 rounded-xl inline-flex items-center justify-center transition-colors" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--accent)' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            </button>
+          <div className="px-4 py-6 text-center">
+            <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--text-3)' }}>Sign in to save sessions and continue later.</p>
+            <button onClick={openAuthModal} className="text-xs font-semibold transition-colors" style={{ color: 'var(--accent)' }}>Sign in</button>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="px-3 py-4">
-            <div className="w-10 h-10 rounded-xl mx-auto" style={{ background: 'var(--surface-2)', border: '1px dashed var(--border-strong)' }} />
-          </div>
+          <p className="text-xs text-center px-4 py-6 leading-relaxed" style={{ color: 'var(--text-3)' }}>Your recent workspaces will appear here.</p>
         ) : (
-          <div className="space-y-2 px-3">
+          <div className="space-y-1 px-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2" style={{ color: 'var(--text-3)' }}>Recent</p>
             {sessions.map(s => (
-              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)} title={s.title || 'Activity'}
-                className="w-10 h-10 flex items-center justify-center rounded-xl transition-all"
+              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)}
+                className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left"
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
                   <ToolIcon toolKey={s.tool_key || 'roast'} size={13} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text)' }}>{s.title || 'Activity'}</p>
+                  <p className="text-[11px] truncate capitalize" style={{ color: 'var(--text-3)' }}>{s.entry_type?.replaceAll('_', ' ') || 'session'}</p>
                 </div>
               </button>
             ))}
@@ -430,13 +437,13 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
       </div>
       <div className="border-t p-3 w-full" style={{ borderColor: 'var(--border)' }}>
         {user?.profile?.is_pro ? (
-          <div title="PRO - Unlimited" className="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-bold" style={{ background: 'rgba(99,102,241,0.12)', color: 'var(--accent)' }}>PRO</div>
+          <div className="rounded-xl px-3 py-2 text-xs font-bold text-center" style={{ background: 'rgba(99,102,241,0.12)', color: 'var(--accent)' }}>PRO - Unlimited</div>
         ) : (
-          <Link to="/pricing" title="Upgrade" className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+          <Link to="/pricing" className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
             style={{ color: 'var(--accent-2)' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.08)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Upgrade
           </Link>
         )}
       </div>
@@ -737,6 +744,18 @@ export default function Home() {
       // Starting chat from welcome state
       if (!activeTool) {
         const choices = detectWorkspaceActions(t)
+        if (!choices.length) {
+          setMsgs([
+            { type: 'user', id: 'u0', text: t },
+            {
+              type: 'ai',
+              id: 'hello',
+              text: "Hi. Paste a resume, job post, offer, interview invite, or recruiter profile and I'll suggest the right next step.",
+            },
+          ])
+          setStep('free_context')
+          return
+        }
         setMsgs([
           { type: 'user', id: 'u0', text: t.length > 260 ? t.slice(0, 260) + '…' : t },
           { type: 'ai', id: 'intent', text: 'I can work with that. What should I do first?', choices },
@@ -754,6 +773,19 @@ export default function Home() {
         return
       }
       startTool(activeTool, t)
+      return
+    }
+
+    if (!activeTool && step === 'free_context') {
+      const choices = detectWorkspaceActions(t)
+      pushUser(t.length > 260 ? t.slice(0, 260) + '…' : t)
+      if (!choices.length) {
+        pushAI({ text: "Send me a little more job-search context: a resume, job post, offer details, interview invite, or recruiter profile." })
+        return
+      }
+      setCollected({ rawContext: t })
+      pushAI({ text: 'I can work with that. What should I do first?', choices })
+      setStep('intent')
       return
     }
 
@@ -1052,8 +1084,16 @@ export default function Home() {
 
   const doOutreach = (snap) => {
     if (!user && !localStorage.getItem('access_token')) { openAuthModal(() => doOutreach(snap)); return }
+    const raw = (snap.rawContext || '').trim()
+    const compact = raw.replace(/[^a-z0-9]+/gi, '')
+    if (compact.length < 30) {
+      setIsLoading(false)
+      setStep('outreach_context')
+      pushAI({ text: 'I need a little more context first. Paste a job post, company name, recruiter profile, or your background so I can create useful messages instead of placeholders.' })
+      return
+    }
     setIsLoading(true); setStep('loading')
-    pushAI({ text: 'Building your outreach plan… messages, follow-ups, and next action.' })
+    pushAI({ text: 'Creating your application plan… messages, follow-ups, and next action.' })
     const go = async () => {
       try {
         const { data } = await outreachWorkspaceApi.generate({
@@ -1069,7 +1109,7 @@ export default function Home() {
         setResult(data)
         setIsLoading(false)
         setStep('done')
-        pushAI({ kind: 'outreach', text: 'Here is your outreach workspace.', result: data })
+        pushAI({ kind: 'outreach', text: 'Here is your application plan.', result: data })
         refreshUser()
       } catch (err) {
         setIsLoading(false); setStep('outreach_context')
@@ -1145,8 +1185,8 @@ export default function Home() {
   // ── Input area derived state ────────────────────────────────────────────────
 
   const isChoiceStep  = ['intent', 'work_type', 'intensity', 'company_type', 'round_type', 'purpose'].includes(step)
-  const isMultiline   = ['outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
-  const isTextStep    = ['outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
+  const isMultiline   = ['free_context', 'outreach_context', 'exp', 'edu', 'skills', 'resume_text', 'jd_text', 'profile', 'offer', 'experience', 'situation'].includes(step)
+  const isTextStep    = ['free_context', 'outreach_context', 'role', 'exp', 'edu', 'skills', 'contact', 'resume_text', 'jd_text', 'target', 'background', 'target_role', 'offer', 'experience', 'situation', 'interview_answer'].includes(step)
   const activeMeta    = TOOLS.find(t => t.key === activeTool)
   const preStartInput = !chatActive && activeTool && activeMeta?.placeholder
   const workspaceInput = !chatActive && !activeTool
@@ -1158,6 +1198,7 @@ export default function Home() {
     edu:              'Degree, school, year — or skip',
     skills:           'Python, React, SQL… — or skip',
     contact:          'John Doe, john@email.com, +1-555-0123, New York',
+    free_context:     'Paste a resume, job post, offer, interview invite, or recruiter profile...',
     resume_text:      'Paste your full resume text here…',
     jd_text:          'Paste the full job description here…',
     outreach_context: 'Paste the job post, recruiter profile, company lead, or rough context…',
@@ -1213,30 +1254,48 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto flex flex-col">
           {!chatActive ? (
             /* Greeting — shown when no messages yet */
-            <div className="flex-1 flex flex-col items-center justify-center px-5 py-8">
-              <div className="w-full max-w-3xl mx-auto text-center">
-                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-5 text-xs font-semibold"
-                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', color: 'var(--accent)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--green)' }} />
-                  AI career workspace
-                </div>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-3 tracking-tight" style={{ color: 'var(--text)' }}>{greeting}</h1>
-                <p className="text-base md:text-lg text-center max-w-2xl mx-auto" style={{ color: 'var(--text-2)' }}>
-                {activeTool ? `${activeMeta?.label} — type below and press send` : 'Paste anything from your job search. I will suggest the next best action.'}
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 mt-6">
-                  {STARTER_PROMPTS.map(prompt => (
-                    <button key={prompt} onClick={() => setText(prompt)}
-                      className="rounded-full px-3.5 py-2 text-sm font-medium transition-all"
-                      style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--text)' }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' }}>
-                      {prompt}
-                    </button>
-                  ))}
+            <div className="flex-1 flex flex-col items-center px-5 pt-14 pb-6">
+              <div className="w-full max-w-5xl mx-auto">
+                <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-stretch">
+                  <div className="rounded-2xl p-8 md:p-10"
+                    style={{ background: 'linear-gradient(135deg,#ffffff 0%,#eef2ff 100%)', border: '1px solid var(--border)', boxShadow: '0 18px 60px rgba(79,70,229,0.10)' }}>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] mb-4" style={{ color: 'var(--accent)' }}>Career workspace</p>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight leading-tight" style={{ color: 'var(--text)' }}>{activeTool ? activeMeta?.label : greeting}</h1>
+                    <p className="text-base md:text-lg max-w-2xl" style={{ color: 'var(--text-2)' }}>
+                      {activeTool ? 'Type below and I will guide the next step.' : 'Paste a resume, job post, offer, interview invite, or recruiter profile. I will choose the right workflow with you.'}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-7">
+                      {STARTER_PROMPTS.map(prompt => (
+                        <button key={prompt} onClick={() => setText(prompt)}
+                          className="rounded-full px-3.5 py-2 text-sm font-medium transition-all"
+                          style={{ background: '#fff', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)'; e.currentTarget.style.color = 'var(--text)' }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' }}>
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl p-5"
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 12px 40px rgba(15,23,42,0.06)' }}>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] mb-4" style={{ color: 'var(--text-3)' }}>What I can do</p>
+                    <div className="space-y-3">
+                      {[
+                        ['Resume', 'Build, fix, roast, and tailor it.'],
+                        ['Jobs', 'Compare against JDs and find gaps.'],
+                        ['Apply', 'Create messages and follow-ups.'],
+                        ['Interviews', 'Practice and score your answers.'],
+                      ].map(([title, body]) => (
+                        <div key={title} className="rounded-xl px-3 py-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+                          <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{title}</p>
+                          <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>{body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 {user && !user.profile?.is_pro && (
-                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm mt-6"
+                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm mt-5"
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     <span style={{ color: 'var(--text-2)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits</span>
                     <Link to="/pricing" className="text-xs font-semibold pl-3 transition-colors" style={{ color: 'var(--accent-2)', borderLeft: '1px solid var(--border)' }}>Upgrade to Pro</Link>

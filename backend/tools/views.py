@@ -240,6 +240,8 @@ class OutreachWorkspaceGenerateView(APIView):
 
         if not raw_context and not all([company, target_role, user_background]):
             return Response({'detail': 'Paste context, or fill company, target role, and your background.'}, status=400)
+        if raw_context and len(''.join(ch for ch in raw_context if ch.isalnum())) < 30 and not all([company, target_role, user_background]):
+            return Response({'detail': 'Please paste a job post, company/contact details, or your background first.'}, status=400)
 
         ok, _ = _check_and_deduct(request.user)
         if not ok:
