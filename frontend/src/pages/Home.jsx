@@ -135,7 +135,7 @@ function AIBubble({ text, children }) {
         {text && (
           <div className="rounded-2xl rounded-tl-sm px-5 py-4"
             style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-            <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words" style={{ color: 'var(--text)' }}>{text}</p>
+            <p className="text-[15px] leading-[1.7] whitespace-pre-wrap break-words" style={{ color: 'var(--text)', letterSpacing: '-0.01em' }}>{text}</p>
           </div>
         )}
         {children}
@@ -147,8 +147,8 @@ function AIBubble({ text, children }) {
 function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
-      <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[14px] leading-relaxed"
-        style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)', color: '#fff' }}>
+      <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[15px]"
+        style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)', color: '#fff', lineHeight: 1.65, letterSpacing: '-0.01em' }}>
         {text}
       </div>
     </div>
