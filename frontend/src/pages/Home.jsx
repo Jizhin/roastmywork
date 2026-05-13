@@ -179,7 +179,7 @@ function UserBubble({ text }) {
   const timeStr = useMemo(() => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }), [])
   return (
     <div className="flex justify-end">
-      <div style={{ background: '#eef0fe', color: 'var(--text)', borderRadius: '18px 18px 4px 18px', maxWidth: '72%' }}>
+      <div style={{ background: '#eef0fe', color: 'var(--text)', borderRadius: '18px 18px 4px 18px', maxWidth: '85%' }}>
         <div style={{ padding: '13px 18px 6px', fontSize: 15, lineHeight: 1.65 }}>{text}</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, padding: '0 14px 10px' }}>
           <span style={{ fontSize: 11, color: 'rgba(99,102,241,0.55)', userSelect: 'none' }}>{timeStr}</span>
@@ -1524,7 +1524,7 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-full" style={{ background: '#03040a', padding: 10, gap: 10 }}>
+    <div className="flex h-full" style={{ background: '#03040a', padding: 'clamp(4px, 1.5vw, 10px)', gap: 'clamp(4px, 1.5vw, 10px)' }}>
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — white rounded card */}
@@ -1545,7 +1545,7 @@ export default function Home() {
             <div className="min-h-full flex flex-col">
 
               {/* Top header — user info right */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '16px 28px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '12px 16px 0' }}>
                 {user ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ textAlign: 'right' }}>
@@ -1562,11 +1562,11 @@ export default function Home() {
               </div>
 
               {/* Main content */}
-              <div className="flex-1 flex flex-col items-center px-8 py-6">
+              <div className="flex-1 flex flex-col items-center px-4 sm:px-8 py-4 sm:py-6">
                 <div className="w-full max-w-[700px] mx-auto">
 
                   {/* Welcome chip */}
-                  <div className="text-center mb-5 anim-fade-up">
+                  <div className="text-center mb-4 sm:mb-5 anim-fade-up">
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', color: '#6366f1', fontSize: 12.5, fontWeight: 600, padding: '5px 14px', borderRadius: 99 }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                       Your AI Career Workspace
@@ -1574,29 +1574,29 @@ export default function Home() {
                   </div>
 
                   {/* Heading */}
-                  <div className="text-center mb-7 anim-fade-up anim-d1">
-                    <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 10 }}>
+                  <div className="text-center mb-5 sm:mb-7 anim-fade-up anim-d1">
+                    <h1 style={{ fontSize: 'clamp(1.55rem, 5.5vw, 2.6rem)', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 8 }}>
                       {greeting}
                     </h1>
-                    <p style={{ fontSize: '1.05rem', color: 'var(--text-3)', lineHeight: 1.5 }}>
+                    <p style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.05rem)', color: 'var(--text-3)', lineHeight: 1.5 }}>
                       Ask me anything about your career, or pick a tool below
                     </p>
                   </div>
 
                   {/* Search bar — rounded pill style */}
-                  <div className="relative mb-8 anim-fade-up anim-d2">
+                  <div className="relative mb-5 sm:mb-8 anim-fade-up anim-d2">
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                      <svg style={{ position: 'absolute', left: 18, color: 'var(--text-3)', flexShrink: 0, pointerEvents: 'none' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                      <svg style={{ position: 'absolute', left: 16, color: 'var(--text-3)', flexShrink: 0, pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                       <input
                         ref={inputRef}
                         value={text}
                         onChange={e => setText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); text.trim() && onText() } }}
-                        placeholder="Ask anything — or paste your resume, job post, offer…"
+                        placeholder="Ask anything — resume, jobs, salary…"
                         style={{
                           width: '100%', background: '#fff',
                           border: '1.5px solid rgba(0,0,0,0.09)', borderRadius: 99,
-                          padding: '15px 62px 15px 50px', fontSize: '15px',
+                          padding: '13px 56px 13px 44px', fontSize: '14px',
                           color: 'var(--text)', outline: 'none', lineHeight: 1.5,
                           boxShadow: '0 4px 24px rgba(15,23,42,0.08)',
                           transition: 'border-color 0.15s, box-shadow 0.15s',
@@ -1608,14 +1608,14 @@ export default function Home() {
                         onClick={() => text.trim() && onText()}
                         disabled={!text.trim()}
                         style={{
-                          position: 'absolute', right: 8,
-                          width: 42, height: 42, borderRadius: '50%',
+                          position: 'absolute', right: 7,
+                          width: 38, height: 38, borderRadius: '50%',
                           background: text.trim() ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : '#e5e7eb',
                           border: 'none', cursor: text.trim() ? 'pointer' : 'not-allowed',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           transition: 'all 0.15s', flexShrink: 0,
                         }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                           <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                         </svg>
                       </button>
@@ -1623,19 +1623,19 @@ export default function Home() {
                   </div>
 
                   {/* Popular Tools header */}
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }} className="anim-fade-up anim-d3">
-                    <h2 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Popular Tools</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }} className="anim-fade-up anim-d3">
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Popular Tools</h2>
                   </div>
 
-                  {/* Tool grid — 3 columns */}
-                  <div className="grid grid-cols-3 gap-3 anim-fade-up anim-d3">
+                  {/* Tool grid — 2 cols on mobile, 3 on sm+ */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 anim-fade-up anim-d3">
                     {ALL_TOOLS_FOR_GRID.map(tool => {
                       const color = TOOL_COLORS[tool.key] || '#6366f1'
                       return (
                         <button key={tool.key} onClick={() => startTool(tool.key)}
                           style={{
-                            display: 'flex', flexDirection: 'column', gap: 10, padding: '1.1rem',
-                            borderRadius: 14, textAlign: 'left', cursor: 'pointer',
+                            display: 'flex', flexDirection: 'column', gap: 8, padding: '0.85rem',
+                            borderRadius: 12, textAlign: 'left', cursor: 'pointer',
                             background: '#fff', border: '1px solid rgba(0,0,0,0.07)',
                             boxShadow: '0 1px 6px rgba(15,23,42,0.06)',
                             transition: 'transform 0.15s, box-shadow 0.15s',
@@ -1644,21 +1644,21 @@ export default function Home() {
                           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(15,23,42,0.13)' }}
                           onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 6px rgba(15,23,42,0.06)' }}>
                           {/* Icon + name row */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ width: 38, height: 38, borderRadius: 10, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
-                              <ToolIcon toolKey={tool.key} size={17} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 34, height: 34, borderRadius: 9, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
+                              <ToolIcon toolKey={tool.key} size={15} />
                             </div>
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</div>
-                              <div style={{ fontSize: 11.5, color: 'var(--text-3)', lineHeight: 1.3 }}>{tool.tag}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</div>
+                              <div className="hidden sm:block" style={{ fontSize: 11, color: 'var(--text-3)', lineHeight: 1.3 }}>{tool.tag}</div>
                             </div>
                           </div>
-                          {/* Description */}
-                          <p style={{ fontSize: 12.5, color: 'var(--text-3)', lineHeight: 1.55, margin: 0, flex: 1 }}>{tool.desc}</p>
+                          {/* Description — hidden on mobile */}
+                          <p className="hidden sm:block" style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.5, margin: 0, flex: 1 }}>{tool.desc}</p>
                           {/* Start button */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color }}>
-                            Start Chat
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color }}>
+                            Start
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                           </div>
                         </button>
                       )
@@ -1670,7 +1670,7 @@ export default function Home() {
             </div>
           ) : (
             /* Chat messages */
-            <div className="max-w-3xl mx-auto w-full px-5 pt-6 pb-5 space-y-5">
+            <div className="max-w-3xl mx-auto w-full px-3 sm:px-5 pt-4 sm:pt-6 pb-4 sm:pb-5 space-y-4 sm:space-y-5">
               {/* Today chip */}
               <div className="flex items-center justify-center">
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', background: 'var(--surface)', border: '1px solid var(--border-strong)', borderRadius: 99, padding: '3px 14px' }}>Today</span>
@@ -1742,7 +1742,7 @@ export default function Home() {
 
         {/* ── Input area — only when chat is active ── */}
         {chatActive && (
-        <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: '#fff' }}>
+        <div className="px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: '#fff' }}>
           <div className="max-w-3xl mx-auto">
 
             {/* Input controls — adapt based on step */}
@@ -1839,7 +1839,7 @@ export default function Home() {
                 {isMultiline
                   ? <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onText() } }}
-                      placeholder={placeholder} rows={4}
+                      placeholder={placeholder} rows={3}
                       style={{
                         width: '100%', background: '#f7f8ff',
                         border: '1.5px solid rgba(99,102,241,0.15)', borderRadius: 18,
