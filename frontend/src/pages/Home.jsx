@@ -101,40 +101,45 @@ function ToolIcon({ toolKey, size = 18 }) {
   return null
 }
 
-function AIAvatar() {
+function AIAvatar({ toolKey }) {
+  const color = TOOL_COLORS[toolKey] || '#6366f1'
   return (
-    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 flex-shrink-0"
-      style={{ background: '#18181b' }}>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-        <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
-      </svg>
+    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ background: color, color: '#fff' }}>
+      <ToolIcon toolKey={toolKey} size={15} />
     </div>
   )
 }
 
-function TypingDots() {
+function TypingDots({ toolKey }) {
+  const color = TOOL_COLORS[toolKey] || '#6366f1'
   return (
-    <div className="flex gap-2.5 items-start">
-      <AIAvatar />
-      <div className="rounded-2xl rounded-tl-sm px-4 py-3"
-        style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-        <div className="flex gap-1 items-center h-4">
-          {[0, 140, 280].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent-2)', animationDelay: `${d}ms` }} />)}
+    <div className="flex gap-3 items-start">
+      <AIAvatar toolKey={toolKey} />
+      <div className="rounded-2xl rounded-tl-sm px-4 py-3.5"
+        style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 4px rgba(15,23,42,0.06)' }}>
+        <div className="flex gap-1.5 items-center h-4">
+          {[0, 140, 280].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: color, animationDelay: `${d}ms` }} />)}
         </div>
       </div>
     </div>
   )
 }
 
-function AIBubble({ text, children }) {
+function AIBubble({ text, children, toolKey }) {
   return (
     <div className="flex gap-3 items-start">
-      <AIAvatar />
+      <AIAvatar toolKey={toolKey} />
       <div className="flex-1 min-w-0 space-y-2">
         {text && (
-          <div className="rounded-2xl rounded-tl-sm px-5 py-4"
-            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-            <p className="text-[15px] leading-[1.7] whitespace-pre-wrap break-words" style={{ color: 'var(--text)', letterSpacing: '-0.01em' }}>{text}</p>
+          <div>
+            <div className="rounded-2xl rounded-tl-sm px-5 py-4"
+              style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 6px rgba(15,23,42,0.07)' }}>
+              <p className="text-[15px] leading-[1.7] whitespace-pre-wrap break-words" style={{ color: 'var(--text)' }}>{text}</p>
+            </div>
+            <div className="mt-1.5 flex">
+              <CopyButton text={text} />
+            </div>
           </div>
         )}
         {children}
@@ -146,8 +151,8 @@ function AIBubble({ text, children }) {
 function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
-      <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[15px]"
-        style={{ background: '#18181b', color: '#fff', lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+      <div className="px-5 py-3.5 max-w-[78%] text-[15px]"
+        style={{ background: '#eef0fe', color: 'var(--text)', lineHeight: 1.65, borderRadius: '18px 18px 4px 18px' }}>
         {text}
       </div>
     </div>
@@ -163,8 +168,8 @@ function Choices({ items, chosen, onChoose }) {
           <button key={c.value} onClick={() => !chosen && onChoose(c.value)} disabled={!!chosen}
             className="px-3.5 py-2 rounded-xl text-sm font-medium transition-all text-left"
             style={{
-              border: `2px solid ${isThis ? 'var(--accent)' : chosen ? 'rgba(255,255,255,0.05)' : 'var(--border-strong)'}`,
-              background: isThis ? 'var(--accent)' : chosen ? 'rgba(255,255,255,0.02)' : 'var(--surface-3)',
+              border: `2px solid ${isThis ? 'var(--accent)' : chosen ? 'var(--border)' : 'var(--border-strong)'}`,
+              background: isThis ? 'var(--accent)' : chosen ? 'var(--surface-2)' : '#fff',
               color: isThis ? '#fff' : chosen ? 'var(--text-3)' : 'var(--text)',
               cursor: chosen && !isThis ? 'default' : 'pointer',
             }}>
@@ -182,7 +187,7 @@ function CopyButton({ text }) {
   return (
     <button onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
       className="text-xs px-2.5 py-1 rounded-lg font-medium transition-all"
-      style={copied ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' } : { background: 'rgba(255,255,255,0.07)', color: 'var(--text-2)' }}>
+      style={copied ? { background: 'rgba(16,185,129,0.12)', color: '#34d399' } : { background: 'rgba(0,0,0,0.05)', color: 'var(--text-3)' }}>
       {copied ? 'Copied!' : 'Copy'}
     </button>
   )
@@ -467,6 +472,52 @@ const TOOL_CATEGORIES = [
     ],
   },
 ]
+
+// ── Chat header ───────────────────────────────────────────────────────────────
+
+function ChatHeader({ toolKey, user, onBack }) {
+  const color = TOOL_COLORS[toolKey] || '#6366f1'
+  const toolInfo = ALL_TOOLS_FOR_GRID.find(t => t.key === toolKey)
+  const label = toolInfo?.label || TOOL_META[toolKey]?.label || 'Chat'
+  const tag   = toolInfo?.tag   || ''
+  return (
+    <div className="flex-shrink-0 flex items-center justify-between px-5"
+      style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.07)', height: 60 }}>
+
+      {/* Left: back + tool icon + name */}
+      <div className="flex items-center gap-3">
+        <button onClick={onBack}
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+          style={{ background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-3)', flexShrink: 0 }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.background = 'var(--surface-3)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.background = 'var(--surface-2)' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: color, color: '#fff' }}>
+          <ToolIcon toolKey={toolKey} size={16} />
+        </div>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>{label}</div>
+          {tag && <div style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.2 }}>{tag}</div>}
+        </div>
+      </div>
+
+      {/* Right: user avatar + name */}
+      {user && (
+        <div className="flex items-center gap-2.5">
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', lineHeight: 1.3 }}>{user.first_name || user.username}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-3)' }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
+          </div>
+          <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+            {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ── Tool navigation sidebar ────────────────────────────────────────────────────
 
@@ -1354,31 +1405,15 @@ export default function Home() {
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? 'var(--surface)' : 'var(--bg)' }}>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: 'var(--bg)' }}>
 
-        {/* Tool tab strip — only when chat is active, sits at top */}
-        {chatActive && (
-          <div className="flex-shrink-0" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-            <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-              {TOOLS.map(t => (
-                <button key={t.key} onClick={() => startTool(t.key)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 transition-all"
-                  style={activeTool === t.key
-                    ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
-                    : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
-                  }
-                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text)' } }}
-                  onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}>
-                  <ToolIcon toolKey={t.key} size={10} />
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Chat header — only when chat is active */}
+        {chatActive && activeTool && (
+          <ChatHeader toolKey={activeTool} user={user} onBack={resetToHome} />
         )}
 
         {/* Messages / Greeting area — fills available space */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" style={chatActive ? { background: 'var(--bg)' } : {}}>
           {!chatActive ? (
             /* Greeting — reference design: gradient bg, search, tool grid */
             <div className="min-h-full flex flex-col" style={{ background: 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)' }}>
@@ -1509,12 +1544,16 @@ export default function Home() {
             </div>
           ) : (
             /* Chat messages */
-            <div className="max-w-3xl mx-auto w-full px-5 pt-7 pb-5 space-y-5">
+            <div className="max-w-3xl mx-auto w-full px-5 pt-6 pb-5 space-y-5">
+              {/* Today chip */}
+              <div className="flex items-center justify-center">
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', background: 'var(--surface)', border: '1px solid var(--border-strong)', borderRadius: 99, padding: '3px 14px' }}>Today</span>
+              </div>
               {msgs.map(msg => (
                 <div key={msg.id}>
                   {msg.type === 'user'
                     ? <UserBubble text={msg.text} />
-                    : <AIBubble text={msg.text}>
+                    : <AIBubble text={msg.text} toolKey={activeTool}>
                         {msg.choices && (
                           <Choices items={msg.choices} chosen={msg.chosen}
                             onChoose={(val) => { const label = msg.choices.find(c => c.value === val)?.label || val; onChoice(val, label, msg.id) }} />
@@ -1540,7 +1579,7 @@ export default function Home() {
                   }
                 </div>
               ))}
-              {isLoading && <TypingDots />}
+              {isLoading && <TypingDots toolKey={activeTool} />}
               <div ref={bottomRef} />
             </div>
           )}
@@ -1572,7 +1611,7 @@ export default function Home() {
 
         {/* ── Input area — only when chat is active ── */}
         {chatActive && (
-        <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
+        <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: '#fff' }}>
           <div className="max-w-3xl mx-auto">
 
             {/* Input controls — adapt based on step */}
@@ -1663,28 +1702,49 @@ export default function Home() {
               <p className="text-center text-xs py-1" style={{ color: 'var(--text-3)' }}>Processing… please wait</p>
             )}
 
-            {/* Main text input — for text steps in chat */}
+            {/* Main text input — pill-shaped, for text steps in chat */}
             {step !== 'done' && step !== 'upload' && step !== 'content' && !isChoiceStep && !isLoading && (
-              <div className="flex gap-2 items-end">
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
                 {isMultiline
                   ? <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onText() } }}
                       placeholder={placeholder} rows={4}
-                      className="flex-1 input-base resize-none text-[15px] leading-relaxed" />
+                      style={{
+                        width: '100%', background: '#f7f8ff',
+                        border: '1.5px solid rgba(99,102,241,0.15)', borderRadius: 18,
+                        padding: '13px 56px 13px 18px', fontSize: 15,
+                        color: 'var(--text)', outline: 'none', lineHeight: 1.55, resize: 'none',
+                        boxShadow: '0 1px 4px rgba(15,23,42,0.06)',
+                        transition: 'border-color 0.15s, box-shadow 0.15s',
+                      }}
+                      onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1),0 1px 4px rgba(15,23,42,0.06)' }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(99,102,241,0.15)'; e.target.style.boxShadow = '0 1px 4px rgba(15,23,42,0.06)' }} />
                   : <input ref={inputRef} value={text} onChange={e => setText(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && onText()}
                       placeholder={placeholder}
-                      className="flex-1 input-base text-[15px]" />
+                      style={{
+                        width: '100%', background: '#f7f8ff',
+                        border: '1.5px solid rgba(99,102,241,0.15)', borderRadius: 99,
+                        padding: '13px 56px 13px 20px', fontSize: 15,
+                        color: 'var(--text)', outline: 'none', lineHeight: 1.55,
+                        boxShadow: '0 1px 4px rgba(15,23,42,0.06)',
+                        transition: 'border-color 0.15s, box-shadow 0.15s',
+                      }}
+                      onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1),0 1px 4px rgba(15,23,42,0.06)' }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(99,102,241,0.15)'; e.target.style.boxShadow = '0 1px 4px rgba(15,23,42,0.06)' }} />
                 }
                 <button
                   onClick={onText}
                   disabled={!canSend}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
-                  style={{ background: canSend ? 'var(--accent)' : 'var(--surface-3)', cursor: canSend ? 'pointer' : 'not-allowed' }}
-                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(0,0,0,0.18)' }}
-                  onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke={canSend ? 'white' : 'var(--text-3)'} strokeWidth="2.5" strokeLinecap="round">
+                  style={{
+                    position: 'absolute', right: 8, bottom: 8,
+                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                    background: canSend ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : '#e5e7eb',
+                    border: 'none', cursor: canSend ? 'pointer' : 'not-allowed',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                  }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                   </svg>
                 </button>
