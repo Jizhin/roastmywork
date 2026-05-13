@@ -47,7 +47,7 @@ function AppShell() {
             <div className="flex items-center gap-2">
               <div
                 className="w-5 h-5 rounded-md flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
+                style={{ background: 'var(--accent)' }}
               >
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
                   <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z" fill="white"/>

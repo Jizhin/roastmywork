@@ -87,27 +87,26 @@ const WORK_LABELS = { resume: 'Resume', code: 'Code', pitch_deck: 'Pitch Deck', 
 
 // ── Shared UI ──────────────────────────────────────────────────────────────────
 
-function ToolIcon({ toolKey, size = 20 }) {
-  const s = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round' }
-  if (toolKey === 'build_resume') return <svg {...s}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-  if (toolKey === 'fix_resume')   return <svg {...s}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-  if (toolKey === 'roast')        return <svg {...s}><path d="M12 2C9.5 6.5 8 9.5 8 13a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11z"/></svg>
-  if (toolKey === 'jd_match')     return <svg {...s}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>
-  if (toolKey === 'interview')    return <svg {...s}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  if (toolKey === 'outreach')     return <svg {...s}><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h3"/></svg>
+function ToolIcon({ toolKey, size = 18 }) {
+  const s = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  if (toolKey === 'build_resume') return <svg {...s}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+  if (toolKey === 'fix_resume')   return <svg {...s}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+  if (toolKey === 'roast')        return <svg {...s}><path d="M12 2c-2.5 4.5-4 7.5-4 11a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11z"/><path d="M12 12c-.8 1.5-1 2.5-1 3a1 1 0 0 0 2 0c0-.5-.2-1.5-1-3z" fill="currentColor" strokeWidth="0"/></svg>
+  if (toolKey === 'jd_match')     return <svg {...s}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><circle cx="11" cy="11" r="3"/></svg>
+  if (toolKey === 'interview')    return <svg {...s}><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+  if (toolKey === 'outreach')     return <svg {...s}><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
   if (toolKey === 'linkedin_dm')  return <svg {...s}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-  if (toolKey === 'linkedin_opt') return <svg {...s}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-  if (toolKey === 'salary')       return <svg {...s}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+  if (toolKey === 'linkedin_opt') return <svg {...s}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+  if (toolKey === 'salary')       return <svg {...s}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
   return null
 }
 
 function AIAvatar() {
   return (
-    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-      style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)' }}>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 flex-shrink-0"
+      style={{ background: '#18181b' }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
         <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
-        <path d="M12 12c-.8 1.8-1.2 3-1.2 4a1.2 1.2 0 0 0 2.4 0c0-1-.4-2.2-1.2-4Z" fillOpacity="0.5"/>
       </svg>
     </div>
   )
@@ -148,7 +147,7 @@ function UserBubble({ text }) {
   return (
     <div className="flex justify-end">
       <div className="rounded-2xl rounded-tr-sm px-5 py-3.5 max-w-[78%] text-[15px]"
-        style={{ background: 'linear-gradient(135deg,#2563eb,#0f766e)', color: '#fff', lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+        style={{ background: '#18181b', color: '#fff', lineHeight: 1.65, letterSpacing: '-0.01em' }}>
         {text}
       </div>
     </div>
@@ -248,8 +247,8 @@ function ScoreCard({ score, sub }) {
 }
 
 function JDMatchResult({ result }) {
-  const verdictStyle = { strong_match: 'rgba(16,185,129,0.12)', good_match: 'rgba(37,99,235,0.10)', partial_match: 'rgba(245,158,11,0.12)', weak_match: 'rgba(239,68,68,0.12)' }[result.verdict] || 'rgba(255,255,255,0.06)'
-  const verdictColor = { strong_match: '#34d399', good_match: '#2563eb', partial_match: '#fbbf24', weak_match: '#f87171' }[result.verdict] || 'var(--text-2)'
+  const verdictStyle = { strong_match: 'rgba(16,185,129,0.12)', good_match: 'rgba(13,148,136,0.10)', partial_match: 'rgba(245,158,11,0.12)', weak_match: 'rgba(239,68,68,0.12)' }[result.verdict] || 'rgba(255,255,255,0.06)'
+  const verdictColor = { strong_match: '#34d399', good_match: '#0d9488', partial_match: '#fbbf24', weak_match: '#f87171' }[result.verdict] || 'var(--text-2)'
   return (
     <div className="mt-1 space-y-3">
       <ScoreCard score={result.score} sub="match score" />
@@ -268,8 +267,8 @@ function JDMatchResult({ result }) {
 }
 
 function InterviewResult({ result }) {
-  const recColor = { 'Strong Hire': '#34d399', 'Hire': '#2563eb', 'Maybe': '#fbbf24', 'No Hire': '#f87171' }[result.hiring_recommendation] || 'var(--text-2)'
-  const recBg    = { 'Strong Hire': 'rgba(16,185,129,0.1)', 'Hire': 'rgba(37,99,235,0.10)', 'Maybe': 'rgba(245,158,11,0.1)', 'No Hire': 'rgba(239,68,68,0.1)' }[result.hiring_recommendation] || 'rgba(255,255,255,0.06)'
+  const recColor = { 'Strong Hire': '#34d399', 'Hire': '#0d9488', 'Maybe': '#fbbf24', 'No Hire': '#f87171' }[result.hiring_recommendation] || 'var(--text-2)'
+  const recBg    = { 'Strong Hire': 'rgba(16,185,129,0.1)', 'Hire': 'rgba(13,148,136,0.10)', 'Maybe': 'rgba(245,158,11,0.1)', 'No Hire': 'rgba(239,68,68,0.1)' }[result.hiring_recommendation] || 'rgba(255,255,255,0.06)'
   return (
     <div className="mt-1 space-y-3">
       <div className="flex items-center gap-4" style={DS.card}>
@@ -289,7 +288,7 @@ function LinkedInDMResult({ result }) {
   return (
     <div className="mt-1 space-y-2">
       {result.variants?.map((v, i) => <div key={i} style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">{v.style}</span><CopyButton text={v.message} /></div><p className="text-[13px] leading-relaxed" style={DS.text2}>{v.message}</p><p className="text-[11px] mt-2" style={DS.text3}>{v.message?.length || 0} chars</p></div>)}
-      {result.tips?.length > 0 && <div style={{ ...DS.card, background: 'rgba(37,99,235,0.06)', borderColor: 'rgba(37,99,235,0.18)' }}><span style={{ ...DS.label, color: '#2563eb' }}>Tips</span>{result.tips.map((t, i) => <p key={i} className="text-xs mb-1" style={{ color: '#2563eb' }}>• {t}</p>)}</div>}
+      {result.tips?.length > 0 && <div style={DS.card}><span style={DS.label}>Tips</span>{result.tips.map((t, i) => <p key={i} className="text-xs mb-1" style={{ color: 'var(--text-2)' }}>• {t}</p>)}</div>}
     </div>
   )
 }
@@ -300,7 +299,7 @@ function LinkedInOptResult({ result }) {
       {result.score_before != null && <div className="flex items-center gap-4" style={DS.card}><div className="text-center"><div className="text-2xl font-bold" style={DS.text3}>{result.score_before}</div><div className="text-[10px]" style={DS.text3}>Before</div></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg><div className="text-center"><div className="text-2xl font-bold" style={{ color: '#10b981' }}>{result.score_after}</div><div className="text-[10px]" style={DS.text3}>After</div></div></div>}
       {result.headline && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">New Headline</span><CopyButton text={result.headline} /></div><p className="text-[13px] font-semibold" style={DS.text}>{result.headline}</p></div>}
       {result.about && <div style={DS.card}><div className="flex items-center justify-between mb-2"><span className="section-title">About Section</span><CopyButton text={result.about} /></div><p className="text-[13px] leading-relaxed whitespace-pre-wrap" style={DS.text2}>{result.about}</p></div>}
-      {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(37,99,235,0.10)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.18)' }}>{k}</span>)}</div></div>}
+      {result.top_keywords?.length > 0 && <div style={DS.card}><span className="section-title">Top Keywords</span><div className="flex flex-wrap gap-1.5 mt-1">{result.top_keywords.map((k, i) => <span key={i} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'var(--surface-3)', color: 'var(--text-2)', border: '1px solid var(--border-strong)' }}>{k}</span>)}</div></div>}
     </div>
   )
 }
@@ -382,7 +381,7 @@ function SalaryResult({ result }) {
         {result.talking_points?.length > 0 && <div style={DS.card}><span className="section-title">Talking Points</span>{result.talking_points.map((t, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {t}</p>)}</div>}
         {result.benefits_to_negotiate?.length > 0 && <div style={DS.card}><span className="section-title">Also Negotiate</span>{result.benefits_to_negotiate.map((b, i) => <p key={i} className="text-xs mb-1" style={DS.text2}>• {b}</p>)}</div>}
       </div>
-      {result.advice && <div style={{ ...DS.card, background: 'rgba(37,99,235,0.06)', borderColor: 'rgba(37,99,235,0.18)' }}><p className="text-xs leading-relaxed" style={{ color: '#2563eb' }}>{result.advice}</p></div>}
+      {result.advice && <div style={DS.card}><p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>{result.advice}</p></div>}
     </div>
   )
 }
@@ -397,70 +396,148 @@ function RoastResult({ result }) {
   )
 }
 
-const ENTRY_LABELS = {
-  roast:           'Roast My Work',
-  resume_builder:  'Resume Builder',
-  resume_update:   'Resume Fix',
-  jd_match:        'JD Match',
-  interview:       'Interview Prep',
-  linkedin_dm:     'Outreach',
-  linkedin_opt:    'LinkedIn Profile',
-  salary:          'Salary Coach',
-}
+const TOOL_CATEGORIES = [
+  {
+    label: 'Resume',
+    items: [
+      { key: 'build_resume', label: 'Build Resume',     desc: 'Create from scratch'       },
+      { key: 'fix_resume',   label: 'Fix Resume',       desc: 'Improve existing resume'   },
+      { key: 'roast',        label: 'Roast My Work',    desc: 'Brutal honest feedback'     },
+    ],
+  },
+  {
+    label: 'Jobs',
+    items: [
+      { key: 'jd_match',    label: 'JD Match',          desc: 'Score against a job post'  },
+    ],
+  },
+  {
+    label: 'Apply',
+    items: [
+      { key: 'linkedin_dm',  label: 'Outreach DM',      desc: 'LinkedIn & recruiter DMs'  },
+      { key: 'linkedin_opt', label: 'Optimize Profile',  desc: 'Rewrite your LinkedIn'     },
+    ],
+  },
+  {
+    label: 'Interviews',
+    items: [
+      { key: 'interview', label: 'Interview Prep',       desc: 'Practice & get scored'     },
+    ],
+  },
+  {
+    label: 'Offers',
+    items: [
+      { key: 'salary', label: 'Salary Coach',            desc: 'Negotiate your offer'      },
+    ],
+  },
+]
 
-// ── History sidebar ────────────────────────────────────────────────────────────
+// ── Tool navigation sidebar ────────────────────────────────────────────────────
 
-function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal }) {
+function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
   return (
-    <aside className="hidden lg:flex flex-shrink-0 flex-col" style={{ width: 248, background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
-      <div className="p-3 w-full" style={{ borderBottom: '1px solid var(--border)' }}>
-        <button onClick={onNew} className="w-full h-11 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all"
-          style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)', color: 'var(--accent)' }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.14)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(37,99,235,0.08)'}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New workspace
+    <aside className="hidden lg:flex flex-shrink-0 flex-col"
+      style={{ width: 'var(--sidebar-w)', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+
+      {/* Logo */}
+      <div className="px-4 py-4 flex items-center gap-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: 'var(--accent)' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+            <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
+          </svg>
+        </div>
+        <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--text)' }}>RoastMyWork</span>
+      </div>
+
+      {/* New session button */}
+      <div className="px-3 pt-3">
+        <button onClick={onNew}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+          style={{ border: '1px dashed var(--border-strong)', color: 'var(--text-3)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-2)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New session
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto py-3 w-full">
-        {!user ? (
-          <div className="px-4 py-6 text-center">
-            <p className="text-xs mb-3 leading-relaxed" style={{ color: 'var(--text-3)' }}>Sign in to save sessions and continue later.</p>
-            <button onClick={openAuthModal} className="text-xs font-semibold transition-colors" style={{ color: 'var(--accent)' }}>Sign in</button>
+
+      {/* Tool categories */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+        {TOOL_CATEGORIES.map(cat => (
+          <div key={cat.label}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 mb-1.5"
+              style={{ color: 'var(--text-3)' }}>{cat.label}</p>
+            <div className="space-y-0.5">
+              {cat.items.map(item => {
+                const isActive = activeTool === item.key
+                return (
+                  <button key={item.key} onClick={() => onSelectTool(item.key)}
+                    className={`tool-nav-item ${isActive ? 'active' : ''}`}>
+                    <span className="tool-nav-icon">
+                      <ToolIcon toolKey={item.key} size={15} />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block truncate">{item.label}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        ) : sessions.length === 0 ? (
-          <p className="text-xs text-center px-4 py-6 leading-relaxed" style={{ color: 'var(--text-3)' }}>Your recent workspaces will appear here.</p>
-        ) : (
-          <div className="space-y-1 px-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2" style={{ color: 'var(--text-3)' }}>Recent</p>
-            {sessions.map(s => (
-              <button key={`${s.entry_type}-${s.id}`} onClick={() => onLoadSession(s)}
-                className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left"
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.07)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.16)', color: '#2563eb' }}>
-                  <ToolIcon toolKey={s.tool_key || 'roast'} size={13} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text)' }}>{s.title || 'Activity'}</p>
-                  <p className="text-[11px] truncate" style={{ color: 'var(--text-3)' }}>{ENTRY_LABELS[s.entry_type] || s.entry_type || 'Session'}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="border-t p-3 w-full" style={{ borderColor: 'var(--border)' }}>
-        {user?.profile?.is_pro ? (
-          <div className="rounded-xl px-3 py-2 text-xs font-bold text-center" style={{ background: 'rgba(37,99,235,0.10)', color: 'var(--accent)' }}>PRO - Unlimited</div>
-        ) : (
-          <Link to="/pricing" className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
-            style={{ color: 'var(--accent-2)' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.07)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            Upgrade
+        ))}
+
+        {/* Cold Email — external */}
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 mb-1.5" style={{ color: 'var(--text-3)' }}>Email</p>
+          <Link to="/cold-email"
+            className="tool-nav-item"
+            style={{ textDecoration: 'none' }}>
+            <span className="tool-nav-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </span>
+            <span className="flex-1 min-w-0 flex items-center justify-between gap-1">
+              <span className="truncate">Cold Email</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </span>
           </Link>
+        </div>
+      </nav>
+
+      {/* Bottom account area */}
+      <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
+        {user ? (
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg"
+            style={{ background: 'var(--surface-2)' }}>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+              style={{ background: 'var(--accent)', color: '#fff' }}>
+              {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text)' }}>
+                {user.first_name || user.username}
+              </p>
+              <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>
+                {user.profile?.is_pro ? 'Pro · Unlimited' : `${user.profile?.roast_credits ?? 0} credits`}
+              </p>
+            </div>
+            {!user.profile?.is_pro && (
+              <Link to="/pricing" className="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-shrink-0"
+                style={{ background: 'var(--accent)', color: '#fff' }}>
+                Pro
+              </Link>
+            )}
+          </div>
+        ) : (
+          <button onClick={openAuthModal}
+            className="w-full text-center text-sm font-semibold py-2 rounded-lg transition-all"
+            style={{ background: 'var(--accent)', color: '#fff' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'var(--accent)'}>
+            Sign in
+          </button>
         )}
       </div>
     </aside>
@@ -1240,7 +1317,7 @@ export default function Home() {
 
   return (
     <div className="flex overflow-hidden h-full">
-      <HistorySidebar onNew={resetToHome} onLoadSession={loadSession} sessions={sessions} user={user} openAuthModal={openAuthModal} />
+      <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: 'var(--bg)' }}>
@@ -1256,7 +1333,7 @@ export default function Home() {
                     ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
                     : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
                   }
-                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.32)'; e.currentTarget.style.color = 'var(--accent)' } }}
+                  onMouseEnter={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text)' } }}
                   onMouseLeave={e => { if (activeTool !== t.key) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' } }}>
                   <ToolIcon toolKey={t.key} size={10} />
                   {t.label}
@@ -1272,18 +1349,18 @@ export default function Home() {
             /* Greeting — shown when no messages yet */
             <div className="flex-1 flex flex-col items-center justify-center px-6 pb-10">
               <div className="w-full max-w-2xl mx-auto text-center">
-                <h1 className="text-3xl font-bold mb-3" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
+                <h1 className="text-[2rem] font-bold mb-3 anim-fade-up" style={{ color: 'var(--text)', letterSpacing: '-0.025em', lineHeight: 1.2 }}>
                   {activeTool ? activeMeta?.label : greeting}
                 </h1>
-                <p className="text-base mb-8" style={{ color: 'var(--text-3)' }}>
+                <p className="text-[1.05rem] mb-8 anim-fade-up anim-d1" style={{ color: 'var(--text-3)' }}>
                   {activeTool
                     ? 'Type below and press Enter to get started.'
                     : 'Your AI career workspace — resume, jobs, outreach, and interviews.'}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex flex-wrap justify-center gap-2 anim-fade-up anim-d2">
                   {STARTER_PROMPTS.map(prompt => (
                     <button key={prompt} onClick={() => setText(prompt)}
-                      className="rounded-full px-4 py-2 text-sm transition-all"
+                      className="rounded-full px-4 py-2 text-sm font-medium transition-all"
                       style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
                       onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-2)' }}>
@@ -1292,7 +1369,7 @@ export default function Home() {
                   ))}
                 </div>
                 {user && !user.profile?.is_pro && (
-                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2 text-sm mt-8"
+                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2 text-sm mt-8 anim-fade-up anim-d3"
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     <span style={{ color: 'var(--text-3)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits left</span>
                     <Link to="/pricing" className="text-sm font-semibold pl-3 transition-colors" style={{ color: 'var(--accent)', borderLeft: '1px solid var(--border)' }}>Upgrade</Link>
@@ -1315,7 +1392,7 @@ export default function Home() {
                         {(msg.kind === 'resume' || msg.kind === 'resume_fix') && resumeData && (
                           <>
                             {msg.kind === 'resume_fix' && msg.issues && (
-                              <div className="mt-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-800">
+                              <div className="mt-2 rounded-xl px-4 py-3 text-sm" style={{ background: 'var(--surface-3)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}>
                                 <span className="font-semibold">What we improved: </span>{msg.issues}
                               </div>
                             )}
@@ -1367,37 +1444,6 @@ export default function Home() {
         <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
           <div className="max-w-4xl mx-auto">
 
-            {/* Tool chips — only shown on the greeting/pre-start screen */}
-            {!chatActive && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2" style={{ scrollbarWidth: 'none' }}>
-                {TOOLS.map(t => (
-                  <button
-                    key={t.key}
-                    onClick={() => startTool(t.key)}
-                    className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-all"
-                    style={activeTool === t.key
-                      ? { background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }
-                      : { background: 'var(--surface-2)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }
-                    }
-                    onMouseEnter={e => {
-                      if (activeTool !== t.key) {
-                        e.currentTarget.style.borderColor = 'rgba(79,70,229,0.35)'
-                        e.currentTarget.style.color = 'var(--text)'
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (activeTool !== t.key) {
-                        e.currentTarget.style.borderColor = 'var(--border-strong)'
-                        e.currentTarget.style.color = 'var(--text-2)'
-                      }
-                    }}
-                  >
-                    <ToolIcon toolKey={t.key} size={14} />
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Input controls — adapt based on step */}
 
@@ -1419,7 +1465,7 @@ export default function Home() {
                 <button onClick={() => fixFileRef.current?.click()}
                   className="w-full rounded-xl py-6 text-center transition-all"
                   style={{ border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.32)'; e.currentTarget.style.background = 'rgba(37,99,235,0.05)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--surface-3)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.background = 'var(--surface-2)' }}>
                   <div className="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-3)', border: '1px solid var(--border)' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1463,10 +1509,10 @@ export default function Home() {
                       <div onClick={() => roastFileRef.current?.click()}
                         className="flex-1 rounded-xl py-5 text-center cursor-pointer transition-all"
                         style={roastFile
-                          ? { border: '2px dashed rgba(37,99,235,0.32)', background: 'rgba(37,99,235,0.06)' }
+                          ? { border: '2px dashed var(--accent)', background: 'var(--surface-3)' }
                           : { border: '2px dashed var(--border-strong)', background: 'var(--surface-2)' }}>
                         {roastFile
-                          ? <p className="text-sm font-medium" style={{ color: '#2563eb' }}>{roastFile.name} · Click to change</p>
+                          ? <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{roastFile.name} · Click to change</p>
                           : <><p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Click to upload</p><p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>.pdf .txt .py .js and more</p></>}
                       </div>
                       <button onClick={doRoast} disabled={!roastFile}
@@ -1492,12 +1538,12 @@ export default function Home() {
               <div className="flex gap-2 items-end">
                 {activeTool && !chatActive && (
                   <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 mb-0.5"
-                    style={{ background: 'rgba(37,99,235,0.10)', border: '1px solid rgba(37,99,235,0.18)', color: '#2563eb' }}>
+                    style={{ background: 'var(--surface-3)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}>
                     <ToolIcon toolKey={activeTool} size={11} />
                     {activeMeta?.label}
-                    <button onClick={() => setActiveTool(null)} className="ml-0.5 transition-colors" style={{ color: 'rgba(165,180,252,0.5)' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#2563eb'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(37,99,235,0.5)'}>
+                    <button onClick={() => setActiveTool(null)} className="ml-0.5 transition-colors" style={{ color: 'var(--text-3)' }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-3)'}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
@@ -1520,7 +1566,7 @@ export default function Home() {
                   disabled={!canSend}
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                   style={{ background: canSend ? 'var(--accent)' : 'var(--surface-3)', cursor: canSend ? 'pointer' : 'not-allowed' }}
-                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(37,99,235,0.25)' }}
+                  onMouseEnter={e => { if (canSend) e.currentTarget.style.boxShadow = '0 0 18px rgba(0,0,0,0.18)' }}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke={canSend ? 'white' : 'var(--text-3)'} strokeWidth="2.5" strokeLinecap="round">
