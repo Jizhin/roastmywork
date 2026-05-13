@@ -1270,51 +1270,32 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto flex flex-col">
           {!chatActive ? (
             /* Greeting — shown when no messages yet */
-            <div className="flex-1 flex flex-col items-center px-5 pt-14 pb-6">
-              <div className="w-full max-w-5xl mx-auto">
-                <div className="grid lg:grid-cols-[1fr_300px] gap-6 items-stretch">
-                  <div className="rounded-2xl p-8 md:p-10"
-                    style={{ background: 'linear-gradient(135deg,#ffffff 0%,#eef2ff 100%)', border: '1px solid var(--border)', boxShadow: '0 18px 60px rgba(79,70,229,0.10)' }}>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] mb-4" style={{ color: 'var(--accent)' }}>Career workspace</p>
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight leading-tight" style={{ color: 'var(--text)' }}>{activeTool ? activeMeta?.label : greeting}</h1>
-                    <p className="text-base md:text-lg max-w-2xl" style={{ color: 'var(--text-2)' }}>
-                      {activeTool ? 'Type below and I will guide the next step.' : 'Paste a resume, job post, offer, interview invite, or recruiter profile. I will choose the right workflow with you.'}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-7">
-                      {STARTER_PROMPTS.map(prompt => (
-                        <button key={prompt} onClick={() => setText(prompt)}
-                          className="rounded-full px-3.5 py-2 text-sm font-medium transition-all"
-                          style={{ background: '#fff', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(37,99,235,0.30)'; e.currentTarget.style.color = 'var(--text)' }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--text-2)' }}>
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-2xl p-5"
-                    style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 12px 40px rgba(15,23,42,0.06)' }}>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] mb-4" style={{ color: 'var(--text-3)' }}>What I can do</p>
-                    <div className="space-y-3">
-                      {[
-                        ['Resume', 'Build, fix, roast, and tailor it.'],
-                        ['Jobs', 'Compare against JDs and find gaps.'],
-                        ['Apply', 'Create messages and follow-ups.'],
-                        ['Interviews', 'Practice and score your answers.'],
-                      ].map(([title, body]) => (
-                        <div key={title} className="rounded-xl px-3 py-3" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-                          <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{title}</p>
-                          <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>{body}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            <div className="flex-1 flex flex-col items-center justify-center px-6 pb-10">
+              <div className="w-full max-w-2xl mx-auto text-center">
+                <h1 className="text-3xl font-bold mb-3" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
+                  {activeTool ? activeMeta?.label : greeting}
+                </h1>
+                <p className="text-base mb-8" style={{ color: 'var(--text-3)' }}>
+                  {activeTool
+                    ? 'Type below and press Enter to get started.'
+                    : 'Your AI career workspace — resume, jobs, outreach, and interviews.'}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {STARTER_PROMPTS.map(prompt => (
+                    <button key={prompt} onClick={() => setText(prompt)}
+                      className="rounded-full px-4 py-2 text-sm transition-all"
+                      style={{ background: 'var(--surface)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--text-2)' }}>
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
                 {user && !user.profile?.is_pro && (
-                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm mt-5"
+                  <div className="inline-flex items-center gap-3 rounded-xl px-4 py-2 text-sm mt-8"
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-                    <span style={{ color: 'var(--text-2)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits</span>
-                    <Link to="/pricing" className="text-xs font-semibold pl-3 transition-colors" style={{ color: 'var(--accent-2)', borderLeft: '1px solid var(--border)' }}>Upgrade to Pro</Link>
+                    <span style={{ color: 'var(--text-3)' }}><span className="font-semibold" style={{ color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits left</span>
+                    <Link to="/pricing" className="text-sm font-semibold pl-3 transition-colors" style={{ color: 'var(--accent)', borderLeft: '1px solid var(--border)' }}>Upgrade</Link>
                   </div>
                 )}
               </div>
