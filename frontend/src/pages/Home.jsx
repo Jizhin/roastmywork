@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { resumeApi, updaterApi, roastApi, toolsApi, authApi, outreachWorkspaceApi } from '../api/client'
+import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ResumeRenderer, { DEFAULT_STYLE } from '../components/ResumeRenderer'
 import StylePanel from '../components/StylePanel'
@@ -396,6 +397,17 @@ function RoastResult({ result }) {
   )
 }
 
+const ENTRY_LABELS = {
+  roast:           'Roast My Work',
+  resume_builder:  'Resume Builder',
+  resume_update:   'Resume Fix',
+  jd_match:        'JD Match',
+  interview:       'Interview Prep',
+  linkedin_dm:     'Outreach',
+  linkedin_opt:    'LinkedIn Profile',
+  salary:          'Salary Coach',
+}
+
 // ── History sidebar ────────────────────────────────────────────────────────────
 
 function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal }) {
@@ -432,7 +444,7 @@ function HistorySidebar({ onNew, onLoadSession, sessions, user, openAuthModal })
                 </div>
                 <div className="min-w-0">
                   <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text)' }}>{s.title || 'Activity'}</p>
-                  <p className="text-[11px] truncate capitalize" style={{ color: 'var(--text-3)' }}>{s.entry_type?.replaceAll('_', ' ') || 'session'}</p>
+                  <p className="text-[11px] truncate" style={{ color: 'var(--text-3)' }}>{ENTRY_LABELS[s.entry_type] || s.entry_type || 'Session'}</p>
                 </div>
               </button>
             ))}
