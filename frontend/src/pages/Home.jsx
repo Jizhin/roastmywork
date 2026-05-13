@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { resumeApi, updaterApi, roastApi, toolsApi, authApi, outreachWorkspaceApi } from '../api/client'
 import api from '../api/client'
@@ -127,31 +127,66 @@ function TypingDots({ toolKey }) {
 }
 
 function AIBubble({ text, children, toolKey }) {
+  const timeStr = useMemo(() => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }), [])
+  const [copied, setCopied] = useState(false)
+  const [vote, setVote] = useState(null)
+  const iconBtn = (active, activeColor, onClick, path, title) => (
+    <button onClick={onClick} title={title}
+      style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', color: active ? activeColor : 'var(--text-3)', transition: 'background 0.12s, color 0.12s' }}
+      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.06)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill={active && title !== 'Copy' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{path}</svg>
+    </button>
+  )
   return (
     <div className="flex gap-3 items-start">
       <AIAvatar toolKey={toolKey} />
       <div className="flex-1 min-w-0 space-y-2">
         {text && (
-          <div>
-            <div className="rounded-2xl rounded-tl-sm px-5 py-4"
-              style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 8px rgba(15,23,42,0.07)' }}>
-              <p className="text-[15px] leading-[1.7] whitespace-pre-wrap break-words" style={{ color: 'var(--text)' }}>{text}</p>
+          <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(15,23,42,0.08)', borderRadius: 16 }}>
+            {/* Message text */}
+            <div style={{ padding: '16px 20px 12px' }}>
+              <p style={{ fontSize: 15, lineHeight: 1.72, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text)', margin: 0 }}>{text}</p>
             </div>
-            <MessageActions text={text} />
+            {/* Action row — inside the card */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px 10px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                {iconBtn(copied, '#34d399', () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) },
+                  copied ? <><polyline points="20 6 9 17 4 12"/></> : <><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>,
+                  'Copy'
+                )}
+                {iconBtn(vote === 'up', '#34d399', () => setVote(v => v === 'up' ? null : 'up'),
+                  <><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></>,
+                  'Helpful'
+                )}
+                {iconBtn(vote === 'down', '#f87171', () => setVote(v => v === 'down' ? null : 'down'),
+                  <><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></>,
+                  'Not helpful'
+                )}
+              </div>
+              <span style={{ fontSize: 11.5, color: 'var(--text-3)', userSelect: 'none' }}>{timeStr}</span>
+            </div>
           </div>
         )}
-        {children}
+        {children && <div className="space-y-2 mt-1">{children}</div>}
       </div>
     </div>
   )
 }
 
 function UserBubble({ text }) {
+  const timeStr = useMemo(() => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }), [])
   return (
     <div className="flex justify-end">
-      <div className="px-5 py-3.5 max-w-[78%] text-[15px]"
-        style={{ background: '#eef0fe', color: 'var(--text)', lineHeight: 1.65, borderRadius: '18px 18px 4px 18px' }}>
-        {text}
+      <div style={{ background: '#eef0fe', color: 'var(--text)', borderRadius: '18px 18px 4px 18px', maxWidth: '72%' }}>
+        <div style={{ padding: '13px 18px 6px', fontSize: 15, lineHeight: 1.65 }}>{text}</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, padding: '0 14px 10px' }}>
+          <span style={{ fontSize: 11, color: 'rgba(99,102,241,0.55)', userSelect: 'none' }}>{timeStr}</span>
+          <svg width="14" height="9" viewBox="0 0 16 10" fill="none">
+            <path d="M1 5l3 3 5-7" stroke="rgba(99,102,241,0.7)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 5l3 3 5-7" stroke="rgba(99,102,241,0.7)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
       </div>
     </div>
   )
@@ -191,37 +226,6 @@ function CopyButton({ text }) {
   )
 }
 
-function MessageActions({ text }) {
-  const [copied, setCopied] = useState(false)
-  const [vote, setVote] = useState(null)
-  const iconBtn = (active, activeColor, onClick, children, title) => (
-    <button onClick={onClick} title={title}
-      className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-      style={{ color: active ? activeColor : 'var(--text-3)', background: 'transparent' }}
-      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.06)'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      {children}
-    </button>
-  )
-  return (
-    <div className="flex items-center gap-0.5 mt-2">
-      {iconBtn(copied, '#34d399', () => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) },
-        copied
-          ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-          : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
-        'Copy'
-      )}
-      {iconBtn(vote === 'up', '#34d399', () => setVote(v => v === 'up' ? null : 'up'),
-        <svg width="13" height="13" viewBox="0 0 24 24" fill={vote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>,
-        'Helpful'
-      )}
-      {iconBtn(vote === 'down', '#f87171', () => setVote(v => v === 'down' ? null : 'down'),
-        <svg width="13" height="13" viewBox="0 0 24 24" fill={vote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>,
-        'Not helpful'
-      )}
-    </div>
-  )
-}
 
 function detectWorkspaceActions(input) {
   const t = input.toLowerCase()
@@ -638,7 +642,7 @@ function ChatHeader({ toolKey, user, onBack }) {
 function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
   return (
     <aside className="hidden lg:flex flex-col flex-shrink-0"
-      style={{ width: 'var(--sidebar-w)', background: 'linear-gradient(180deg,#1a1d2e 0%,#0f1117 100%)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(255,255,255,0.06)' }}>
+      style={{ width: 'var(--sidebar-w)', background: 'linear-gradient(160deg,#252a3d 0%,#16192a 60%,#111420 100%)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(255,255,255,0.09), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
 
       {/* Logo */}
       <button onClick={onNew} style={{
@@ -657,7 +661,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
 
       {/* Tool list */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }}>
-        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', padding: '4px 8px 10px', display: 'block' }}>TOOLS</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', padding: '4px 8px 10px', display: 'block' }}>TOOLS</span>
         {SIDEBAR_TOOLS.map(tool => {
           const isActive = activeTool === tool.key
           const color = TOOL_COLORS[tool.key] || '#6366f1'
@@ -677,7 +681,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</span>
-                <span style={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: 12, lineHeight: 1.3 }}>{tool.desc}</span>
+                <span style={{ display: 'block', color: 'rgba(255,255,255,0.42)', fontSize: 12, lineHeight: 1.3 }}>{tool.desc}</span>
               </div>
             </button>
           )
@@ -698,7 +702,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
           </div>
           <div style={{ minWidth: 0 }}>
             <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>Cold Email</span>
-            <span style={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: 12, lineHeight: 1.3 }}>Write cold outreach emails</span>
+            <span style={{ display: 'block', color: 'rgba(255,255,255,0.42)', fontSize: 12, lineHeight: 1.3 }}>Write cold outreach emails</span>
           </div>
         </Link>
       </nav>
@@ -731,7 +735,7 @@ function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3 }}>{user.first_name || user.username}</div>
-            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
+            <div style={{ color: 'rgba(255,255,255,0.42)', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
           </div>
         </div>
       ) : (
