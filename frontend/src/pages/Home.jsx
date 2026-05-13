@@ -396,16 +396,40 @@ function RoastResult({ result }) {
   )
 }
 
+const TOOL_COLORS = {
+  build_resume: '#3b82f6',
+  fix_resume:   '#0d9488',
+  roast:        '#f97316',
+  jd_match:     '#22c55e',
+  outreach:     '#8b5cf6',
+  interview:    '#6366f1',
+  linkedin_dm:  '#0ea5e9',
+  linkedin_opt: '#10b981',
+  salary:       '#eab308',
+}
+
+const SIDEBAR_TOOLS = [
+  { key: 'build_resume', label: 'Build Resume',    desc: 'Create professional resume'   },
+  { key: 'fix_resume',   label: 'Fix Resume',       desc: 'Improve existing resume'      },
+  { key: 'roast',        label: 'Roast My Work',    desc: 'Brutal honest feedback'       },
+  { key: 'jd_match',     label: 'JD Match',         desc: 'Score resume vs job post'     },
+  { key: 'outreach',     label: 'Application Kit',  desc: 'Messages & job strategy'      },
+  { key: 'interview',    label: 'Interview Prep',   desc: 'Practice & get scored'        },
+  { key: 'linkedin_dm',  label: 'Outreach DM',      desc: 'LinkedIn recruiter messages'  },
+  { key: 'linkedin_opt', label: 'Optimize Profile', desc: 'Rewrite LinkedIn profile'     },
+  { key: 'salary',       label: 'Salary Coach',     desc: 'Negotiate your offer'         },
+]
+
 const ALL_TOOLS_FOR_GRID = [
-  { key: 'build_resume', label: 'Build Resume',    desc: 'Generate a resume from scratch'    },
-  { key: 'fix_resume',   label: 'Fix Resume',       desc: 'Improve your existing resume'     },
-  { key: 'roast',        label: 'Roast My Work',    desc: 'Brutal honest critique with score' },
-  { key: 'jd_match',     label: 'JD Match',         desc: 'Score resume against a job post'  },
-  { key: 'outreach',     label: 'Application Kit',  desc: 'Messages, follow-ups & strategy'  },
-  { key: 'interview',    label: 'Interview Prep',   desc: 'Practice questions & get scored'  },
-  { key: 'linkedin_dm',  label: 'Outreach DM',      desc: 'LinkedIn & recruiter messages'    },
-  { key: 'linkedin_opt', label: 'Optimize Profile', desc: 'Rewrite your LinkedIn profile'    },
-  { key: 'salary',       label: 'Salary Coach',     desc: 'Analyze offers & negotiate'       },
+  { key: 'build_resume', label: 'Build Resume',    tag: 'Resume generation',    desc: 'Generate a complete, professional resume from scratch tailored to your target role.'   },
+  { key: 'fix_resume',   label: 'Fix Resume',       tag: 'Resume improvement',   desc: 'Rewrite weak bullets, fix ATS issues, and improve your existing resume end-to-end.'  },
+  { key: 'roast',        label: 'Roast My Work',    tag: 'Honest critique',      desc: 'Get a brutal, scored critique of your resume, code, essay, or LinkedIn profile.'      },
+  { key: 'jd_match',     label: 'JD Match',         tag: 'Job fit analysis',     desc: 'Paste a job description and see how well your resume scores — with gaps and tips.'    },
+  { key: 'outreach',     label: 'Application Kit',  tag: 'Job strategy',         desc: 'Generate cover messages, follow-ups, and a smart application strategy in one shot.'   },
+  { key: 'interview',    label: 'Interview Prep',   tag: 'Practice & scoring',   desc: 'Get real interview questions for your role, answer them, and receive detailed scores.' },
+  { key: 'linkedin_dm',  label: 'Outreach DM',      tag: 'Recruiter messages',   desc: 'Write personalized LinkedIn and recruiter messages that actually get responses.'      },
+  { key: 'linkedin_opt', label: 'Optimize Profile', tag: 'LinkedIn optimization',desc: 'Rewrite your LinkedIn headline and About section for maximum recruiter visibility.'    },
+  { key: 'salary',       label: 'Salary Coach',     tag: 'Offer negotiation',    desc: 'Benchmark your offer against market data and get a proven negotiation script.'        },
 ]
 
 const TOOL_CATEGORIES = [
@@ -448,100 +472,110 @@ const TOOL_CATEGORIES = [
 
 function ToolNavSidebar({ activeTool, onSelectTool, onNew, user, openAuthModal }) {
   return (
-    <aside className="hidden lg:flex flex-shrink-0 flex-col"
-      style={{ width: 'var(--sidebar-w)', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+    <aside className="hidden lg:flex flex-col flex-shrink-0"
+      style={{ width: 'var(--sidebar-w)', background: '#0d1117' }}>
 
-      {/* Logo — click to go home */}
-      <button onClick={onNew}
-        className="px-4 py-4 flex items-center gap-2.5 w-full text-left transition-opacity hover:opacity-75"
-        style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: 'var(--accent)' }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+      {/* Logo */}
+      <button onClick={onNew} style={{
+        padding: '18px 16px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        cursor: 'pointer', textAlign: 'left',
+      }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
             <path d="M12 3C9.5 7.5 8 10.5 8 14a4 4 0 0 0 8 0c0-3.5-1.5-6.5-4-11Z"/>
           </svg>
         </div>
-        <span className="text-[15px] font-bold tracking-tight" style={{ color: 'var(--text)' }}>RoastMyWork</span>
+        <span style={{ color: '#f1f5f9', fontWeight: 700, fontSize: 16, letterSpacing: '-0.02em' }}>RoastMyWork</span>
       </button>
 
-      {/* Tool categories */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-        {TOOL_CATEGORIES.map(cat => (
-          <div key={cat.label}>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 mb-1.5"
-              style={{ color: 'var(--text-3)' }}>{cat.label}</p>
-            <div className="space-y-0.5">
-              {cat.items.map(item => {
-                const isActive = activeTool === item.key
-                return (
-                  <button key={item.key} onClick={() => onSelectTool(item.key)}
-                    className={`tool-nav-item ${isActive ? 'active' : ''}`}>
-                    <span className="tool-nav-icon">
-                      <ToolIcon toolKey={item.key} size={15} />
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block truncate">{item.label}</span>
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Tool list */}
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '10px 8px' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#374151', padding: '4px 8px 10px', display: 'block' }}>TOOLS</span>
+        {SIDEBAR_TOOLS.map(tool => {
+          const isActive = activeTool === tool.key
+          const color = TOOL_COLORS[tool.key] || '#6366f1'
+          return (
+            <button key={tool.key} onClick={() => onSelectTool(tool.key)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '9px 8px', borderRadius: 10, marginBottom: 2,
+                background: isActive ? 'rgba(99,102,241,0.2)' : 'transparent',
+                border: isActive ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+                cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s',
+              }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
+                <ToolIcon toolKey={tool.key} size={16} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</span>
+                <span style={{ display: 'block', color: '#475569', fontSize: 12, lineHeight: 1.3 }}>{tool.desc}</span>
+              </div>
+            </button>
+          )
+        })}
 
-        {/* Cold Email — external */}
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 mb-1.5" style={{ color: 'var(--text-3)' }}>Email</p>
-          <Link to="/cold-email"
-            className="tool-nav-item"
-            style={{ textDecoration: 'none' }}>
-            <span className="tool-nav-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-            </span>
-            <span className="flex-1 min-w-0 flex items-center justify-between gap-1">
-              <span className="truncate">Cold Email</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </span>
-          </Link>
-        </div>
+        {/* Cold Email */}
+        <Link to="/cold-email" style={{
+          textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12,
+          padding: '9px 8px', borderRadius: 10, marginBottom: 2, border: '1px solid transparent',
+          transition: 'background 0.12s',
+        }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <span style={{ display: 'block', color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3, marginBottom: 1 }}>Cold Email</span>
+            <span style={{ display: 'block', color: '#475569', fontSize: 12, lineHeight: 1.3 }}>Write cold outreach emails</span>
+          </div>
+        </Link>
       </nav>
 
-      {/* Bottom account area */}
-      <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
-        {user ? (
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg"
-            style={{ background: 'var(--surface-2)' }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-              style={{ background: 'var(--accent)', color: '#fff' }}>
-              {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
+      {/* Upgrade to Pro card */}
+      {user && !user.profile?.is_pro && (
+        <div style={{ padding: '0 8px 8px' }}>
+          <Link to="/pricing" style={{
+            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10,
+            padding: '12px 14px', borderRadius: 12,
+            background: 'linear-gradient(135deg,#4338ca,#7c3aed)',
+          }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-semibold truncate" style={{ color: 'var(--text)' }}>
-                {user.first_name || user.username}
-              </p>
-              <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>
-                {user.profile?.is_pro ? 'Pro · Unlimited' : `${user.profile?.roast_credits ?? 0} credits`}
-              </p>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ color: '#fff', fontWeight: 600, fontSize: 13.5, marginBottom: 1 }}>Upgrade to Pro</div>
+              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>Unlock unlimited tools</div>
             </div>
-            {!user.profile?.is_pro && (
-              <Link to="/pricing" className="text-[10px] font-bold px-2 py-1 rounded-md transition-all flex-shrink-0"
-                style={{ background: 'var(--accent)', color: '#fff' }}>
-                Pro
-              </Link>
-            )}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </Link>
+        </div>
+      )}
+
+      {/* User info */}
+      {user ? (
+        <div style={{ padding: '10px 12px 14px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff', fontWeight: 700, fontSize: 13 }}>
+            {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
           </div>
-        ) : (
-          <button onClick={openAuthModal}
-            className="w-full text-center text-sm font-semibold py-2 rounded-lg transition-all"
-            style={{ background: 'var(--accent)', color: '#fff' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-hover)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'var(--accent)'}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: '#e2e8f0', fontWeight: 500, fontSize: 13.5, lineHeight: 1.3 }}>{user.first_name || user.username}</div>
+            <div style={{ color: '#475569', fontSize: 12 }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ padding: '8px 8px 14px' }}>
+          <button onClick={openAuthModal} style={{ width: '100%', padding: '10px', borderRadius: 10, background: '#6366f1', color: '#fff', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer' }}>
             Sign in
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </aside>
   )
 }
@@ -1320,7 +1354,7 @@ export default function Home() {
       <ToolNavSidebar activeTool={activeTool} onSelectTool={startTool} onNew={resetToHome} user={user} openAuthModal={openAuthModal} />
 
       {/* ONE unified panel — layout never changes */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: 'var(--bg)' }}>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0" style={{ background: chatActive ? 'var(--surface)' : 'var(--bg)' }}>
 
         {/* Tool tab strip — only when chat is active, sits at top */}
         {chatActive && (
@@ -1346,87 +1380,131 @@ export default function Home() {
         {/* Messages / Greeting area — fills available space */}
         <div className="flex-1 overflow-y-auto">
           {!chatActive ? (
-            /* Greeting — centered search + tool grid */
-            <div className="min-h-full flex flex-col items-center justify-center px-6 py-10">
-              <div className="w-full max-w-[640px] mx-auto">
+            /* Greeting — reference design: gradient bg, search, tool grid */
+            <div className="min-h-full flex flex-col" style={{ background: 'linear-gradient(160deg,#f8f9ff 0%,#eff1fe 45%,#f8f9ff 100%)' }}>
 
-                {/* Heading */}
-                <div className="text-center mb-8 anim-fade-up">
-                  <h1 className="font-bold mb-2" style={{ fontSize: '2.1rem', color: 'var(--text)', letterSpacing: '-0.035em', lineHeight: 1.15 }}>
-                    {greeting}
-                  </h1>
-                  <p style={{ fontSize: '1.05rem', color: 'var(--text-3)', lineHeight: 1.5 }}>
-                    Your AI career workspace — resume, jobs, outreach, and interviews.
-                  </p>
-                </div>
-
-                {/* Centered search input */}
-                <div className="relative mb-7 anim-fade-up anim-d1">
-                  <textarea
-                    ref={inputRef}
-                    value={text}
-                    onChange={e => setText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); text.trim() && onText() } }}
-                    placeholder="Paste a resume, job post, offer, or describe what you need…"
-                    rows={3}
-                    className="w-full resize-none"
-                    style={{
-                      background: 'var(--surface)',
-                      border: '1px solid var(--border-strong)',
-                      borderRadius: 14,
-                      padding: '0.9rem 3.75rem 0.9rem 1.1rem',
-                      fontSize: '15px',
-                      color: 'var(--text)',
-                      outline: 'none',
-                      lineHeight: 1.65,
-                      boxShadow: '0 2px 16px rgba(15,23,42,0.07)',
-                      transition: 'border-color 0.15s, box-shadow 0.15s',
-                    }}
-                    onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px var(--accent-glow), 0 2px 16px rgba(15,23,42,0.07)' }}
-                    onBlur={e => { e.target.style.borderColor = 'var(--border-strong)'; e.target.style.boxShadow = '0 2px 16px rgba(15,23,42,0.07)' }}
-                  />
-                  <button
-                    onClick={() => text.trim() && onText()}
-                    disabled={!text.trim()}
-                    className="absolute right-3 bottom-3 w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                    style={{ background: text.trim() ? 'var(--accent)' : 'var(--surface-3)', cursor: text.trim() ? 'pointer' : 'not-allowed' }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Divider */}
-                <div className="flex items-center gap-4 mb-6 anim-fade-up anim-d2">
-                  <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                  <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)' }}>or pick a tool</span>
-                  <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                </div>
-
-                {/* Tool grid */}
-                <div className="grid grid-cols-3 gap-2.5 anim-fade-up anim-d3">
-                  {ALL_TOOLS_FOR_GRID.map(tool => (
-                    <button key={tool.key} onClick={() => startTool(tool.key)} className="tool-card">
-                      <span className="tool-card-icon">
-                        <ToolIcon toolKey={tool.key} size={16} />
-                      </span>
-                      <div>
-                        <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{tool.label}</p>
-                        <p style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.4 }}>{tool.desc}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Credits */}
-                {user && !user.profile?.is_pro && (
-                  <div className="text-center mt-6 anim-fade-up anim-d4">
-                    <span style={{ fontSize: 13, color: 'var(--text-3)' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text)' }}>{user.profile?.roast_credits ?? 0}</span> credits left ·{' '}
-                    </span>
-                    <Link to="/pricing" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>Upgrade to Pro</Link>
+              {/* Top header — user info right */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '16px 28px 0' }}>
+                {user ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)', lineHeight: 1.3 }}>{user.first_name || user.username}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{user.profile?.is_pro ? 'Pro Plan' : 'Free Plan'}</div>
+                    </div>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                      {(user.first_name?.[0] || user.username?.[0] || 'U').toUpperCase()}
+                    </div>
                   </div>
+                ) : (
+                  <button onClick={openAuthModal} className="btn-primary text-sm">Sign in</button>
                 )}
+              </div>
+
+              {/* Main content */}
+              <div className="flex-1 flex flex-col items-center px-8 py-6">
+                <div className="w-full max-w-[700px] mx-auto">
+
+                  {/* Welcome chip */}
+                  <div className="text-center mb-5 anim-fade-up">
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', color: '#6366f1', fontSize: 12.5, fontWeight: 600, padding: '5px 14px', borderRadius: 99 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                      Your AI Career Workspace
+                    </span>
+                  </div>
+
+                  {/* Heading */}
+                  <div className="text-center mb-7 anim-fade-up anim-d1">
+                    <h1 style={{ fontSize: '2.6rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 10 }}>
+                      {greeting}
+                    </h1>
+                    <p style={{ fontSize: '1.05rem', color: 'var(--text-3)', lineHeight: 1.5 }}>
+                      Search tools or pick one below to get started
+                    </p>
+                  </div>
+
+                  {/* Search bar — rounded pill style */}
+                  <div className="relative mb-8 anim-fade-up anim-d2">
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <svg style={{ position: 'absolute', left: 18, color: 'var(--text-3)', flexShrink: 0, pointerEvents: 'none' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                      <input
+                        ref={inputRef}
+                        value={text}
+                        onChange={e => setText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); text.trim() && onText() } }}
+                        placeholder="Search AI tools or paste your resume, job post, offer…"
+                        style={{
+                          width: '100%', background: '#fff',
+                          border: '1.5px solid rgba(0,0,0,0.09)', borderRadius: 99,
+                          padding: '15px 62px 15px 50px', fontSize: '15px',
+                          color: 'var(--text)', outline: 'none', lineHeight: 1.5,
+                          boxShadow: '0 4px 24px rgba(15,23,42,0.08)',
+                          transition: 'border-color 0.15s, box-shadow 0.15s',
+                        }}
+                        onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12),0 4px 24px rgba(15,23,42,0.08)' }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.09)'; e.target.style.boxShadow = '0 4px 24px rgba(15,23,42,0.08)' }}
+                      />
+                      <button
+                        onClick={() => text.trim() && onText()}
+                        disabled={!text.trim()}
+                        style={{
+                          position: 'absolute', right: 8,
+                          width: 42, height: 42, borderRadius: '50%',
+                          background: text.trim() ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : '#e5e7eb',
+                          border: 'none', cursor: text.trim() ? 'pointer' : 'not-allowed',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.15s', flexShrink: 0,
+                        }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Popular Tools header */}
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }} className="anim-fade-up anim-d3">
+                    <h2 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Popular Tools</h2>
+                  </div>
+
+                  {/* Tool grid — 3 columns */}
+                  <div className="grid grid-cols-3 gap-3 anim-fade-up anim-d3">
+                    {ALL_TOOLS_FOR_GRID.map(tool => {
+                      const color = TOOL_COLORS[tool.key] || '#6366f1'
+                      return (
+                        <button key={tool.key} onClick={() => startTool(tool.key)}
+                          style={{
+                            display: 'flex', flexDirection: 'column', gap: 10, padding: '1.1rem',
+                            borderRadius: 14, textAlign: 'left', cursor: 'pointer',
+                            background: '#fff', border: '1px solid rgba(0,0,0,0.07)',
+                            boxShadow: '0 1px 6px rgba(15,23,42,0.06)',
+                            transition: 'transform 0.15s, box-shadow 0.15s',
+                            width: '100%',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(15,23,42,0.13)' }}
+                          onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 6px rgba(15,23,42,0.06)' }}>
+                          {/* Icon + name row */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 38, height: 38, borderRadius: 10, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#fff' }}>
+                              <ToolIcon toolKey={tool.key} size={17} />
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, marginBottom: 1 }}>{tool.label}</div>
+                              <div style={{ fontSize: 11.5, color: 'var(--text-3)', lineHeight: 1.3 }}>{tool.tag}</div>
+                            </div>
+                          </div>
+                          {/* Description */}
+                          <p style={{ fontSize: 12.5, color: 'var(--text-3)', lineHeight: 1.55, margin: 0, flex: 1 }}>{tool.desc}</p>
+                          {/* Start button */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color }}>
+                            Start Chat
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                </div>
               </div>
             </div>
           ) : (
