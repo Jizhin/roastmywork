@@ -117,6 +117,10 @@ CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
     default='http://localhost:5173,http://127.0.0.1:5173,https://roastmywork-1kejxf49r-jizhins-projects.vercel.app,https://roastmywork-omega.vercel.app'
 ).split(',')
+CORS_ALLOWED_ORIGIN_REGEXES = config(
+    'CORS_ALLOWED_ORIGIN_REGEXES',
+    default=r'^chrome-extension://.*$,^moz-extension://.*$'
+).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = config(

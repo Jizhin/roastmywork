@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "RoastMyWork",
+  "version": "0.1.0",
+  "description": "Turn job posts, profiles, and selected text into RoastMyWork career feedback.",
+  "action": {
+    "default_title": "RoastMyWork",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
